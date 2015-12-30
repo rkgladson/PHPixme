@@ -67,29 +67,32 @@ $makeView = P\combine($stringify, $timesTwo);
 <section>
     <h2>imploding with a pre-formatted join!</h2>
     <p>
-        <?= $joinComma(testData) ?>
+        <?=json_encode(testData)?> --$joinComma--> <?= $joinComma(testData) ?>
     </p>
 </section>
 <section>
-    <h2>Combine $timesTwo with $joinComma, then map it and join it through the pre-formated join!</h2>
-    <p><?= $joinComma(array_map($makeView, testData)) ?></p>
+    <h2>Combine $timesTwo with $stringify, then map it and join it through the pre-formated join!</h2>
+    <p>
+        <?= json_encode(testData) ?> --map($makeView)-->
+        <?= $joinComma(array_map($makeView, testData)) ?>
+    </p>
 </section>
 <section>
     <h2>Again, but now using fold to produce the join!</h2>
     <p>
-        <?=P\fold(function ($output, $value)
-        {
-            return $output ? "$output, $value": $value;
-        }, '', array_map($makeView, testData))?>
+        <?= json_encode(testData) ?> --map($makeView)--fold-->
+        <?= P\fold(function ($output, $value) {
+            return $output ? "$output, $value" : $value;
+        }, '', array_map($makeView, testData)) ?>
     </p>
 </section>
 <section>
     <h2>Again, but now using reduce to produce the join!</h2>
     <p>
-        <?= P\reduce(function ($output, $value)
-        {
+        <?= json_encode(testData) ?> --map($makeView)--reduce-->
+        <?= P\reduce(function ($output, $value) {
             return "$output, $value";
-        }, array_map($makeView, testData))?>
+        }, array_map($makeView, testData)) ?>
 
     </p>
 </section>
