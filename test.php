@@ -27,7 +27,8 @@ $stringify = function ($value) {
 };
 $curry2 = P\curry(2);
 $quaternary = P\nAry(4);
-$mapX2 = $curry2('array_map')->__invoke($timesTwo);
+$map = $curry2('array_map');
+$mapX2 = $map($timesTwo);
 $joinComma = $curry2('implode')->__invoke(', ');
 $makeView = P\combine($stringify, $timesTwo);
 ?>
@@ -72,7 +73,7 @@ $makeView = P\combine($stringify, $timesTwo);
     <h2>Combine $timesTwo with $stringify, then map it and join it through the pre-formated join!</h2>
     <p>
         <?= json_encode(testData) ?> &mdash;map($makeView)&rightarrow;
-        <?= $joinComma(array_map($makeView, testData)) ?>
+        <?= $joinComma($map($makeView, testData)) ?>
     </p>
 </section>
 <section>
@@ -81,7 +82,7 @@ $makeView = P\combine($stringify, $timesTwo);
         <?= json_encode(testData) ?> &mdash;map($makeView)&mdash;fold&rightarrow;
         <?= P\fold(function ($output, $value) {
             return $output ? "$output, $value" : $value;
-        }, '', array_map($makeView, testData)) ?>
+        }, '', $map($makeView, testData)) ?>
     </p>
 </section>
 <section>
@@ -90,7 +91,7 @@ $makeView = P\combine($stringify, $timesTwo);
         <?= json_encode(testData) ?> &mdash;map($makeView)&mdash;reduce&rightarrow;
         <?= P\reduce(function ($output, $value) {
             return "$output, $value";
-        }, array_map($makeView, testData)) ?>
+        }, $map($makeView, testData)) ?>
     </p>
 </section>
 <section>
@@ -123,6 +124,15 @@ $makeView = P\combine($stringify, $timesTwo);
         $keyPairs(testData);
         ?>
     </ul>
+</section>
+<section>
+    <h2>Thrill as I convert this Hash Array to an array of Tupples!</h2>
+    <p>
+        <?= json_encode(testData) ?> &mdash;$map(x, y -> [y,x])&rightarrow;
+        <?= json_encode($map(function($val, $key) {
+            return [$key, $val];
+        },testData, array_keys(testData)))?>
+    </p>
 </section>
 </body>
 </html>
