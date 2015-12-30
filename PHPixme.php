@@ -60,6 +60,25 @@ function unary($hof)
 }
 // == unary ==
 
+// -- binary --
+function binary($hof) {
+    __assertCallable($hof);
+    return __curry(2, function ($x,$y) use (&$hof) {
+        return $hof($x, $y);
+    });
+}
+// == binary ==
+// -- ternary --
+const ternary = 'PHPixme\ternary';
+function ternary($hof) {
+    __assertCallable($hof);
+    return __curry(3, function ($x,$y, $z) use (&$hof) {
+        return $hof($x, $y, $z);
+    });
+}
+// == ternary ==
+
+
 // -- flip --
 const flip = 'PHPixme\flip';
 /**
@@ -69,10 +88,11 @@ const flip = 'PHPixme\flip';
 function flip($hof)
 {
     __assertCallable($hof);
-    return function (...$args) use (&$hof) {
-        $temp = $args[0]; $args[0] = $args[1]; $args[1] = $temp;
+    return __curry(2, function ($arg0, $arg1, ...$args) use (&$hof) {
+        array_unshift($args, $arg0);
+        array_unshift($args, $arg1);
         return call_user_func_array($hof, $args);
-    };
+    });
 };
 // == flip ==
 

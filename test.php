@@ -26,7 +26,7 @@ $stringify = function ($value) {
     return "'$value'";
 };
 $curry2 = P\curry(2);
-$binary = P\nAry(2);
+$quaternary = P\nAry(4);
 $mapX2 = $curry2('array_map')->__invoke($timesTwo);
 $joinComma = $curry2('implode')->__invoke(', ');
 $makeView = P\combine($stringify, $timesTwo);
@@ -38,13 +38,12 @@ $makeView = P\combine($stringify, $timesTwo);
 </p>
 
 <section>
-    <h2>Testing Binary</h2>
-
+    <h2>Testing Quaternary!</h2>
     <p>
         <?php
-        $output = call_user_func_array($binary($testFn), testData)
+        $output = call_user_func_array($quaternary($testFn), testData)
         ?>
-        Binary returned: <?= $output ?>
+        Quaternary returned: <?= $output ?>
     </p>
 </section>
 <section>
@@ -59,28 +58,27 @@ $makeView = P\combine($stringify, $timesTwo);
 </section>
 <section>
     <h2>Currying native function test. Target: array_map</h2>
-
     <p>
-        <?= implode(', ', testData) ?> -$map2x-> <?= implode(', ', $mapX2(testData)) ?>
+        <?= implode(', ', testData) ?> &mdash;$map2x&rightarrow; <?= implode(', ', $mapX2(testData)) ?>
     </p>
 </section>
 <section>
     <h2>imploding with a pre-formatted join!</h2>
     <p>
-        <?=json_encode(testData)?> --$joinComma--> <?= $joinComma(testData) ?>
+        <?= json_encode(testData) ?> &mdash;$joinComma&rightarrow; <?= $joinComma(testData) ?>
     </p>
 </section>
 <section>
     <h2>Combine $timesTwo with $stringify, then map it and join it through the pre-formated join!</h2>
     <p>
-        <?= json_encode(testData) ?> --map($makeView)-->
+        <?= json_encode(testData) ?> &mdash;map($makeView)&rightarrow;
         <?= $joinComma(array_map($makeView, testData)) ?>
     </p>
 </section>
 <section>
     <h2>Again, but now using fold to produce the join!</h2>
     <p>
-        <?= json_encode(testData) ?> --map($makeView)--fold-->
+        <?= json_encode(testData) ?> &mdash;map($makeView)&mdash;fold&rightarrow;
         <?= P\fold(function ($output, $value) {
             return $output ? "$output, $value" : $value;
         }, '', array_map($makeView, testData)) ?>
@@ -89,12 +87,42 @@ $makeView = P\combine($stringify, $timesTwo);
 <section>
     <h2>Again, but now using reduce to produce the join!</h2>
     <p>
-        <?= json_encode(testData) ?> --map($makeView)--reduce-->
+        <?= json_encode(testData) ?> &mdash;map($makeView)&mdash;reduce&rightarrow;
         <?= P\reduce(function ($output, $value) {
             return "$output, $value";
         }, array_map($makeView, testData)) ?>
-
     </p>
+</section>
+<section>
+    <h2>Watch in <i>horror</i> as I flip a native function! array_filter</h2>
+    <p>
+        <?= json_encode(testData) ?> &mdash;map2x&mdash;filterWith(_ mod 8 = 0)&mdash;values&rightarrow;
+        <?= json_encode(array_values(
+            P\flip('array_filter')
+                ->__invoke(function ($value) {
+                    return $value % 8 === 0;
+                })
+                ->__invoke($mapX2(testData))
+        )) ?>
+    </p>
+</section>
+<section>
+    <h2>For my next trick, I will flip array_walk! (With a little help from binary)</h2>
+    <p>
+        The key-value pairs of <?= json_encode(testData) ?>:
+    </p>
+    <ul>
+        <?php
+        $keyPairs = P\flip(
+            P\binary('array_walk')
+        )->__invoke(
+            function ($value, $key) {
+                echo "<li>$key &DoubleRightArrow; $value</li>" . PHP_EOL;
+            }
+        );
+        $keyPairs(testData);
+        ?>
+    </ul>
 </section>
 </body>
 </html>
