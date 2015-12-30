@@ -59,7 +59,7 @@ $makeView = P\combine($stringify, $timesTwo);
 <section>
     <h2>Currying native function test. Target: array_map</h2>
     <p>
-        <?= implode(', ', testData) ?> &mdash;$map2x&rightarrow; <?= implode(', ', $mapX2(testData)) ?>
+        <?= json_encode(testData) ?> &mdash;$map2x&rightarrow; <?= json_encode($mapX2(testData)) ?>
     </p>
 </section>
 <section>
