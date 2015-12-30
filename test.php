@@ -86,10 +86,11 @@ $makeView = P\combine($stringify, $timesTwo);
 <section>
     <h2>Again, but now using reduce to produce the join!</h2>
     <p>
-        <?=P\fold(function ($output, $value)
+        <?= P\reduce(function ($output, $value)
         {
             return "$output, $value";
         }, array_map($makeView, testData))?>
+
     </p>
 </section>
 </body>

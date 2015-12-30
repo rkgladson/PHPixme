@@ -202,6 +202,7 @@ $reduce = __curry(2, function ($hof, $arrayLike)
         throw new \InvalidArgumentException('Cannot reduce on collection of less than one. Behaviour is undefined');
     }
     $output = $iter->current();
+    $iter->next();
     while ($iter->valid()) {
         $output = $hof($output, $iter->current(), $iter->key(), $arrayLike);
         $iter->next();
