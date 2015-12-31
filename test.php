@@ -26,6 +26,7 @@ $timesTwo = function ($value) {
 $stringify = function ($value) {
     return "'$value'";
 };
+$curry2 = P\curry(2);
 $quaternary = P\nAry(4);
 $map = P\binary('array_map');
 $mapX2 = $map($timesTwo);
