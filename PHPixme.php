@@ -285,7 +285,6 @@ function map()
 interface naturalTransformation
 {
     static function from($traversable);
-
     static function of(...$traversable);
 
     public function fold(callable $hof, $startVal);
@@ -302,6 +301,7 @@ interface naturalTransformation
 
     public function toArray();
 
+    public function isEmpty();
     public function find(callable $hof);
 }
 
@@ -326,7 +326,7 @@ abstract class Maybe implements naturalTransformation
     abstract function isEmpty();
     public function toSeq() {
         return Seq($this->toArray());
-    };
+    }
     public function getOrElse()
     {
         return $this->isEmpty() ? $this : None();
@@ -360,6 +360,34 @@ class Some extends Maybe
     public function toArray()
     {
         return [$this->x];
+    }
+    public function union(...$traversableR)
+    {
+        // TODO: Implement union() method.
+    }
+    public function filter(callable $hof)
+    {
+        // TODO: Implement filter() method.
+    }
+    public function reduce(callable $hof)
+    {
+        // TODO: Implement reduce() method.
+    }
+    public function map(callable $hof)
+    {
+        // TODO: Implement map() method.
+    }
+    public function fold(callable $hof, $startVal)
+    {
+        // TODO: Implement fold() method.
+    }
+    public function find(callable $hof)
+    {
+        // TODO: Implement find() method.
+    }
+    public function walk(callable $hof)
+    {
+        // TODO: Implement walk() method.
     }
 }
 
@@ -404,6 +432,20 @@ class None extends Maybe
     public function fold(callable $hof, $startVal)
     {
         return $startVal;
+    }
+    public function filter(callable $hof)
+    {
+        // TODO: Implement filter() method.
+    }
+
+    public function find(callable $hof)
+    {
+        return true;
+    }
+
+    public function union(...$traversableR)
+    {
+        // TODO: Implement union() method.
     }
 
     public function toArray()
@@ -556,9 +598,9 @@ class Seq extends \ArrayIterator implements naturalTransformation
         if (count($this->array) > 1) {
             $tail = $this->array;
             array_shift($tail);
-            return Seq::from($tail);
+            return $this::from($tail);
         }
-        return Seq::from([]);
+        return $this::from([]);
     }
 
     public function indexOf($thing)
@@ -616,6 +658,21 @@ class Seq extends \ArrayIterator implements naturalTransformation
     public function toArray()
     {
         return $this->array;
+    }
+
+    public function isEmpty()
+    {
+        return empty($this->array);
+    }
+
+    public function toString($glue = ',') {
+        return implode($glue, $this->array);
+    }
+    public function toJson() {
+        return json_encode($this->array);
+    }
+    public function reverse() {
+        return $this::from(array_reverse($this->array, true));
     }
 
 }
