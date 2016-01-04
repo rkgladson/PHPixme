@@ -8,6 +8,11 @@
 
 namespace PHPixme;
 
+const Seq = 'PHPixme\Seq';
+function Seq(&$arrayLike)
+{
+    return new Seq($arrayLike);
+}
 
 class Seq extends \ArrayIterator implements NaturalTransformationInterface
 {
