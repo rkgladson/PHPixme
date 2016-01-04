@@ -10,7 +10,7 @@
  * Date: 12/30/2015
  * Time: 10:33 AM
  */
-require 'PHPixme.php';
+require __DIR__ . '/vendor/autoload.php';
 use PHPixme as P;
 const BR = '<br/>' . PHP_EOL;
 const testData = [1, 2, 4, 8, 16];
