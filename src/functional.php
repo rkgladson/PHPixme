@@ -264,7 +264,7 @@ function reduce($hof, $traversable = null)
 
 // -- map --
 const map = 'PHPixme\reduce';
-$__PHPIXME_NAMESPACE[map] = $curry(2, function (callable $hof, $traversable) {
+$__PHPIXME_NAMESPACE[map] = curry(2, function (callable $hof, $traversable) {
 
     // Reflect on natural transformations
     if ($traversable instanceof NaturalTransformationInterface) {
@@ -290,11 +290,12 @@ function map(callable $hof)
 
 
 // -- Internal functions --
-function __assertCallable(&$callable)
+function __assertCallable($callable)
 {
     if (!is_callable($callable)) {
         throw new \InvalidArgumentException('callback must be a callable function');
     }
+    return $callable;
 }
 
 function __assertPositiveOrZero($number)
@@ -302,13 +303,15 @@ function __assertPositiveOrZero($number)
     if (!is_integer($number) || $number < 0) {
         throw new \InvalidArgumentException('argument must be a integer 0 or greater');
     }
+    return $number;
 }
 
-function __assertTraversable(&$arrayLike)
+function __assertTraversable($arrayLike)
 {
     if (!is_array($arrayLike) && !($arrayLike instanceof \Traversable)) {
         throw new \InvalidArgumentException('argument must be a Traversable or array');
     }
+    return $arrayLike;
 }
 
 function __curryGiven($prevArgs, &$arity, &$callable)
