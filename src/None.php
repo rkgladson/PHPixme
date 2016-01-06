@@ -32,6 +32,11 @@ class None extends Maybe
         return false;
     }
 
+    public function forAll(callable $hof)
+    {
+        return true;
+    }
+
     public function get()
     {
         throw new \Exception('Cannot get on None!');

@@ -41,6 +41,11 @@ class Some extends Maybe
         return (boolean) $hof($this->x);
     }
 
+    public function forAll(callable $hof)
+    {
+        return (boolean) $hof($this->x);
+    }
+
     public function get()
     {
         return $this->x;

@@ -14,7 +14,7 @@ const Maybe = 'PHPixme\Maybe';
  * @param $x - the maybe existing value
  * @return \PHPixme\None|\PHPixme\Some
  */
-function Maybe($x)
+function Maybe($x = null)
 {
     return (
         !isset($x) || is_null($x) ||
@@ -27,6 +27,7 @@ function Maybe($x)
 abstract class Maybe implements NaturalTransformationInterface, \Iterator
 {
     private $done;
+
     // -- Natural Transformation Interface Statics --
     static function of(...$args)
     {
@@ -37,16 +38,22 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
     {
         return Maybe($arg);
     }
+
     // == Natural Transformation Interface Statics ==
 
-    abstract function contains($x);
-    abstract function exists(callable $hof);
+    abstract public function contains($x);
+
+    abstract public function exists(callable $hof);
+
+    abstract public function forAll(callable $hof);
+
+
     /**
      * Gets whatever is contained
      * @return mixed - The value contained in subclass \Some
      * @throws \Exception - if of subclass None
      */
-    abstract function get();
+    abstract public function get();
 
 
     public function getOrElse($default)
@@ -54,14 +61,25 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
         return $this->isEmpty() ? $default : $this->get();
     }
 
+    final public function isDefined()
+    {
+        return !$this->isEmpty();
+    }
+
     public function orNull()
     {
         return $this->getOrElse(null);
     }
 
-    final public function isDefined()
+    public function orElse(callable $hof)
     {
-        return !$this->isEmpty();
+        if ($this->isEmpty()) {
+            $results = $hof();
+            return $results instanceOf Maybe ?
+                $results
+                : Maybe($results);
+        }
+        return $this;
     }
 
     public function toSeq()
@@ -70,9 +88,6 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
     }
 
     // -- NaturalTransformationInterface --
-
-
-
     /**
      * This form of reduce simply will return get. This will throw an error on None,
      * Since this undefined behavior to reduce on a empty collection
@@ -82,5 +97,7 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
     public function reduce(callable $hof) {
         return $this->get();
     }
+
+    // == NaturalTransformationInterface ==
 
 }
