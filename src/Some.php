@@ -20,11 +20,69 @@ function Some($x)
 
 class Some extends Maybe
 {
+    private $done = true;
     protected $x;
 
+    // -- Magic Methods --
     public function __construct($x)
     {
         $this->x = $x;
+    }
+
+    // == Magic Methods ==
+
+    public function contains($x)
+    {
+        return $this->x === $x;
+    }
+
+    public function exists(callable $hof)
+    {
+        return (boolean) $hof($this->x);
+    }
+
+    public function get()
+    {
+        return $this->x;
+    }
+
+    // -- Natural Transformation Interface --
+    /**
+     * @param callable $hof
+     * @return \PHPixme\Some|\PHPixme\None
+     */
+    public function find(callable $hof)
+    {
+        return $hof($this->x, 0, $this) ? $this : None();
+    }
+
+    public function filter(callable $hof)
+    {
+        return $hof($this->x, 0, $this) ?
+            $this
+            : None::getInstance();
+    }
+
+    public function filterNot(callable $hof)
+    {
+        return !$hof($this->x, 0, $this) ?
+            $this
+            : None::getInstance();
+    }
+
+    public function flatMap(callable $hof)
+    {
+        return Maybe($hof($this->x, 0, $this));
+    }
+
+    public function flatten()
+    {
+        return ($this->x);
+    }
+
+    public function fold($startVal, callable $hof)
+    {
+        return $hof($startVal, $this->get(), 0, $this);
     }
 
     public function isEmpty()
@@ -32,42 +90,52 @@ class Some extends Maybe
         return false;
     }
 
-    public function get()
+    /**
+     * @param callable $hof
+     * @return Some
+     */
+    public function map(callable $hof)
     {
-        return $this->x;
+        return Some($hof($this->x, 0, $this));
     }
+
     public function toArray()
     {
         return [$this->x];
     }
-    public function union(...$traversableR)
-    {
-        // TODO: Implement union() method.
-    }
-    public function filter(callable $hof)
-    {
-        // TODO: Implement filter() method.
-    }
-    public function reduce(callable $hof)
-    {
-        // TODO: Implement reduce() method.
-    }
-    public function map(callable $hof)
-    {
-        // TODO: Implement map() method.
-    }
-    public function fold(callable $hof, $startVal)
-    {
-        // TODO: Implement fold() method.
-    }
-    public function find(callable $hof)
-    {
-        // TODO: Implement find() method.
-    }
+
     public function walk(callable $hof)
     {
-        // TODO: Implement walk() method.
+        return $hof($this->get(), 0, $this);
     }
 
+    // == Natural Transformation Interface ==
+
+    // -- Iterator Interface --
+    public function current()
+    {
+        return $this->done ? $this->x : null;
+    }
+
+    public function key()
+    {
+        return $this->done ? 0 : null;
+    }
+
+    public function next()
+    {
+        $this->done = true;
+    }
+
+    public function rewind()
+    {
+        $this->done = false;
+    }
+
+    public function valid()
+    {
+        return $this->done;
+    }
+    // == Iterator Interface ==
 
 }

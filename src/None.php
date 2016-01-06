@@ -22,9 +22,30 @@ function None()
 class None extends Maybe
 {
     protected static $instance = null;
-    public static function getInstance() {
+
+    public function contains($x)
+    {
+        return false;
+    }
+    public function exists(callable $hof)
+    {
+        return false;
+    }
+
+    public function get()
+    {
+        throw new \Exception('Cannot get on None!');
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
+        }
         return static::$instance;
     }
+
+    // -- Natural Transformation Static --
     public static function of(...$args)
     {
         return static::getInstance();
@@ -34,11 +55,14 @@ class None extends Maybe
     {
         return static::getInstance();
     }
+    // == Natural transformation Static ==
 
+    // -- Magic Methods --
     protected function __clone()
     {
         // This space intentionally left blank
     }
+
     protected function __wakeup()
     {
         // This space intentionally left blank
@@ -49,39 +73,54 @@ class None extends Maybe
         // This space intentionally left blank
     }
 
+    // == Magic Methods ==
 
-    public function walk(callable $hof)
-    {
-        return static::getInstance();
-    }
+    // -- Natural Transformation interface methods --
 
-    public function map(callable $hof)
-    {
-        return static::getInstance();
-    }
-
-    public function reduce(callable $hof)
-    {
-        throw new \InvalidArgumentException('Cannot reduce on None. Behaviour is undefined');
-    }
-
-    public function fold(callable $hof, $startVal)
-    {
-        return $startVal;
-    }
-    public function filter(callable $hof)
-    {
-        // TODO: Implement filter() method.
-    }
-
-    public function find(callable $hof)
+    public function isEmpty()
     {
         return true;
     }
 
-    public function union(...$traversableR)
+    public function find(callable $hof)
     {
-        // TODO: Implement union() method.
+        return $this;
+    }
+
+    public function flatten()
+    {
+        return $this;
+    }
+
+    public function flatMap(callable $hof)
+    {
+        return $this;
+    }
+    public function filter(callable $hof)
+    {
+        return $this;
+    }
+
+    public function filterNot(callable $hof)
+    {
+        return $this;
+    }
+
+
+    public function fold($startVal, callable $hof)
+    {
+        return $startVal;
+    }
+
+    public function map(callable $hof)
+    {
+        return $this;
+    }
+
+
+    public function reduce(callable $hof)
+    {
+        throw new \InvalidArgumentException('Cannot reduce on None. Behaviour is undefined');
     }
 
     public function toArray()
@@ -89,13 +128,42 @@ class None extends Maybe
         return [];
     }
 
-    public function get()
+    public function walk(callable $hof)
     {
-        throw new \Exception('Cannot get on None!');
+        return $this;
     }
 
-    public function isEmpty()
+    // == Natural Transformation interface methods ==
+
+    // -- Iterator interface methods--
+    public function key()
     {
-        return true;
+        return null;
     }
+
+    /**
+     * None is always at it's end
+     * @return false
+     */
+    public function valid()
+    {
+        return false;
+    }
+
+    public function next()
+    {
+        // This space is intentionally left blank
+    }
+
+    public function rewind()
+    {
+        // This space is intentionally left blank
+    }
+
+    public function current()
+    {
+        return null;
+    }
+    // == Iterator interface methods==
+
 }

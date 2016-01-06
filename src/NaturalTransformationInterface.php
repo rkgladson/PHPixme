@@ -28,11 +28,11 @@ interface NaturalTransformationInterface
 
     /**
      * Fold across this class
-     * @param callable $hof
      * @param mixed $startVal
+     * @param callable $hof
      * @return mixed - whatever the last cycle of $hof returns
      */
-    public function fold(callable $hof, $startVal);
+    public function fold($startVal, callable $hof);
 
     /**
      * Reduce across this class
@@ -49,12 +49,17 @@ interface NaturalTransformationInterface
      */
     public function map(callable $hof);
 
+    public function flatMap(callable $hof);
+    public function flatten();
+
     /**
      * Filter the contents of the container
      * @param callable $hof
      * @return static
      */
     public function filter(callable $hof);
+
+    public function filterNot(callable $hof);
 
     /**
      * Preform $hof over the container
@@ -68,7 +73,8 @@ interface NaturalTransformationInterface
      * @param \Traversable[]|array[]|\PHPixme\NaturalTransformationInterface[] ...$traversableR
      * @return static
      */
-    public function union(...$traversableR);
+    // Fixme: doesn't apply to single item collections
+//    public function union(...$traversableR);
 
     /**
      * Converts the container to an array, in any structure that is appropriate within that array
