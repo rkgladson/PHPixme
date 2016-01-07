@@ -18,28 +18,35 @@ function Success($value)
     return new Success($value);
 }
 
+/**
+ * Class Success
+ * @package PHPixme
+ * Contains the results of a successful Attempt block, allowing for successful
+ * behaviors prior to the block to be executed.
+ */
 class Success extends Attempt
 {
     private $value = null;
 
-    static function from()
-    {
-
-    }
-    static function of($args)
-    {
-
-    }
+    /**
+     * @inheritdoc
+     */
     public function __construct($value)
     {
         $this->value = $value;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function get()
     {
         return $this->value;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function filter(callable $hof)
     {
         try {
@@ -51,6 +58,9 @@ class Success extends Attempt
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function flatMap(callable $hof)
     {
         try {
@@ -66,36 +76,57 @@ class Success extends Attempt
         return __assertAttemptType($this->value);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function failed()
     {
         return Failure(new \Exception('Success.failed is an unsupported action.'));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isFailure()
     {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isSuccess()
     {
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function map(callable $hof)
     {
         return Some($hof($this->value, 0, $this));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function recover(callable $rescueException)
     {
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function recoverWith(callable $hof)
     {
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function transform(callable $success, callable $failure)
     {
         try {
@@ -107,6 +138,9 @@ class Success extends Attempt
     }
 
 
+    /**
+     * @inheritdoc
+     */
     public function walk(callable $hof)
     {
         $hof($this->value, 0, $this);

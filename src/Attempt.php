@@ -30,6 +30,8 @@ function Attempt(callable $hof)
  * providing a consistency to the flow of data through functions which are
  * not applied on errors unless transformed. It also provides transformations
  * to options, and share some of it's methods, such as get, and getOrElse.
+ * Note: Some of these methods will throw Exceptions if their contract
+ * with a callback function is not met. They will not catch these kinds of errors.
  */
 abstract class Attempt
 {
