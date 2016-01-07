@@ -22,7 +22,8 @@ class FailureTest extends PHPixme_TestCase
         );
     }
 
-    public function test_is_status() {
+    public function test_is_status()
+    {
         $failure = P\Failure(new \Exception('test'));
         $this->assertTrue(
             $failure->isFailure()
@@ -84,27 +85,36 @@ class FailureTest extends PHPixme_TestCase
      */
     public function test_orElse_contract_broken()
     {
-        P\Failure(new \Exception('test'))->orElse(function () {});
+        P\Failure(new \Exception('test'))->orElse(function () {
+        });
     }
 
-    public function test_filter() {
+    public function test_filter()
+    {
         $failure = P\Failure(new \Exception('test'));
         $this->assertEquals(
             $failure
-            , $failure->filter(function () {return true;})
+            , $failure->filter(function () {
+            return true;
+        })
             , 'filter for failure should be an identity'
         );
     }
 
-    public function test_flatMap() {
+    public function test_flatMap()
+    {
         $failure = P\Failure(new \Exception('test'));
         $this->assertEquals(
             $failure
-            , $failure->flatMap(function () {return P\Success(true);})
+            , $failure->flatMap(function () {
+            return P\Success(true);
+        })
             , 'flatMap for failure should be an identity'
         );
     }
-    public function test_flatten() {
+
+    public function test_flatten()
+    {
         $failure = P\Failure(new \Exception('test'));
         $this->assertEquals(
             $failure
@@ -113,7 +123,8 @@ class FailureTest extends PHPixme_TestCase
         );
     }
 
-    public function test_failed() {
+    public function test_failed()
+    {
         $failure = P\Failure(new \Exception('test'));
         $success = $failure->failed();
         $this->assertInstanceOf(
@@ -132,6 +143,64 @@ class FailureTest extends PHPixme_TestCase
             , $err->getMessage()
             , 'the exceptions values should be what was stored'
         );
+    }
+
+    public function test_map()
+    {
+        $failure = P\Failure(new \Exception());
+        $this->assertEquals(
+            $failure
+            , $failure->map(function () {
+            return 1;
+        })
+            , 'map for failure should be an identity'
+        );
+    }
+
+    /**
+     * @depends test_failed
+     */
+    public function test_recover()
+    {
+        $failure = P\Failure(new \Exception('test'));
+
+        $results = $failure->recover(function () {
+            throw new \Exception('^_^');
+        });
+        $this->assertInstanceOf(
+            P\Failure
+            , $results
+            , 'the recovery should be able to fail even when throwing an exception.'
+        );
+        $this->assertEquals(
+            '^_^'
+            , $results->failed()->get()->getMessage()
+            , 'the recovery value should be what was sent it.'
+        );
+        $results = $failure->recover(function () {
+            return true;
+        });
+        $this->assertInstanceOf(
+            P\Success
+            , $results
+            , 'A non-thrown environment should be a success'
+        );
+        $this->assertTrue(
+            $results->get()
+            , 'The value of a successful recovery should be what was sent'
+        );
+    }
+
+    /**
+     * Ensure the contract is maintained that if the type is broken, it throws an exception
+     * @expectedException \Exception
+     */
+    public function test_recoverWith_contract_broken()
+    {
+        P\Failure(new \Exception('test'))
+            ->recoverWith(function () {
+                return '^_^';
+            });
     }
 
 }
