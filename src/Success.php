@@ -33,27 +33,40 @@ class Success extends Attempt
 
     public function get()
     {
-        // TODO: Implement get() method.
+        return $this->value;
     }
 
     public function filter(callable $hof)
     {
-        // TODO: Implement filter() method.
+        try {
+            return ($hof($this->value)) ?
+                $this
+                : Failure(
+                    new \Exception('$value did not meet criteria.')
+                );
+        } catch (\Exception $e) {
+            return Failure($e);
+        }
     }
 
     public function flatMap(callable $hof)
     {
-        // TODO: Implement flatMap() method.
+        try {
+            $result = $hof($this->value);
+        } catch (\Exception $e){
+            return Failure($e);
+        }
+        return __assertAttemptType($result);
     }
 
     public function flatten()
     {
-        // TODO: Implement flatten() method.
+        return __assertAttemptType($this->value);
     }
 
     public function failed()
     {
-        // TODO: Implement failed() method.
+        return Failure(new \Exception('Success.failed is an unsupported action.'));
     }
 
     public function isFailure()
@@ -68,26 +81,33 @@ class Success extends Attempt
 
     public function map(callable $hof)
     {
-        // TODO: Implement map() method.
+        return Attempt(function () use ($hof) {
+           return $hof($this->value);
+        });
     }
 
     public function recover(callable $rescueException)
     {
-        // TODO: Implement recover() method.
+        return $this;
     }
 
     public function recoverWith(callable $hof)
     {
-        // TODO: Implement recoverWith() method.
+        return $this;
     }
 
     public function transform(callable $success, callable $failure)
     {
-        // TODO: Implement transform() method.
+        try {
+            $result = $success($this->value);
+        } catch (\Exception $e) {
+            return Failure($e);
+        }
+        return __assertAttemptType($result);
     }
 
     public function walk(callable $hof)
     {
-        // TODO: Implement walk() method.
+        $hof($this->value, 0, $this);
     }
 }
