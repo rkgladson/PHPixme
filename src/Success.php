@@ -9,6 +9,10 @@
 namespace PHPixme;
 
 const Success = 'PHPixme\Success';
+/**
+ * @param $value
+ * @return Success
+ */
 function Success($value)
 {
     return new Success($value);
@@ -41,9 +45,7 @@ class Success extends Attempt
         try {
             return ($hof($this->value)) ?
                 $this
-                : Failure(
-                    new \Exception('$value did not meet criteria.')
-                );
+                : Failure(new \Exception('$value did not meet criteria.'));
         } catch (\Exception $e) {
             return Failure($e);
         }
@@ -81,9 +83,7 @@ class Success extends Attempt
 
     public function map(callable $hof)
     {
-        return Attempt(function () use ($hof) {
-           return $hof($this->value);
-        });
+        return Some($hof($this->value, 0, $this));
     }
 
     public function recover(callable $rescueException)
@@ -105,6 +105,7 @@ class Success extends Attempt
         }
         return __assertAttemptType($result);
     }
+
 
     public function walk(callable $hof)
     {

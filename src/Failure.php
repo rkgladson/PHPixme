@@ -8,6 +8,11 @@
 
 namespace PHPixme;
 
+const Failure = 'PHPixme\Failure';
+/**
+ * @param $exception - The failure value
+ * @return Failure
+ */
 function Failure ($exception) {
     return new Failure($exception);
 }
