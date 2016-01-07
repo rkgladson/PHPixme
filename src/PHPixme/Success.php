@@ -8,16 +8,6 @@
 
 namespace PHPixme;
 
-const Success = 'PHPixme\Success';
-/**
- * @param $value
- * @return Success
- */
-function Success($value)
-{
-    return new Success($value);
-}
-
 /**
  * Class Success
  * @package PHPixme

@@ -5,13 +5,14 @@
  * Date: 1/7/2016
  * Time: 11:58 AM
  */
-
-namespace PHPixme\tests;
+namespace tests\PHPixme;
+require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
-class AttemptSpec extends \PHPUnit_Framework_TestCase
+class AttemptTest extends PHPixme_TestCase
 {
-    public function testCompanionReturnsChildren() {
+
+    public function test_companion_returns_children() {
         $this->assertInstanceOf(
             P\Success
             , P\Attempt(function(){})

@@ -8,21 +8,6 @@
 
 namespace PHPixme;
 
-const Maybe = 'PHPixme\Maybe';
-/**
- * Takes a value and wraps it in a Maybe family object
- * @param $x - the maybe existing value
- * @return \PHPixme\None|\PHPixme\Some
- */
-function Maybe($x = null)
-{
-    return (
-        !isset($x) || is_null($x) ||
-        (is_array($x) && count($x) === 0)
-    ) ?
-        None()
-        : Some($x);
-}
 
 abstract class Maybe implements NaturalTransformationInterface, \Iterator
 {

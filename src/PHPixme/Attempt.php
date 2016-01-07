@@ -8,20 +8,6 @@
 
 namespace PHPixme;
 
-const Attempt = 'PHPixme\Attempt';
-/**
- * @param callable $hof
- * @return Success|Failure
- */
-function Attempt(callable $hof)
-{
-    try {
-        return Success($hof());
-    } catch (\Exception $e) {
-        return Failure($e);
-    }
-}
-
 /**
  * Class Attempt
  * @package PHPixme

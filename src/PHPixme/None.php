@@ -5,15 +5,7 @@
  * Date: 1/4/2016
  * Time: 10:21 AM
  */
-
 namespace PHPixme;
-
-const None = 'PHPixme\None';
-function None()
-{
-    return None::getInstance();
-}
-
 /**
  * Class None
  * @package PHPixme

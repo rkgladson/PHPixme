@@ -10,9 +10,14 @@
     }
   ],
   "autoload": {
-    "files" : [""],
+    "files": [
+      "src/PHPixme/functional.php",
+      "src/PHPixme/companionsAttempt.php",
+      "src/PHPixme/companionsMaybe.php",
+      "src/PHPixme/companionsSeq.php"
+    ],
     "psr-4": {
-      "PHPixme\\" : "src/"
+      "PHPixme\\": "src/PHPixme"
     }
   },
   "require-dev": {

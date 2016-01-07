@@ -263,7 +263,7 @@ function reduce($hof, $traversable = null)
 // == reduce ==
 
 // -- map --
-const map = 'PHPixme\reduce';
+const map = 'PHPixme\map';
 $__PHPIXME_NAMESPACE[map] = curry(2, function (callable $hof, $traversable) {
 
     // Reflect on natural transformations
