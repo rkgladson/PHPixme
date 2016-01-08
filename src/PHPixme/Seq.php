@@ -73,7 +73,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return $this::from($output);
     }
 
-    public function fold(callable $hof, $startVal)
+    public function fold($startVal, callable $hof)
     {
         $output = $startVal;
         foreach ($this->array as $key => $value) {
@@ -214,4 +214,18 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return $this::from(array_reverse($this->array, true));
     }
 
+    public function flatMap(callable $hof)
+    {
+        // TODO: Implement flatMap() method.
+    }
+
+    public function flatten()
+    {
+        // TODO: Implement flatten() method.
+    }
+
+    public function filterNot(callable $hof)
+    {
+        // TODO: Implement filterNot() method.
+    }
 }
