@@ -1,6 +1,7 @@
 <?php
 namespace PHPixme;
 
+use tests\PHPixme\PHPixme_TestCase;
 const Maybe = 'PHPixme\Maybe';
 /**
  * Takes a value and wraps it in a Maybe family object
@@ -28,9 +29,8 @@ function None()
 const Some = 'PHPixme\Some';
 /**
  * @param $x - a non- null value
- * @return Some
+ * @return \PHPixme\Some
  */
-
 function Some($x)
 {
     return new Some($x);

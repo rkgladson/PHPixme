@@ -19,6 +19,21 @@ class Some extends Maybe
         $this->x = $x;
     }
 
+    public static function of(...$value)
+    {
+        return new static($value[0]);
+    }
+
+    public static function from($arrayLike)
+    {
+        $x = null;
+        foreach($arrayLike as $value) {
+            $x = $value;
+            break;
+        }
+        return new static($x);
+    }
+
     // == Magic Methods ==
 
     public function contains($x)
@@ -28,13 +43,9 @@ class Some extends Maybe
 
     public function exists(callable $hof)
     {
-        return (boolean) $hof($this->x);
+        return (boolean)$hof($this->x);
     }
 
-    public function forAll(callable $hof)
-    {
-        return (boolean) $hof($this->x);
-    }
 
     public function get()
     {
@@ -67,17 +78,30 @@ class Some extends Maybe
 
     public function flatMap(callable $hof)
     {
-        return Maybe($hof($this->x, 0, $this));
+        return __assertMaybeType($hof($this->x, 0, $this));
     }
 
     public function flatten()
     {
-        return ($this->x);
+        return __assertMaybeType($this->x);
     }
 
     public function fold($startVal, callable $hof)
     {
         return $hof($startVal, $this->get(), 0, $this);
+    }
+
+    public function forAll(callable $predicate)
+    {
+        return (boolean)$predicate($this->x, 0, $this);
+    }
+    public function forNone(callable $predicate)
+    {
+        return !((boolean)$predicate($this->x, 0, $this));
+    }
+    public function forSome(callable $predicate)
+    {
+        return (boolean)$predicate($this->x, 0, $this);
     }
 
     public function isEmpty()

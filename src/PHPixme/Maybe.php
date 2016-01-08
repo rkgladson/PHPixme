@@ -26,11 +26,17 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
 
     // == Natural Transformation Interface Statics ==
 
+    /**
+     * @param mixed $x - The value being checked inside
+     * @return boolean - wether or not this contains it
+     */
     abstract public function contains($x);
 
+    /**
+     * @param callable $hof ($value): boolean
+     * @return mixed
+     */
     abstract public function exists(callable $hof);
-
-    abstract public function forAll(callable $hof);
 
 
     /**

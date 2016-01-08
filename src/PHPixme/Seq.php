@@ -82,6 +82,35 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return $output;
     }
 
+    public function forAll(callable $predicate)
+    {
+        foreach($this->array as $key=>$value) {
+            if (!($predicate($value, $key, $this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public function forSome(callable $predicate)
+    {
+        foreach($this->array as $key=>$value) {
+            if($predicate($value, $key, $this)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function forNone(callable $predicate)
+    {
+        foreach($this->array as $key=>$value) {
+            if($predicate($value, $key, $this)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function reduce(callable $hof)
     {
         if (($length = count($this->array)) < 1) {

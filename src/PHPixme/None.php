@@ -28,13 +28,6 @@ class None extends Maybe
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function forAll(callable $hof)
-    {
-        return true;
-    }
 
     /**
      * @inheritdoc
@@ -148,6 +141,31 @@ class None extends Maybe
     {
         return $startVal;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function forAll(callable $predicate)
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function forNone(callable $predicate)
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function forSome(callable $predicate)
+    {
+        return false;
+    }
+
 
     /**
      * @inheritdoc

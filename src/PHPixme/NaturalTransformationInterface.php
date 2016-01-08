@@ -13,7 +13,7 @@ interface NaturalTransformationInterface
     // Static constructors:
     /**
      * Transfer the data from one container to another
-     * @param \Traversable|array|NaturalTransformationInterface $traversable
+     * @param \Traversable|array $traversable
      * @return static - A new instance of the class
      */
     public static function from($traversable);
@@ -44,12 +44,22 @@ interface NaturalTransformationInterface
 
     /**
      * Map across the container
-     * @param callable $hof
+     * @param callable $hof ($value, $key, $container): mixed
      * @return static
      */
     public function map(callable $hof);
 
+    /**
+     * @param callable $hof ($value, $key, $container):static
+     * @return static
+     * @throws \Exception - if the data type returned by callback wasn't its kind
+     */
     public function flatMap(callable $hof);
+
+    /**
+     * @return self
+     * @throws \Exception if the data-set could not be flattened
+     */
     public function flatten();
 
     /**
@@ -65,6 +75,27 @@ interface NaturalTransformationInterface
      * @return static
      */
     public function filterNot(callable $hof);
+
+    /**
+     * Checks to see if the $predicate applies true to all within a container
+     * @param callable $predicate ($value, $key, $container): boolean
+     * @return boolean
+     */
+    public function forAll(callable $predicate);
+
+    /**
+     * Checks to see if the $predicate applies true to none within a container
+     * @param callable $predicate ($value, $key, $container): boolean
+     * @return boolean
+     */
+    public function forNone(callable $predicate);
+    /**
+     * Checks to see if the $predicate applies true to at least one within a container
+     * @param callable $predicate ($value, key, $container): boolean
+     * @return boolean
+     */
+    public function forSome(callable $predicate);
+
 
     /**
      * Preform $hof over the container
