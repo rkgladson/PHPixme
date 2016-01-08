@@ -8,7 +8,6 @@
 
 namespace PHPixme;
 
-
 class Some extends Maybe
 {
     private $done = true;

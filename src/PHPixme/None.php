@@ -19,21 +19,34 @@ class None extends Maybe
     {
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
     public function exists(callable $hof)
     {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function forAll(callable $hof)
     {
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function get()
     {
         throw new \Exception('Cannot get on None!');
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getInstance()
     {
         if (is_null(static::$instance)) {
@@ -43,11 +56,17 @@ class None extends Maybe
     }
 
     // -- Natural Transformation Static --
+    /**
+     * @inheritdoc
+     */
     public static function of(...$args)
     {
         return static::getInstance();
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function from($args)
     {
         return static::getInstance();
@@ -73,58 +92,90 @@ class None extends Maybe
     // == Magic Methods ==
 
     // -- Natural Transformation interface methods --
-
+    /**
+     * @inheritdoc
+     */
     public function isEmpty()
     {
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function find(callable $hof)
     {
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function flatten()
     {
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function flatMap(callable $hof)
     {
         return $this;
     }
+
+    /**
+     * @inheritdoc
+     */
     public function filter(callable $hof)
     {
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function filterNot(callable $hof)
     {
         return $this;
     }
 
 
+    /**
+     * @inheritdoc
+     */
     public function fold($startVal, callable $hof)
     {
         return $startVal;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function map(callable $hof)
     {
         return $this;
     }
 
-
+    /**
+     * @inheritdoc
+     */
     public function reduce(callable $hof)
     {
         throw new \InvalidArgumentException('Cannot reduce on None. Behaviour is undefined');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function toArray()
     {
         return [];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function walk(callable $hof)
     {
         return $this;

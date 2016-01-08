@@ -29,14 +29,14 @@ interface NaturalTransformationInterface
     /**
      * Fold across this class
      * @param mixed $startVal
-     * @param callable $hof
+     * @param callable $hof ($prevVal, $value, $key, $container): mixed
      * @return mixed - whatever the last cycle of $hof returns
      */
     public function fold($startVal, callable $hof);
 
     /**
      * Reduce across this class
-     * @param callable $hof
+     * @param callable $hof ($prevVal, $value, $key, $container):mixed
      * @return mixed - whatever $hof returned last, or the only item contained
      * @throws \OutOfRangeException - Throws range exceptions when the container's value contains less than 1
      */
@@ -53,17 +53,22 @@ interface NaturalTransformationInterface
     public function flatten();
 
     /**
-     * Filter the contents of the container
-     * @param callable $hof
+     * Filters the contents if the application of $hof returns false
+     * @param callable $hof ($value, $key, $container): boolean
      * @return static
      */
     public function filter(callable $hof);
 
+    /**
+     * Filters the contents if the application of $hof returns true
+     * @param callable $hof ($value, $key, $container): boolean
+     * @return static
+     */
     public function filterNot(callable $hof);
 
     /**
      * Preform $hof over the container
-     * @param callable $hof
+     * @param callable $hof ($value, $key, $container) : null
      * @return null
      */
     public function walk(callable $hof);
@@ -90,7 +95,7 @@ interface NaturalTransformationInterface
 
     /**
      * Search the container
-     * @param callable $hof
+     * @param callable $hof ($value, $key, $container):boolean
      * @return \PHPixme\Some|\PHPixme\None
      */
     public function find(callable $hof);

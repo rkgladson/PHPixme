@@ -41,11 +41,20 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
     abstract public function get();
 
 
+    /**
+     * If the Maybe is none, return default, else return contents
+     * @param mixed $default
+     * @return mixed
+     */
     public function getOrElse($default)
     {
         return $this->isEmpty() ? $default : $this->get();
     }
 
+    /**
+     * Does the Maybe contain a value?
+     * @return bool
+     */
     final public function isDefined()
     {
         return !$this->isEmpty();
@@ -56,17 +65,23 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
         return $this->getOrElse(null);
     }
 
+    /**
+     * @param callable $hof () : Maybe - The default value
+     * @return Maybe
+     * @throws \Exception
+     */
     public function orElse(callable $hof)
     {
         if ($this->isEmpty()) {
-            $results = $hof();
-            return $results instanceOf Maybe ?
-                $results
-                : Maybe($results);
+            return  __assertMaybeType($hof());
         }
         return $this;
     }
 
+    /**
+     * Transforms a Maybe to a Seq
+     * @return Seq
+     */
     public function toSeq()
     {
         return Seq($this->toArray());
@@ -85,4 +100,11 @@ abstract class Maybe implements NaturalTransformationInterface, \Iterator
 
     // == NaturalTransformationInterface ==
 
+}
+
+function __assertMaybeType($unknown) {
+    if (!($unknown instanceof Maybe)) {
+        throw new \Exception ('return value must be an instance of Maybe!');
+    }
+    return $unknown;
 }
