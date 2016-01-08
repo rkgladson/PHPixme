@@ -89,7 +89,7 @@ class Failure extends Attempt
     public function recover(callable $rescueException)
     {
         return Attempt(function () use ($rescueException) {
-            return $rescueException($this->err);
+            return $rescueException($this->err, $this);
         });
     }
 
@@ -99,7 +99,7 @@ class Failure extends Attempt
     public function recoverWith(callable $hof)
     {
         try {
-            $result = $hof($this->err);
+            $result = $hof($this->err, $this);
         } catch (\Exception $e) {
             return Failure($e);
         }
@@ -112,7 +112,7 @@ class Failure extends Attempt
     public function transform(callable $success, callable $failure)
     {
         try {
-            $result = $failure($this->err);
+            $result = $failure($this->err, $this);
         } catch (\Exception $e) {
             return Failure($e);
         }

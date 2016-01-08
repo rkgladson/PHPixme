@@ -104,14 +104,14 @@ abstract class Attempt
     /**
      * Tries to recover the error value as a success using $rescueException.
      * Has no affect on Success
-     * @param callable $rescueException
+     * @param callable $rescueException ($value, $container): mixed
      * @return Attempt
      */
     abstract public function recover(callable $rescueException);
 
     /**
      * Recovers using a $hof which returns either a Success or Failure.
-     * @param callable $hof - @returns Attempt
+     * @param callable $hof ($value, $container) : Attempt
      * @return Attempt
      * @throws \Exception When $rescueException does not return an Attempt type
      */
@@ -142,8 +142,8 @@ abstract class Attempt
     /**
      * Transforms a success or failure given the criteria presented,
      *      able to change the internal value or container from one Attempt to another
-     * @param callable $success ($value): Attempt
-     * @param callable $failure ($value): Attempt
+     * @param callable $success ($value, Success $container): Attempt
+     * @param callable $failure ($value, Failure $container): Attempt
      * @return Attempt
      * @throws \Exception If either function returns a non Attempt
      */

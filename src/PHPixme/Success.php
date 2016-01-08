@@ -40,7 +40,7 @@ class Success extends Attempt
     public function filter(callable $hof)
     {
         try {
-            return ($hof($this->value)) ?
+            return ($hof($this->value, 0, $this)) ?
                 $this
                 : Failure(new \Exception('$value did not meet criteria.'));
         } catch (\Exception $e) {
@@ -95,7 +95,7 @@ class Success extends Attempt
      */
     public function map(callable $hof)
     {
-        return Some($hof($this->value, 0, $this));
+        return new static($hof($this->value, 0, $this));
     }
 
     /**
@@ -120,7 +120,7 @@ class Success extends Attempt
     public function transform(callable $success, callable $failure)
     {
         try {
-            $result = $success($this->value);
+            $result = $success($this->value, $this);
         } catch (\Exception $e) {
             return Failure($e);
         }

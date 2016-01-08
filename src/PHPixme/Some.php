@@ -9,11 +9,6 @@
 namespace PHPixme;
 
 
-function Some($x)
-{
-    return new Some($x);
-}
-
 class Some extends Maybe
 {
     private $done = true;

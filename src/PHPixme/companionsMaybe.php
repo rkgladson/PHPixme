@@ -30,3 +30,8 @@ const Some = 'PHPixme\Some';
  * @param $x - a non- null value
  * @return Some
  */
+
+function Some($x)
+{
+    return new Some($x);
+}

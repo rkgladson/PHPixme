@@ -162,10 +162,30 @@ class FailureTest extends PHPixme_TestCase
      */
     public function test_recover()
     {
-        $failure = P\Failure(new \Exception('test'));
+        $exc = new \Exception('test');
+        $failure = P\Failure($exc);
 
         $results = $failure->recover(function () {
             throw new \Exception('^_^');
+        });
+
+        $failure->recover(function () use ($exc, $failure) {
+            $this->assertEquals(
+                2
+                , func_num_args()
+                , 'It should be passed two arguments'
+            );
+            $this->assertEquals(
+                $exc
+                , func_get_arg(0)
+                , 'The value should be equal to what the Failure contains'
+            );
+            $this->assertEquals(
+                $failure
+                , func_get_arg(1)
+                , 'The container should be equal to the Failure being operating on'
+            );
+            return $exc;
         });
         $this->assertInstanceOf(
             P\Failure
@@ -229,17 +249,39 @@ class FailureTest extends PHPixme_TestCase
 
     public function test_transform()
     {
+        $exc = new \Exception('test');
+        $fail = P\Failure($exc);
         $notRun = function () {
             throw new \Exception('This should not be run!');
         };
+        $testHoF = function () use ($exc, $fail) {
+            $this->assertEquals(
+                2
+                , func_num_args()
+                , 'The callback should be passed two arguments'
+            );
+            $this->assertEquals(
+                func_get_arg(0)
+                , $exc
+                , 'The value passed should be What failure contains'
+            );
+            $this->assertEquals(
+                func_get_arg(1)
+                , $fail
+                , 'The container should be the Failure instance itself'
+            );
+            return $fail;
+        };
+        $fail->transform($notRun, $testHoF);
+
         $getErrMessage = function ($value) {
             return P\Success($value->getMessage());
         };
-        $fail = P\Failure(new \Exception('test'));
+
         $this->assertEquals(
             'test'
             , $fail->transform($notRun, $getErrMessage)->get()
-            , 'it should be able to transform one type into annother'
+            , 'it should be able to transform one type into another'
         );
     }
 
@@ -248,11 +290,13 @@ class FailureTest extends PHPixme_TestCase
      */
     public function test_transform_contract_broken()
     {
-        $bad = function () {};
+        $bad = function () {
+        };
         P\Failure(new \Exception())->transform($bad, $bad);
     }
 
-    public function test_walk() {
+    public function test_walk()
+    {
         $notRun = function () {
             throw new \Exception('This should not be run!');
         };
