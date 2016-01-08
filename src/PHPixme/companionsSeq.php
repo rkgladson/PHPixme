@@ -3,7 +3,7 @@ namespace PHPixme;
 
 
 const Seq = 'PHPixme\Seq';
-function Seq(&$arrayLike)
+function Seq($arrayLike)
 {
     return new Seq($arrayLike);
 }
