@@ -203,4 +203,59 @@ class FailureTest extends PHPixme_TestCase
             });
     }
 
+    public function test_toArray()
+    {
+        $err = new \Exception('test');
+        $result = P\Failure($err)->toArray();
+        $this->assertEquals(
+            $err
+            , $result['failure']
+            , 'failure\s toArray method should return an array with the exception in it at key "failure"'
+        );
+        $this->assertNotTrue(
+            isset($result['success'])
+            , 'It should not contain a success key'
+        );
+    }
+
+    public function test_toMaybe()
+    {
+        $this->assertInstanceOf(
+            P\None
+            , P\Failure(new \Exception('test'))->toMaybe()
+            , 'Failure should transform to None'
+        );
+    }
+
+    public function test_transform()
+    {
+        $notRun = function () {
+            throw new \Exception('This should not be run!');
+        };
+        $getErrMessage = function ($value) {
+            return P\Success($value->getMessage());
+        };
+        $fail = P\Failure(new \Exception('test'));
+        $this->assertEquals(
+            'test'
+            , $fail->transform($notRun, $getErrMessage)->get()
+            , 'it should be able to transform one type into annother'
+        );
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function test_transform_contract_broken()
+    {
+        $bad = function () {};
+        P\Failure(new \Exception())->transform($bad, $bad);
+    }
+
+    public function test_walk() {
+        $notRun = function () {
+            throw new \Exception('This should not be run!');
+        };
+        P\Failure(new \Exception())->walk($notRun);
+    }
 }
