@@ -59,45 +59,45 @@ class SuccessTest extends PHPixme_TestCase
         );
     }
 
-    public function test_getOrElse()
+    public function test_getOrElse($value = true, $default = false)
     {
         $this->assertTrue(
-            P\Success(true)->getOrElse(false)
-            , 'Success should ignore the default behavior and get its own value'
+            $value === (P\Success($value)->getOrElse($default))
+            , 'Success->getOrElse should be an its contents'
         );
     }
 
-    public function test_orElse()
+    public function test_orElse($value = true)
     {
-        $instance = P\Success(true);
+        $instance = P\Success($value);
         $this->assertTrue(
-            $instance === ($instance->orElse(function () {
-                return P\Success(false);
+            $instance === ($instance->orElse(function () use ($value) {
+                return P\Success($value);
             }))
-            , 'Success should return itself rather than its default'
+            , 'Success->orElse should be an identity'
         );
     }
 
 
-    public function test_filter_callback()
+    public function test_filter_callback($value = true)
     {
-        $success = P\Success(true);
-        $success->filter(function () use ($success) {
+        $success = P\Success($value);
+        $success->filter(function () use ($value, $success) {
             $this->assertTrue(
                 3 === func_num_args()
-                , 'The callback should receive 3 arguments'
+                , 'Success->filter callback should receive 3 arguments'
             );
             $this->assertTrue(
-                func_get_arg(0)
-                , 'The value should of been passed with what was contained by Success'
+                $value === func_get_arg(0)
+                , 'Success->filter callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'There should be a key, even though it is meaningless in this context'
+                , 'Success->filter callback $key should be defined'
             );
             $this->assertTrue(
                 $success === func_get_arg(2)
-                , 'The container for filter should be passed to its hof'
+                , 'Success->filter callback $container should be itself'
             );
             return true;
         });
@@ -110,7 +110,7 @@ class SuccessTest extends PHPixme_TestCase
             $success === ($success->filter(function () {
                 return true;
             }))
-            , 'When a filter returns true, it should return its own instance'
+            , 'Success->filter When a receiving a true should be an identity'
         );
 
         $false = function () {
@@ -119,7 +119,7 @@ class SuccessTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             P\Failure
             , $success->filter($false)
-            , 'It should become a failure when a filter fails its test'
+            , 'Success->filter When receiving a false should become a Failure'
         );
     }
 
@@ -131,44 +131,24 @@ class SuccessTest extends PHPixme_TestCase
         $success->flatMap(function () use ($success, $child) {
             $this->assertTrue(
                 3 === func_num_args()
-                , 'The flatMap should pass three arguments to the callback'
+                , 'Success->flatMap should pass three arguments to the callback'
             );
             $this->assertTrue(
                 $child === func_get_arg(0)
-                , 'The value passed should be what is contained by Success'
+                , 'Success->flatMap callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined, even if its not that useful'
+                , 'Success->flatMap callback $key should be defined'
             );
             $this->assertTrue(
                 $success === func_get_arg(2)
-                , 'The container passed should be the Success being worked on'
+                , 'Success->flatMap $container should be itself'
             );
             return true;
         });
     }
 
-    function test_flatMap($value = true)
-    {
-        $child = P\Success($value);
-        $success = P\Success($child);
-
-
-        $flatten = function ($value) {
-            return $value;
-        };
-
-        $this->assertTrue(
-            $child === ($success->flatMap($flatten))
-            , 'The function should be able to return is nested value'
-        );
-        $this->assertInstanceOf(
-            P\Failure
-            , P\Success(P\Failure(new \Exception()))->flatMap($flatten)
-            , 'The function shouldn\'t care if the child is a Failure'
-        );
-    }
 
     /**
      * Ensure that flatMap throws an exception if the callback does not honor it's callback
@@ -180,20 +160,50 @@ class SuccessTest extends PHPixme_TestCase
         });
     }
 
-    function test_flatten()
+    function test_flatMap_scenario_contains_success($value = true)
     {
-        $child = P\Success(true);
+        $child = P\Success($value);
+        $success = P\Success($child);
+        $flatten = function ($value) {
+            return $value;
+        };
+        $this->assertTrue(
+            $child === ($success->flatMap($flatten))
+            , 'Success->flatMap should return its contained Success'
+        );
+    }
+
+    function test_flatMap_scenario_contains_failure()
+    {
+        $flatten = function ($value) {
+            return $value;
+        };
+        $this->assertInstanceOf(
+            P\Failure
+            , P\Success(P\Failure(new \Exception()))->flatMap($flatten)
+            , 'Success->flatMap shouldn\'t care if the contents returned is a Failure'
+        );
+    }
+
+
+    function test_flatten_scenario_success($value = true)
+    {
+        $child = P\Success($value);
         $parent = P\Success($child);
         $this->assertTrue(
-            $child === $parent->flatten()
-            , 'It should flatten a single layer of nested successes'
+            $child === ($parent->flatten())
+            , 'Success->flatten should return its contained Success'
         );
 
+    }
+
+    public function test_flatten_scenario_contains_failure()
+    {
         $child = P\Failure(new \Exception());
         $parent = P\Success($child);
         $this->assertTrue(
-            $child === $parent->flatten()
-            , 'It should flatten a single layer with a nested failure'
+            $child === ($parent->flatten())
+            , 'Success->flatten should return its contained Failure'
         );
     }
 
@@ -201,17 +211,17 @@ class SuccessTest extends PHPixme_TestCase
      * Ensure flatten calls an exception if the object violate's it own contract
      * @expectedException \Exception
      */
-    function test_flatten_contract_broken()
+    function test_flatten_contract_broken($value = true)
     {
-        P\Success(true)->flatten();
+        P\Success($value)->flatten();
     }
 
-    function test_failed()
+    function test_failed($value = true)
     {
         $this->assertInstanceOf(
             P\Failure
-            , P\Success(true)->failed()
-            , 'Calling failed on Success produces a failure'
+            , P\Success($value)->failed()
+            , 'Success->failed produces a Failure'
         );
     }
 
@@ -222,19 +232,19 @@ class SuccessTest extends PHPixme_TestCase
         $success->map(function () use ($value, $success) {
             $this->assertTrue(
                 3 === func_num_args()
-                , 'the callback for map should receive 3 arguments'
+                , 'Success->map callback should receive 3 arguments'
             );
             $this->assertTrue(
                 $value === func_get_arg(0)
-                , 'the value should be equal to what is contained'
+                , 'Success->map callback $value should be equal to what is contained'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'the key should be defined, even if its not so useful'
+                , 'Success->map callback $key should be defined, even if its not so useful'
             );
             $this->assertTrue(
                 $success === func_get_arg(2)
-                , 'The container being operated on should be passed'
+                , 'Success->map callback $container should be itself'
             );
             return true;
         });
@@ -253,63 +263,63 @@ class SuccessTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             P\Success
             , $result
-            , 'Map should maintain its container type'
+            , 'Success->map should stay a Success'
         );
         $this->assertFalse(
             $success === $result
-            , 'Map is a transformation, so it should not be the same instance'
+            , 'Success->map should not return Success of the same instance'
         );
         $this->assertTrue(
             'one' === ($result->get())
-            , 'It should have the correct results from map contained inside'
+            , 'Success->map should have the correct results'
         );
     }
 
-    public function test_recover()
+    public function test_recover($value = true)
     {
-        $success = P\Success(true);
+        $success = P\Success($value);
         $this->assertTrue(
             $success === ($success->recover(function () {
             }))
-            , 'Recover is an identity for Success'
+            , 'Success->Recover is an identity'
         );
     }
 
-    public function test_recoverWith()
+    public function test_recoverWith($value = true)
     {
-        $success = P\Success(true);
+        $success = P\Success($value);
         $this->assertTrue(
             $success === ($success->recoverWith(function () {
             }))
-            , 'RecoverWith is an identity for Success'
+            , 'Success->RecoverWith is an identity'
         );
     }
 
-    public function test_toArray()
+    public function test_toArray($value = true)
     {
 
-        $result = P\Success(true)->toArray();
+        $result = P\Success($value)->toArray();
         $this->assertTrue(
             $result['success']
-            , 'Success\'s toArray method should return an array with the exception in it at key "success"'
+            , 'Success->toArray method should return an array ["success" => contents]'
         );
         $this->assertNotTrue(
             isset($result['failure'])
-            , 'It should not contain a failure key'
+            , 'Success->toArray results should not contain a failure key'
         );
     }
 
-    public function test_toMaybe()
+    public function test_toMaybe($value = true)
     {
-        $result = P\Success(true)->toMaybe();
+        $result = P\Success($value)->toMaybe();
         $this->assertInstanceOf(
             P\Some
             , $result
-            , 'Success should transform to Some'
+            , 'Success->toMaybe should result in Some'
         );
         $this->assertTrue(
-            $result->get()
-            , 'The some should contain the value'
+            $value === ($result->get())
+            , 'Success->toMaybe resultant Some should contain the same value'
         );
     }
 
@@ -320,20 +330,20 @@ class SuccessTest extends PHPixme_TestCase
         $success->transform(function () use ($value, $success) {
             $this->assertTrue(
                 2 === func_num_args()
-                , 'The callback of Success->transform should receive one argument'
+                , 'Success->transform signature contains two arguments'
             );
             $this->assertTrue(
                 $value === func_get_arg(0)
-                , 'The value should be what Success contained'
+                , 'Success->transform callback $value its contents'
             );
             $this->assertTrue(
                 $success === func_get_arg(1)
-                , 'The container should be the Success being opperated on'
+                , 'Success->transform $container should be itself'
             );
             return $success;
         }
             , function () {
-                throw new \Exception('Should never run!');
+                throw new \Exception('Success->transform should never run the failure path!');
             }
         );
     }
@@ -349,7 +359,7 @@ class SuccessTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $thing2 === $thing1->transform($switchToThing2, $noop)
-            , 'The transformation should be able to produce its attempt return value'
+            , 'Success->transform should return the results of its success path callback'
         );
 
 
@@ -365,7 +375,7 @@ class SuccessTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $failure === P\Success($value)->transform($makeFailure, $noop)
-            , 'The transformation of success should be able to be converted to another type'
+            , 'Success->transform Success callback type should be able to be a Failure'
         );
     }
 
@@ -381,20 +391,21 @@ class SuccessTest extends PHPixme_TestCase
     }
 
 
-    public function test_walk_callback ($value = true) {
+    public function test_walk_callback($value = true)
+    {
         $success = P\Success($value);
         $success->walk(function () use ($value, $success) {
             $this->assertTrue(
                 3 === func_num_args()
-                , 'Walk should pass three arguments'
+                , 'Success->walk should pass three arguments'
             );
             $this->assertTrue(
                 $value === func_get_arg(0)
-                , 'Value should be what was contained by Success'
+                , 'Success->walk callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Walk should pass a key value, even if it is not useful on Success'
+                , 'Success->walk callback $key should be defined'
             );
             $this->assertTrue(
                 $success === func_get_arg(2)
@@ -402,6 +413,7 @@ class SuccessTest extends PHPixme_TestCase
             );
         });
     }
+
     public function test_walk($value = true)
     {
         $success = P\Success($value);
@@ -411,7 +423,7 @@ class SuccessTest extends PHPixme_TestCase
         });
         $this->assertTrue(
             1 === $ran
-            , 'Walk should of ran one time'
+            , 'Success->walk should of ran only one time'
         );
     }
 
