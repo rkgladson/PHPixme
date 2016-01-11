@@ -26,6 +26,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         if (is_array($arrayLike)) {
             $this->array = $arrayLike;
         } else {
+            $this->array = [];
             foreach ($arrayLike as $key => $value) {
                 $this->array[$key] = $value;
             }
@@ -36,16 +37,16 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     /**
      * Calls the constructor with the array like parameter
      * @param $arrayLike
-     * @return Seq
+     * @return static
      */
     public static function from($arrayLike)
     {
-        return new Seq($arrayLike);
+        return new static($arrayLike);
     }
 
     public static function of(...$args)
     {
-        return new Seq($args);
+        return new static($args);
     }
 
     public function __invoke($index)
@@ -59,7 +60,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         foreach ($this->array as $key => $value) {
             $output[$key] = $hof($value, $key, $this);
         }
-        return $this::from($output);
+        return static::from($output);
     }
 
     public function filter(callable $hof)
@@ -70,7 +71,28 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
                 $output[$key] = $value;
             }
         }
-        return $this::from($output);
+        return static::from($output);
+    }
+
+    public function filterNot(callable $hof)
+    {
+        $output = [];
+        foreach ($this->array as $key => $value) {
+            if (!($hof($value, $key, $this))) {
+                $output[$key] = $value;
+            }
+        }
+        return static::from($output);
+    }
+
+    public function flatMap(callable $hof)
+    {
+        // TODO: Implement flatMap() method.
+    }
+
+    public function flatten()
+    {
+        // TODO: Implement flatten() method.
     }
 
     public function fold($startVal, callable $hof)
@@ -243,18 +265,5 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return $this::from(array_reverse($this->array, true));
     }
 
-    public function flatMap(callable $hof)
-    {
-        // TODO: Implement flatMap() method.
-    }
 
-    public function flatten()
-    {
-        // TODO: Implement flatten() method.
-    }
-
-    public function filterNot(callable $hof)
-    {
-        // TODO: Implement filterNot() method.
-    }
 }
