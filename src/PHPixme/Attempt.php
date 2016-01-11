@@ -104,8 +104,8 @@ abstract class Attempt
     /**
      * Tries to recover the error value as a success using $rescueException.
      * Has no affect on Success
-     * @param callable $rescueException ($value, $container): mixed
-     * @return Attempt
+     * @param callable $rescueException ($value, $container): mixed ! \Exception
+     * @return Attempt - If return, type Success, If Thrown, type Failure
      */
     abstract public function recover(callable $rescueException);
 
