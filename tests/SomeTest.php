@@ -37,31 +37,33 @@ class SomeTest extends PHPixme_TestCase
 
     public function test_contains($value = true, $notValue = false)
     {
+        $some = P\Some($value);
         $this->assertTrue(
-            P\Some($value)->contains($value)
-            , 'The some should contain itself'
+            $some->contains($value)
+            , 'Some->contains should contain the value'
         );
         $this->assertFalse(
-            P\Some($value)->contains($notValue)
-            , 'The Some should not contain anything other than itself'
+            $some->contains($notValue)
+            , 'Some->contains should not contain anything other than itself'
         );
     }
 
-    public function test_exists($value = true, $notValue = false)
+    public function test_exists($value = true)
     {
         $getValue = function ($x) use ($value) {
             return $x === $value;
         };
-        $getNotValue = function ($x) use ($notValue) {
-            return $x === $notValue;
+        $getNotValue = function ($x) use ($value) {
+            return $x !== $value;
         };
+        $some =P\Some($value);
         $this->assertTrue(
-            P\Some($value)->exists($getValue)
-            , 'The some should contain itself'
+            $some->exists($getValue)
+            , 'Some->exists should return true if the predicate returned true'
         );
         $this->assertFalse(
-            P\Some($value)->exists($getNotValue)
-            , 'The Some should not contain anything other than itself'
+            $some->exists($getNotValue)
+            , 'Some->exists should return false if the predicate returned false'
         );
     }
 
@@ -69,7 +71,7 @@ class SomeTest extends PHPixme_TestCase
     {
         $this->assertTrue(
             $value === (P\Some($value)->get())
-            , 'The Some should be able to be unwrapped'
+            , 'Some->get should return its contents'
         );
     }
 
@@ -77,7 +79,7 @@ class SomeTest extends PHPixme_TestCase
     {
         $this->assertTrue(
             $value === (P\Some($value)->getOrElse($default))
-            , 'The Some should be able to be unwrapped'
+            , 'Some->getOrElse should return its contents and ignore the default'
         );
     }
 
@@ -85,7 +87,7 @@ class SomeTest extends PHPixme_TestCase
     {
         $this->assertTrue(
             P\Some($value)->isDefined()
-            , 'Some values are all defined.'
+            , 'Some->isDefined should return true'
         );
     }
 
@@ -95,12 +97,12 @@ class SomeTest extends PHPixme_TestCase
         if (is_null($value)) {
             $this->assertNull(
                 $contained
-                , 'When Some contains null, it should equal null'
+                , 'Some->orNull when containing null should return null'
             );
         } else {
             $this->assertNotNull(
                 $contained
-                , 'This should never return its default of null'
+                , 'Some->orNull should return its contents'
             );
         }
     }
@@ -110,9 +112,9 @@ class SomeTest extends PHPixme_TestCase
         $some = P\Some($value);
         $this->assertTrue(
             $some === ($some->orElse(function () {
-                throw new \Exception('This should never run');
+                throw new \Exception('Some->orElse callback should never run');
             }))
-            , 'orElse on Some is an identity'
+            , 'Some->orElse is an identity'
         );
     }
 
@@ -121,7 +123,7 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             P\Seq
             , P\Some($value)->toSeq()
-            , 'The Some container should be turned to a sequence'
+            , 'Some->toSeq should produce a Sequence'
         );
     }
 
@@ -129,35 +131,30 @@ class SomeTest extends PHPixme_TestCase
     public function test_fold_callback($value = true, $startValue = null)
     {
         $some = P\Some($value);
-
-        $output = $some->fold($startValue, function ($lastVal) use ($startValue, $value, $some) {
+        $some->fold($startValue, function ($lastVal) use ($startValue, $value, $some) {
             $this->assertTrue(
                 4 === func_num_args()
-                , 'The signature of the fold callback is ($prevVal, $value, $key, $container)'
+                , 'Some->fold callback should receive four arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $startValue
-                , 'The $prevVal parameter should of been sent'
+                , 'Some->fold callback $prevVal should be the $startValue'
             );
             $this->assertTrue(
                 func_get_arg(1) === $value
-                , 'The $value parameter should be value'
+                , 'Some->fold callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(2)
-                , 'The key parameter should have been sent'
+                , 'Some->fold callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(3) === $some
-                , 'The container parameter should of been sent'
+                , 'Some->fold callback $container should be itself'
             );
 
             return $lastVal;
         });
-        $this->assertTrue(
-            $startValue === $output
-            , 'The outcome should of been, in this case, what the start value was'
-        );
     }
 
     public function test_fold_scenario_add($value = 1, $startVal = 1)
@@ -175,9 +172,9 @@ class SomeTest extends PHPixme_TestCase
     {
         $this->assertTrue(
             $value === (P\Some($value)->reduce(function () {
-                throw new \Exception('This should never run!');
+                throw new \Exception('Some->reduce callback should never run!');
             }))
-            , 'Reduce on a single container should be itself'
+            , 'Some->reduce should produce its contents'
         );
     }
 
@@ -187,19 +184,19 @@ class SomeTest extends PHPixme_TestCase
         $some->map(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of Map is ($value, $key, $container)'
+                , 'Some->map callback should receive three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->map callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->map callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The map function should pass the container it uses'
+                , 'Some->map callback $container should be itself'
             );
         });
     }
@@ -213,11 +210,11 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             P\Some
             , $duplicate
-            , 'The Map function should return the same type as the origonal'
+            , 'Some->map function should remain a Some'
         );
         $this->assertTrue(
             $original !== $duplicate
-            , 'Map should return an instance of some different than itself'
+            , 'Some->map should return an different Some'
         );
     }
 
@@ -227,35 +224,22 @@ class SomeTest extends PHPixme_TestCase
         $some->flatMap(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of flatMap is ($value, $key, $container)'
+                , 'Some->flatMap callback should receive three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->flatMap callback $value should its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->flatMap callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The map function should pass the container it uses'
+                , 'Some->flatMap callback $container should be itself'
             );
             return P\Some($value);
         });
-    }
-
-    public function test_flatMap($value = true)
-    {
-        $some2 = P\Maybe($value);
-        $some1 = P\Some($some2);
-
-        $this->assertTrue(
-            $some2 === ($some1->flatMap(function ($value) {
-                return $value;
-            }))
-            , 'The Identity function should be able to flatten the value of $some1 to $some2'
-        );
     }
 
     /**
@@ -269,13 +253,26 @@ class SomeTest extends PHPixme_TestCase
         });
     }
 
+    public function test_flatMap($value = true)
+    {
+        $some2 = P\Maybe($value);
+        $some1 = P\Some($some2);
+
+        $this->assertTrue(
+            $some2 === ($some1->flatMap(function ($value) {
+                return $value;
+            }))
+            , 'Some->flatMap ran with the identity function return its contents of a Maybe type'
+        );
+    }
+
     public function test_flatten($value = true)
     {
         $some2 = P\Maybe($value);
         $some1 = P\Some($some2);
         $this->assertTrue(
             ($some1->flatten()) === $some2
-            , 'Flatten should take a nested Some and return the child Maybe'
+            , 'Some->flatten should return its contents of Maybe'
         );
     }
 
@@ -293,19 +290,19 @@ class SomeTest extends PHPixme_TestCase
         $some->filter(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of filter is ($value, $key, $container)'
+                , 'Some->filter callback should receive three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->filter callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->filter callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The filter function should pass the container it uses'
+                , 'Some->filter callback $container should be itself'
             );
             return true;
         });
@@ -320,11 +317,12 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             $expected
             , $results
+            , 'Some->filter application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
         );
         if ($expected === P\Some) {
             $this->assertTrue(
                 $some === $results
-                , 'When a filter is successful, Some should be an identity'
+                , 'Some->filter where callback results are true is an identity'
             );
         }
     }
@@ -335,19 +333,19 @@ class SomeTest extends PHPixme_TestCase
         $some->filterNot(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of filterNot is ($value, $key, $container)'
+                , 'Some->filterNot callback should have three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->filter callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->filterNot $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The filterNot function should pass the container it uses'
+                , 'Some->filterNot $contents should be itself'
             );
             return true;
         });
@@ -362,12 +360,12 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             $expected
             , $results
-            , 'Expecting ' . $expected . ' result on filter set for data set ' . json_encode($value) . '.'
+            , 'Some->filterNot application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
         );
         if ($expected === P\Some) {
             $this->assertTrue(
                 $some === $results
-                , 'When a filterNot is unsuccessful, Some should be an identity'
+                , 'Some->filterNot callback is unsuccessful, the result is an identity'
             );
         }
     }
@@ -378,19 +376,19 @@ class SomeTest extends PHPixme_TestCase
         $some->forAll(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of forAll is ($value, $key, $container)'
+                , 'Some->forAll callback receives three augments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->forAll callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->forAll callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The forAll function should pass the container it uses'
+                , 'Some->forAll callback $container is itself'
             );
             return true;
         });
@@ -403,7 +401,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forAll($isArray)
-            , 'forAll expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+            , 'Some->forAll application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
         );
     }
 
@@ -413,19 +411,19 @@ class SomeTest extends PHPixme_TestCase
         $some->forNone(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of forNone is ($value, $key, $container)'
+                , 'Some->forNone callback should receive three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->forNone callback $value should its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->forNone callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The map function should pass the container it uses'
+                , 'Some->forNone callback $container should be itself'
             );
             return true;
         });
@@ -438,7 +436,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forNone($isArray)
-            , 'forNone expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+            , 'Some->forNone application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
         );
     }
 
@@ -448,19 +446,19 @@ class SomeTest extends PHPixme_TestCase
         $some->forSome(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of forSome is ($value, $key, $container)'
+                , 'Some->forSome callback should receive three arguments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->forSome callback $value its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->forSome callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The map function should pass the container it uses'
+                , 'Some->forSome callback $container should be itself'
             );
             return true;
         });
@@ -473,7 +471,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forSome($isArray)
-            , 'forSome expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+            , 'Some->forSome application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
         );
     }
 
@@ -483,19 +481,19 @@ class SomeTest extends PHPixme_TestCase
         $some->forSome(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of walk is ($value, $key, $container)'
+                , 'Some->walk callback should receive three augments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->walk callback $value should be its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->walk callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The walk function should pass the container it uses'
+                , 'Some->walk callback $container should be itself'
             );
         });
     }
@@ -505,15 +503,15 @@ class SomeTest extends PHPixme_TestCase
         $arr = P\Some($value)->toArray();
         $this->assertTrue(
             is_array($arr)
-            , 'Some toArray should return an array'
+            , 'Some->toArray should yield an array'
         );
         $this->assertTrue(
             1 === count($arr)
-            , 'The length of the array produced by Some->toArray should be 1'
+            , 'Some->toArray results should be one long'
         );
         $this->assertTrue(
             $value === $arr[0]
-            , 'The value inside the array produced by Some->toArray should be the same as it contained'
+            , 'Some->toArray result contents should be the same as itself'
         );
     }
 
@@ -523,19 +521,19 @@ class SomeTest extends PHPixme_TestCase
         $some->find(function () use ($value, $some) {
             $this->assertTrue(
                 func_num_args() === 3
-                , 'The signature of find is ($value, $key, $container)'
+                , 'Some->find callback should receive three arugments'
             );
             $this->assertTrue(
                 func_get_arg(0) === $value
-                , 'The first parameter value should be equal to the value contained'
+                , 'Some->find callback $value should be equal to its contents'
             );
             $this->assertNotFalse(
                 func_get_arg(1)
-                , 'Key should be defined'
+                , 'Some->find callback $key should be defined'
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The find function should pass the container it uses'
+                , 'Some->find callback $container should be itself'
             );
             return true;
         });
@@ -554,16 +552,16 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             P\Some
             , $positiveResult
-            , 'Find on a success should return a some type'
+            , 'Some->Find on a true callback should return a Some'
         );
         $this->assertTrue(
             $positiveResult === $some
-            , 'For find on Some, Find successes should return the identity'
+            , 'Some->find on a truly returning callback should yield an identity'
         );
         $this->assertInstanceOf(
             P\None
             , $negativeResult
-            , 'On a find failure, Find should return a none type'
+            , 'Some->find a falsely returning callback yields a None'
         );
 
     }
