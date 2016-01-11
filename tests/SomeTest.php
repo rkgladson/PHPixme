@@ -131,9 +131,8 @@ class SomeTest extends PHPixme_TestCase
         $some = P\Some($value);
 
         $output = $some->fold($startValue, function ($lastVal) use ($startValue, $value, $some) {
-            $this->assertEquals(
-                func_num_args()
-                , 4
+            $this->assertTrue(
+                4 === func_num_args()
                 , 'The signature of the fold callback is ($prevVal, $value, $key, $container)'
             );
             $this->assertTrue(
@@ -166,20 +165,18 @@ class SomeTest extends PHPixme_TestCase
         $add = function ($x, $y) {
             return $x + $y;
         };
-        $this->assertEquals(
-            $value + $startVal
-            , P\Some($value)->fold($startVal, $add)
+        $this->assertTrue(
+            ($value + $startVal) === (P\Some($value)->fold($startVal, $add))
             , 'The fold should be able to preform a simple add on a single length item'
         );
     }
 
     public function test_reduce($value = true)
     {
-        $this->assertEquals(
-            $value
-            , P\Some($value)->reduce(function () {
-            throw new \Exception('This should never run!');
-        })
+        $this->assertTrue(
+            $value === (P\Some($value)->reduce(function () {
+                throw new \Exception('This should never run!');
+            }))
             , 'Reduce on a single container should be itself'
         );
     }
@@ -547,7 +544,7 @@ class SomeTest extends PHPixme_TestCase
     public function test_find($value = true)
     {
         $some = P\Some($value);
-        $positiveResult  = $some->find(function($x) use ($value) {
+        $positiveResult = $some->find(function ($x) use ($value) {
             return $x === $value;
         });
         $negativeResult = $some->find(function ($x) use ($value) {

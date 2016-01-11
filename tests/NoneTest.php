@@ -23,9 +23,8 @@ class NoneTest extends PHPixme_TestCase
 
     public function test_None_aspect_Singleton()
     {
-        $this->assertEquals(
-            P\None(),
-            P\None()
+        $this->assertTrue(
+            P\None() === P\None()
             , 'None should be a singleton'
         );
     }
@@ -59,18 +58,16 @@ class NoneTest extends PHPixme_TestCase
 
     public function test_static_of()
     {
-        $this->assertEquals(
-            P\None()
-            , P\None::of($this)
+        $this->assertTrue(
+            P\None() === (P\None::of($this))
             , 'Of on None is its singleton'
         );
     }
 
     public function test_static_from()
     {
-        $this->assertEquals(
-            P\None()
-            , P\None::from([])
+        $this->assertTrue(
+            P\None() === (P\None::from([$this]))
             , 'From on None is its singleton'
         );
 
@@ -143,9 +140,8 @@ class NoneTest extends PHPixme_TestCase
         $getResults = function () use ($results) {
             return $results;
         };
-        $this->assertEquals(
-            $results
-            , P\None()->orElse($getResults)
+        $this->assertTrue(
+            $results === (P\None()->orElse($getResults))
             , 'orElse on None should use the default HoF'
         );
     }
@@ -181,11 +177,10 @@ class NoneTest extends PHPixme_TestCase
     public function test_fold()
     {
         $startVal = true;
-        $this->assertEquals(
-            $startVal
-            , P\None()->fold($startVal, function () {
-            throw new \Exception('This should not run!');
-        })
+        $this->assertTrue(
+            $startVal === (P\None()->fold($startVal, function () {
+                throw new \Exception('This should not run!');
+            }))
             , 'Folds on empty collections should return start values'
         );
     }
@@ -193,11 +188,10 @@ class NoneTest extends PHPixme_TestCase
     public function test_map()
     {
         $none = P\None();
-        $this->assertEquals(
-            $none
-            , $none->map(function () {
-            throw new \Exception('This should not run!');
-        })
+        $this->assertTrue(
+            $none === ($none->map(function () {
+                throw new \Exception('This should not run!');
+            }))
             , 'Map on None is an identity'
         );
     }
@@ -205,11 +199,10 @@ class NoneTest extends PHPixme_TestCase
     public function filter()
     {
         $none = P\None();
-        $this->assertEquals(
-            $none
-            , $none->filter(function () {
-            throw new \Exception('This should not run!');
-        })
+        $this->assertTrue(
+            $none === ($none->filter(function () {
+                throw new \Exception('This should not run!');
+            }))
             , 'Filter on None is an identity'
         );
     }
@@ -217,11 +210,10 @@ class NoneTest extends PHPixme_TestCase
     public function test_filterNot()
     {
         $none = P\None();
-        $this->assertEquals(
-            $none
-            , $none->filterNot(function () {
-            throw new \Exception('This should not run!');
-        })
+        $this->assertTrue(
+            $none === ($none->filterNot(function () {
+                throw new \Exception('This should not run!');
+            }))
             , 'FilterNot on None is an identity'
         );
     }
@@ -232,9 +224,8 @@ class NoneTest extends PHPixme_TestCase
         P\None()->walk(function () use (&$times) {
             $times += 1;
         });
-        $this->assertEquals(
-            0
-            , $times
+        $this->assertTrue(
+            0 === $times
             , 'Walk should run no times on None'
         );
     }
@@ -275,12 +266,11 @@ class NoneTest extends PHPixme_TestCase
     {
         // time to test if the interface works
         $times = 0;
-        foreach(P\None() as $key => $value) {
-            $times +=1;
+        foreach (P\None() as $key => $value) {
+            $times += 1;
         }
-        $this->assertEquals(
-            0
-            , $times
+        $this->assertTrue(
+            0 === $times
             , 'None should always be at its end'
         );
     }
