@@ -133,12 +133,12 @@ class Some extends Maybe
     // -- Iterator Interface --
     public function current()
     {
-        return $this->done ? $this->x : null;
+        return $this->done ? null: $this->x;
     }
 
     public function key()
     {
-        return $this->done ? 0 : null;
+        return $this->done ? null : 0;
     }
 
     public function next()
@@ -153,7 +153,7 @@ class Some extends Maybe
 
     public function valid()
     {
-        return $this->done;
+        return !$this->done;
     }
     // == Iterator Interface ==
 

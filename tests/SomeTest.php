@@ -56,7 +56,7 @@ class SomeTest extends PHPixme_TestCase
         $getNotValue = function ($x) use ($value) {
             return $x !== $value;
         };
-        $some =P\Some($value);
+        $some = P\Some($value);
         $this->assertTrue(
             $some->exists($getValue)
             , 'Some->exists should return true if the predicate returned true'
@@ -317,7 +317,7 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             $expected
             , $results
-            , 'Some->filter application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
+            , 'Some->filter application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
         );
         if ($expected === P\Some) {
             $this->assertTrue(
@@ -360,7 +360,7 @@ class SomeTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             $expected
             , $results
-            , 'Some->filterNot application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
+            , 'Some->filterNot application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
         );
         if ($expected === P\Some) {
             $this->assertTrue(
@@ -401,7 +401,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forAll($isArray)
-            , 'Some->forAll application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
+            , 'Some->forAll application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
         );
     }
 
@@ -436,7 +436,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forNone($isArray)
-            , 'Some->forNone application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
+            , 'Some->forNone application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
         );
     }
 
@@ -471,7 +471,7 @@ class SomeTest extends PHPixme_TestCase
         };
         $this->assertTrue(
             $expected === P\Some($value)->forSome($isArray)
-            , 'Some->forSome application of is_array on '.json_encode($value). ' should of been '.json_encode($expected)
+            , 'Some->forSome application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
         );
     }
 
@@ -566,4 +566,21 @@ class SomeTest extends PHPixme_TestCase
 
     }
 
+    function test_forEach($value = true)
+    {
+        $iter = P\Some($value);
+        $run = 0;
+        foreach ($iter as $key => $val) {
+            $run += 1;
+            $this->assertTrue(
+                $value === $val
+                , 'The current of Some should result its contents. Expected '.json_encode($value).' but got '.json_encode($val)
+            );
+        }
+
+        $this->assertTrue(
+            $run === 1
+            , 'Some should always have one value to iterate over before halting. Ran '.$run.' times.'
+        );
+    }
 }
