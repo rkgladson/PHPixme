@@ -195,10 +195,33 @@ class SeqTest extends PHPixme_TestCase
 
     /**
      * @dataProvider seqSourceProvider
+     * @requires test_magic_invoke
      */
     function test_filterNot_callback($value)
     {
         $seq = P\Seq($value);
+        $seq->filter(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->filterNot callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
 
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->filterNot callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->filterNot callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->filterNot callback $container should be itself'
+            );
+            return true;
+        });
     }
 }
