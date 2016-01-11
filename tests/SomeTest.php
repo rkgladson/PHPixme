@@ -290,7 +290,8 @@ class SomeTest extends PHPixme_TestCase
         P\Some(true)->flatten();
     }
 
-    public function test_filter_callback($value = true) {
+    public function test_filter_callback($value = true)
+    {
         $some = P\Some($value);
         $some->filter(function () use ($value, $some) {
             $this->assertTrue(
@@ -307,15 +308,18 @@ class SomeTest extends PHPixme_TestCase
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
-                , 'The map function should pass the container it uses'
+                , 'The filter function should pass the container it uses'
             );
             return true;
         });
     }
 
-    public function test_filter_senario_isArray($value = true, $expected = P\None) {
+    public function test_filter_scenario_isArray($value = true, $expected = P\None)
+    {
         $some = P\Some($value);
-        $results = $some->filter(function ($val) { return is_array($val); } );
+        $results = $some->filter(function ($val) {
+            return is_array($val);
+        });
         $this->assertInstanceOf(
             $expected
             , $results
@@ -328,7 +332,8 @@ class SomeTest extends PHPixme_TestCase
         }
     }
 
-    public function test_filterNot_callback($value = true) {
+    public function test_filterNot_callback($value = true)
+    {
         $some = P\Some($value);
         $some->filterNot(function () use ($value, $some) {
             $this->assertTrue(
@@ -345,10 +350,225 @@ class SomeTest extends PHPixme_TestCase
             );
             $this->assertTrue(
                 func_get_arg(2) === $some
+                , 'The filterNot function should pass the container it uses'
+            );
+            return true;
+        });
+    }
+
+    public function test_filterNot_scenario_isArray($value = true, $expected = P\Some)
+    {
+        $some = P\Some($value);
+        $results = $some->filterNot(function ($val) {
+            return is_array($val);
+        });
+        $this->assertInstanceOf(
+            $expected
+            , $results
+            , 'Expecting ' . $expected . ' result on filter set for data set ' . json_encode($value) . '.'
+        );
+        if ($expected === P\Some) {
+            $this->assertTrue(
+                $some === $results
+                , 'When a filterNot is unsuccessful, Some should be an identity'
+            );
+        }
+    }
+
+    public function test_forAll_callback($value = true)
+    {
+        $some = P\Some($value);
+        $some->forAll(function () use ($value, $some) {
+            $this->assertTrue(
+                func_num_args() === 3
+                , 'The signature of forAll is ($value, $key, $container)'
+            );
+            $this->assertTrue(
+                func_get_arg(0) === $value
+                , 'The first parameter value should be equal to the value contained'
+            );
+            $this->assertNotFalse(
+                func_get_arg(1)
+                , 'Key should be defined'
+            );
+            $this->assertTrue(
+                func_get_arg(2) === $some
+                , 'The forAll function should pass the container it uses'
+            );
+            return true;
+        });
+    }
+
+    public function test_forAll_scenario_isArray($value = true, $expected = false)
+    {
+        $isArray = function ($value) {
+            return is_array($value);
+        };
+        $this->assertTrue(
+            $expected === P\Some($value)->forAll($isArray)
+            , 'forAll expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+        );
+    }
+
+    public function test_forNone_callback($value = true)
+    {
+        $some = P\Some($value);
+        $some->forNone(function () use ($value, $some) {
+            $this->assertTrue(
+                func_num_args() === 3
+                , 'The signature of forNone is ($value, $key, $container)'
+            );
+            $this->assertTrue(
+                func_get_arg(0) === $value
+                , 'The first parameter value should be equal to the value contained'
+            );
+            $this->assertNotFalse(
+                func_get_arg(1)
+                , 'Key should be defined'
+            );
+            $this->assertTrue(
+                func_get_arg(2) === $some
                 , 'The map function should pass the container it uses'
             );
             return true;
         });
+    }
+
+    public function test_forNone_scenario_isArray($value = true, $expected = true)
+    {
+        $isArray = function ($value) {
+            return is_array($value);
+        };
+        $this->assertTrue(
+            $expected === P\Some($value)->forNone($isArray)
+            , 'forNone expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+        );
+    }
+
+    public function test_forSome_callback($value = true)
+    {
+        $some = P\Some($value);
+        $some->forSome(function () use ($value, $some) {
+            $this->assertTrue(
+                func_num_args() === 3
+                , 'The signature of forSome is ($value, $key, $container)'
+            );
+            $this->assertTrue(
+                func_get_arg(0) === $value
+                , 'The first parameter value should be equal to the value contained'
+            );
+            $this->assertNotFalse(
+                func_get_arg(1)
+                , 'Key should be defined'
+            );
+            $this->assertTrue(
+                func_get_arg(2) === $some
+                , 'The map function should pass the container it uses'
+            );
+            return true;
+        });
+    }
+
+    public function test_forSome_scenario_isArray($value = true, $expected = false)
+    {
+        $isArray = function ($value) {
+            return is_array($value);
+        };
+        $this->assertTrue(
+            $expected === P\Some($value)->forSome($isArray)
+            , 'forSome expected result for data set ' . json_encode($value) . ' is not expected value ' . json_encode($expected) . '.'
+        );
+    }
+
+    public function test_walk_callback($value = true)
+    {
+        $some = P\Some($value);
+        $some->forSome(function () use ($value, $some) {
+            $this->assertTrue(
+                func_num_args() === 3
+                , 'The signature of walk is ($value, $key, $container)'
+            );
+            $this->assertTrue(
+                func_get_arg(0) === $value
+                , 'The first parameter value should be equal to the value contained'
+            );
+            $this->assertNotFalse(
+                func_get_arg(1)
+                , 'Key should be defined'
+            );
+            $this->assertTrue(
+                func_get_arg(2) === $some
+                , 'The walk function should pass the container it uses'
+            );
+        });
+    }
+
+    public function test_toArray($value = true)
+    {
+        $arr = P\Some($value)->toArray();
+        $this->assertTrue(
+            is_array($arr)
+            , 'Some toArray should return an array'
+        );
+        $this->assertTrue(
+            1 === count($arr)
+            , 'The length of the array produced by Some->toArray should be 1'
+        );
+        $this->assertTrue(
+            $value === $arr[0]
+            , 'The value inside the array produced by Some->toArray should be the same as it contained'
+        );
+    }
+
+    public function test_find_callback($value = true)
+    {
+        $some = P\Some($value);
+        $some->find(function () use ($value, $some) {
+            $this->assertTrue(
+                func_num_args() === 3
+                , 'The signature of find is ($value, $key, $container)'
+            );
+            $this->assertTrue(
+                func_get_arg(0) === $value
+                , 'The first parameter value should be equal to the value contained'
+            );
+            $this->assertNotFalse(
+                func_get_arg(1)
+                , 'Key should be defined'
+            );
+            $this->assertTrue(
+                func_get_arg(2) === $some
+                , 'The find function should pass the container it uses'
+            );
+            return true;
+        });
+    }
+
+    public function test_find($value = true)
+    {
+        $some = P\Some($value);
+        $positiveResult  = $some->find(function($x) use ($value) {
+            return $x === $value;
+        });
+        $negativeResult = $some->find(function ($x) use ($value) {
+            return $x !== $value;
+        });
+
+        $this->assertInstanceOf(
+            P\Some
+            , $positiveResult
+            , 'Find on a success should return a some type'
+        );
+        $this->assertTrue(
+            $positiveResult === $some
+            , 'For find on Some, Find successes should return the identity'
+        );
+        $this->assertInstanceOf(
+            P\None
+            , $negativeResult
+            , 'On a find failure, Find should return a none type'
+        );
+
     }
 
 }

@@ -239,6 +239,19 @@ class NoneTest extends PHPixme_TestCase
         );
     }
 
+    function test_toArray()
+    {
+        $arr = P\None()->toArray();
+        $this->assertTrue(
+            is_array($arr)
+            , 'The value produced by None->toArray should be an array'
+        );
+        $this->assertTrue(
+            0 === count($arr)
+            , 'The length of the array produced by None->toArray should be 0'
+        );
+    }
+
     function test_isEmpty()
     {
         $this->assertTrue(
