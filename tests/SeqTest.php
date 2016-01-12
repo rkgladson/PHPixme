@@ -1129,6 +1129,54 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
+    public function takeProvider()
+    {
+        return [
+            'S[]->takeRight(5)' => [
+                P\Seq::of(), 5, P\Seq::of()
+            ]
+            , 'S[1,2,3,4,5,6]->takeRight(2)' => [
+                P\Seq::of(1, 2, 3, 4, 5, 6), 2, P\Seq::from([0 => 1, 1 => 2])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider takeProvider
+     */
+    public function test_take($seq, $amount, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->take($amount)
+            , 'Seq->take of amount should yield expected'
+        );
+    }
+
+    public function takeRightProvider()
+    {
+        return [
+            'S[]->takeRight(5)' => [
+                P\Seq::of(), 5, P\Seq::of()
+            ]
+            , 'S[1,2,3,4,5,6]->takeRight(2)' => [
+                P\Seq::of(1, 2, 3, 4, 5, 6), 2, P\Seq::from([4 => 5, 5 => 6])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider takeRightProvider
+     */
+    public function test_takeRight($seq, $amount, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->takeRight($amount)
+            , 'Seq->takeRight of amount should yield expected'
+        );
+    }
+
     public function isEmptyProvider()
     {
         return [
@@ -1150,6 +1198,69 @@ class SeqTest extends PHPixme_TestCase
             empty($source)
             , P\Seq::from($source)->isEmpty()
             , 'Seq->isEmpty should be true if the source was empty'
+        );
+    }
+
+
+    public function toStringProvider()
+    {
+        return [
+            'empty' => [
+                [] , ''
+            ]
+            , 'S{integer}' => [
+                [1, 2, 3, 4, 5]
+                , '!'
+            ]
+            , 'S{string}' => [
+                ['a', 'b', 'c', 'd']
+                , ';'
+            ]
+            , 'Keyed S{integer}' => [
+                ['one' => 1, 'two' => 2]
+                , ', '
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider toStringProvider
+     */
+    public function test_toString($array, $glue)
+    {
+        $this->assertEquals(
+            implode($glue, $array)
+            , P\Seq::from($array)->toString($glue)
+        );
+    }
+
+    public function toJsonProvider()
+    {
+        return [
+            'empty' => [
+                []
+            ]
+            , 'S{integer}' => [
+                [1, 2, 3, 4, 5]
+            ]
+            , 'S{string}' => [
+                ['a', 'b', 'c', 'd']
+            ]
+            , 'Keyed S{integer}' => [
+                ['one' => 1, 'two' => 2]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider toJsonProvider
+     */
+    public function test_toJson($array)
+    {
+        $this->assertEquals(
+            json_encode($array)
+            , P\Seq::from($array)->toJson()
+            , 'Seq->toJson should be functionally equivalent to json_encode(Seq->toArray)'
         );
     }
 }
