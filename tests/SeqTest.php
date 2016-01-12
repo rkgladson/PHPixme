@@ -224,4 +224,33 @@ class SeqTest extends PHPixme_TestCase
             return true;
         });
     }
+
+    /**
+     * @dataProvider seqSourceProvider
+     */
+    public function test_filterNot($value)
+    {
+        $seq = P\Seq($value);
+        $tResult = $seq->filterNot(function () {
+            return false;
+        });
+        $this->assertFalse(
+            $tResult === $seq
+            , 'Seq->filterNot callback false is not an identity'
+        );
+        $this->assertEquals(
+            $seq
+            , $tResult
+            , 'Seq->filterNot callback false still contains the same data'
+        );
+
+        $fResult = $seq->filterNot(function () {
+            return true;
+        });
+        $this->assertEquals(
+            P\Seq([])
+            , $fResult
+            , 'Seq-filterNot callback true should contain no data'
+        );
+    }
 }
