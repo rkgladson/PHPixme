@@ -361,10 +361,8 @@ class SeqTest extends PHPixme_TestCase
      * @dataProvider nestedTestProvider
      * @depends      test_toArray
      */
-    public function test_flatten($input, $expected) {
-        $id = function ($value) {
-            return $value;
-        };
+    public function test_flatten($input, $expected)
+    {
         $this->assertEquals(
             $expected
             , P\Seq::from($input)->flatten()->toArray()
@@ -381,4 +379,63 @@ class SeqTest extends PHPixme_TestCase
         P\Seq::of(1, 2, 3)->flatten();
     }
 
+    /**
+     * @dataProvider seqSourceProvider
+     * @requires test_magic_invoke
+     */
+    public function test_fold_callback($value)
+    {
+        $seq = P\Seq($value);
+        $seq->fold(0, function () use ($seq) {
+            $this->assertTrue(
+                4 === func_num_args()
+                , 'Seq->fold callback should receive four arguments'
+            );
+
+            $prevValue = func_get_arg(0);
+            $value = func_get_arg(1);
+            $key = func_get_arg(2);
+            $container = func_get_arg(3);
+
+            $this->assertTrue(
+                $prevValue === 0
+                , 'Seq->fold callback $prevValue should be its start value'
+            );
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->map callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->map callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->map callback $container should be itself'
+            );
+            return $prevValue;
+        });
+    }
+
+    public function additionProvider()
+    {
+        return [
+            'empty' => [P\Seq::from([]), 0]
+            , 'from 1 to 9' => [P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9), 45]
+        ];
+    }
+
+    /**
+     * @dataProvider additionProvider
+     */
+    public function test_fold_scenario_addition($seq, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->fold(0, function ($a, $b) {
+            return $a + $b;
+        })
+            , 'Seq->fold applied to addition should produce the sum of the sequence'
+        );
+    }
 }
