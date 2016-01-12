@@ -187,7 +187,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function head()
     {
-        return $this->array[array_keys($this->array)[0]];
+        return $this->isEmpty() ? null : $this->array[array_keys($this->array)[0]];
     }
 
     public function tail()

@@ -770,4 +770,121 @@ class SeqTest extends PHPixme_TestCase
             , 'Seq->find should result in the expected value for any positive otucome of callback'
         );
     }
+
+    public function walkProvider()
+    {
+        return [
+            'from 1 to 9' => [
+                P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9), 9
+            ]
+            , 'Nothing' => [
+                P\Seq::of(), 0
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider walkProvider
+     */
+    public function test_walk_callback($seq)
+    {
+        $seq->find(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->walk callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->walk callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->walk callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->find callback $container should be itself'
+            );
+        });
+    }
+
+    /**
+     * @dataProvider walkProvider
+     */
+    public function test_walk($seq, $length)
+    {
+        $ran = 0;
+        $seq->walk(function () use (&$ran) {
+            $ran += 1;
+        });
+        $this->assertEquals(
+            $length
+            , $ran
+            , 'Seq->walk should of ran the length of the sequence'
+        );
+    }
+
+
+    public function headProvider() {
+        return [
+            'keyless' => [
+                P\Seq::of(1,2,3)
+                , 1
+            ]
+            , 'keyed' => [
+                P\Seq::from([
+                    'one' => 1
+                    , 'two' => 2
+                    , 'three' => 3
+                ])
+                , 1
+            ]
+            , 'empty' => [
+                P\Seq::of()
+                , null
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider headProvider
+     */
+    public function test_head($seq, $expects) {
+        $this->assertEquals(
+            $expects
+            , $seq->head()
+            , 'Seq->head should return the head element'
+        );
+    }
+
+
+
+    public function isEmptyProvider() {
+        return [
+            'nothing'=>[
+                []
+            ],
+            'from 1 to 9' => [
+                [1,2,3,4,5,6,7,8,9]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider isEmptyProvider
+     */
+    public function test_isEmpty($source) {
+        $this->assertEquals(
+            empty($source)
+            , P\Seq::from($source)->isEmpty()
+            , 'Seq->isEmpty should be true if the source was empty'
+        );
+    }
+
+
+
 }
