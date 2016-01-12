@@ -438,4 +438,115 @@ class SeqTest extends PHPixme_TestCase
             , 'Seq->fold applied to addition should produce the sum of the sequence'
         );
     }
+
+
+    public function forAllProvider()
+    {
+        return [
+            'seq from 1 to 4' => [P\Seq::of(1, 2, 3, 4), true]
+            , 'seq from -2 to 2' => [P\Seq::of(-2, -1, 0, 1, 2), false]
+            , 'seq from -4 to -1' => [P\Seq::of(-4, -3, -2, -1), false]
+        ];
+    }
+
+    /**
+     * @dataProvider forAllProvider
+     * @requires test_magic_invoke
+     */
+    public function test_forAll_callback($seq)
+    {
+        $seq->forAll(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->forAll callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->forAll callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->forAll callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->forAll callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider forAllProvider
+     */
+    public function test_forAll_scenario_positive($seq, $expected)
+    {
+        $positive = function ($value) {
+            return $value > 0;
+        };
+        $this->assertEquals(
+            $expected
+            , $seq->forAll($positive)
+            , 'Seq->forAll callback should all be as expected based on positive result'
+        );
+    }
+
+    public function forNoneProvider()
+    {
+        return [
+            'seq from 1 to 4' => [P\Seq::of(1, 2, 3, 4), false]
+            , 'seq from -2 to 2' => [P\Seq::of(-2, -1, 0, 1, 2), false]
+            , 'seq from -4 to -1' => [P\Seq::of(-4, -3, -2, -1), true]
+        ];
+    }
+
+    /**
+     * @dataProvider forNoneProvider
+     * @requires test_magic_invoke
+     */
+    public function test_forNone_callback($seq)
+    {
+        $seq->forNone(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->forNone callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->forNone callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->forNone callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->forNone callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider forNoneProvider
+     */
+    public function test_forNone_scenario_positive($seq, $expected)
+    {
+        $positive = function ($value) {
+            return $value > 0;
+        };
+        $this->assertEquals(
+            $expected
+            , $seq->forNone($positive)
+            , 'Seq->forNone callback should all be as expected based on positive result'
+        );
+    }
 }
