@@ -353,9 +353,32 @@ class SeqTest extends PHPixme_TestCase
         $this->assertEquals(
             $expected
             , P\Seq::from($input)->flatMap($id)->toArray()
-            , 'Seq->flatMap applied with id should be functionally equivalent to flatten'
+            , 'Seq->flatMap applied with id should be functionally equivalent its merged array'
         );
     }
 
+    /**
+     * @dataProvider nestedTestProvider
+     * @depends      test_toArray
+     */
+    public function test_flatten($input, $expected) {
+        $id = function ($value) {
+            return $value;
+        };
+        $this->assertEquals(
+            $expected
+            , P\Seq::from($input)->flatten()->toArray()
+            , 'Seq->flatten should return a sequence that is functionally equivalent to a merged array'
+        );
+    }
+
+    /**
+     * Ensure the function throws an exception when the contract of a non-traversable item is tried to be merged
+     * @expectedException \Exception
+     */
+    public function test_flatten_contract_broken()
+    {
+        P\Seq::of(1, 2, 3)->flatten();
+    }
 
 }
