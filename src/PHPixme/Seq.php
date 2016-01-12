@@ -225,17 +225,25 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function group($hof)
     {
         __assertCallable($hof);
-        $output = [];
-        foreach ($this->array as $key => $value) {
-            $groupKey = (string)$hof($value, $key, $this);
-            if (!isset($output[$groupKey])) {
-                $output[$groupKey] = [];
-            }
-            $output[$groupKey][$key] = $value;
-        }
-        return static::from(map(function ($value) {
-            return static::from($value);
-        }, $output));
+        return static::from(
+            map(
+                function ($value) {
+                    return static::from($value);
+                }
+                , fold(
+                    function ($output, $value, $key) use ($hof) {
+                        $groupKey = (string)$hof($value, $key, $this);
+                        if (!isset($output[$groupKey])) {
+                            $output[$groupKey] = [];
+                        }
+                        $output[$groupKey][$key] = $value;
+                        return $output;
+                    }
+                    , []
+                    , $this->array
+                )
+            )
+        );
     }
 
     public function drop($number = 0)

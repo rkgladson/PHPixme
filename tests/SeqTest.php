@@ -1071,6 +1071,32 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
+    public function dropProvider() {
+        return [
+            'empty drop 5' => [
+                P\Seq::of()
+                , 5
+                , P\Seq::of()
+            ]
+            , 'S[1,2,3,4] drop 3' => [
+                P\Seq::of(1,2,3,4)
+                , 3
+                , P\Seq::from([3=>4])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider dropProvider
+     */
+    public function test_drop($seq, $number, $expected) {
+        $this->assertEquals(
+            $expected
+            , $seq->drop($number)
+            , 'Seq->drop of amount results are functionally equivilent to expected'
+        );
+    }
+
     public function isEmptyProvider()
     {
         return [
