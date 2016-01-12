@@ -159,13 +159,10 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function union(...$arrayLikeN)
     {
-        $output = $this->array;
-       foreach ($arrayLikeN as $arrayLike) {
-           // Append the list of array Likes to this output array
-           $output = array_merge($output, static::arrayLikeToArray($arrayLike));
-       }
-        // Wrap the output in its type
-        return static::from($output);
+        array_unshift($arrayLikeN, $this->array);
+        return static::from(call_user_func_array('array_merge', map(function ($value) {
+            return static::arrayLikeToArray($value);
+        },$arrayLikeN)));
     }
 
     public function find(callable $hof)

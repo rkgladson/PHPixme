@@ -403,21 +403,21 @@ class SeqTest extends PHPixme_TestCase
             );
             $this->assertTrue(
                 ($seq($key)) === $value
-                , 'Seq->map callback $value should be equal to the value at $key'
+                , 'Seq->fold callback $value should be equal to the value at $key'
             );
             $this->assertNotFalse(
                 $key
-                , 'Seq->map callback $key should be defined'
+                , 'Seq->fold callback $key should be defined'
             );
             $this->assertTrue(
                 $seq === $container
-                , 'Seq->map callback $container should be itself'
+                , 'Seq->fold callback $container should be itself'
             );
             return $prevValue;
         });
     }
 
-    public function additionProvider()
+    public function foldAdditionProvider()
     {
         return [
             'empty' => [P\Seq::from([]), 0]
@@ -426,7 +426,7 @@ class SeqTest extends PHPixme_TestCase
     }
 
     /**
-     * @dataProvider additionProvider
+     * @dataProvider foldAdditionProvider
      */
     public function test_fold_scenario_addition($seq, $expected)
     {
@@ -602,6 +602,111 @@ class SeqTest extends PHPixme_TestCase
             $expected
             , $seq->forSome($positive)
             , 'Seq->forNone callback should at least one be as expected based on positive result'
+        );
+    }
+
+    public function reduceAdditionProvider()
+    {
+        return [
+            'only zero' => [P\Seq::of(0), 0]
+            , 'from 1 to 9' => [P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9), 45]
+        ];
+    }
+
+    /**
+     * @dataProvider reduceAdditionProvider
+     * @requires test_magic_invoke
+     * @requires test_head
+     */
+    public function test_reduce_callback($seq)
+    {
+        $head = $seq->head();
+        $seq->reduce(function () use ($seq, $head) {
+            $this->assertTrue(
+                4 === func_num_args()
+                , 'Seq->reduce callback should receive four arguments'
+            );
+
+            $prevValue = func_get_arg(0);
+            $value = func_get_arg(1);
+            $key = func_get_arg(2);
+            $container = func_get_arg(3);
+
+            $this->assertTrue(
+                $prevValue === $head
+                , 'Seq->reduce callback $prevValue should be the first value in the Seq'
+            );
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->reduce callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->reduce callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->reduce callback $container should be itself'
+            );
+            return $prevValue;
+        });
+    }
+
+    /**
+     * Ensure that the contract is maintained that reduce on none is undefined behavior
+     * @expectedException \Exception
+     */
+    public function test_reduce_contract_broken()
+    {
+        P\Seq::of()->reduce(function () {
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider reduceAdditionProvider
+     */
+    public function test_reduce_scenario_add($seq, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->reduce(function ($a, $b) {
+            return $a + $b;
+        })
+            , 'Seq->reduce application of add should produced the expected result'
+        );
+    }
+
+    public function unionDataProvider()
+    {
+        return [
+            'S[] with Some(1) and []' => [
+                P\Seq::of()
+                , [[], P\Some::of(1)]
+                , P\Seq::of(1)]
+            , 'S[1,2,3] with [4], S[5,6], and None' => [
+                P\Seq::of(1, 2, 3)
+                , [[4], P\Seq::of(5, 6), P\None()]
+                , P\Seq::of(1, 2, 3, 4, 5, 6)
+            ]
+            , 'S[None, Some(1)] with Some(1)'=>[
+                P\Seq::of(P\None, P\Some(1))
+                , [P\None(), P\Some(2)]
+                , P\Seq::of(P\None, P\Some(1), 2)
+            ]
+        ];
+
+    }
+
+    /**
+     * @dataProvider unionDataProvider
+     */
+    public function test_union($seq, $arrayLikeN, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , call_user_func_array([$seq, 'union'], $arrayLikeN)
+            , 'Seq->union is expected to join the data with itself and the passed array likes'
         );
     }
 
