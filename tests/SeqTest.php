@@ -862,6 +862,84 @@ class SeqTest extends PHPixme_TestCase
     }
 
 
+    public function tailProvider() {
+        return [
+            'keyless' => [
+                P\Seq::of(1,2,3)
+                , P\Seq::of(2,3)
+            ]
+            , 'keyed' => [
+                P\Seq::from([
+                    'one' => 1
+                    , 'two' => 2
+                    , 'three' => 3
+                ])
+                , P\Seq::from([
+                    'two' => 2
+                    , 'three' => 3
+                ])
+            ]
+            , 'empty' => [
+                P\Seq::of()
+                , P\Seq::of()
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider tailProvider
+     */
+    public function test_tail($seq, $expects) {
+        $this->assertEquals(
+            $expects
+            , $seq->tail()
+            , 'Seq->head should return the rest of the Sequence'
+        );
+    }
+
+    public function indexOfProvider() {
+        $none = P\None;
+        $some1 = P\Some(1);
+        $one = 1;
+        return [
+            'keyed source find None S[one=>1, none=>None, some=>Some(1) ]'=>[
+                P\Seq::from(['one'=>$one, 'none'=>$none, 'some'=>$some1])
+                , $none
+                , 'none'
+            ]
+            , 'source find None S[1,None, Some(1)]' => [
+                P\Seq::of($one, $none, $some1)
+                , $none
+                , 1
+            ]
+            , 'source find Some(1) in S[1,2,Some(1),3]' => [
+                P\Seq::of(1,2,$some1, 3)
+                , $some1
+                , 2
+            ]
+            , 'fail to find Some(1) in S[1,2,3]' => [
+                P\Seq::of(1,2,3)
+                , $some1
+                , -1
+            ]
+            , 'fail to find Some(1) in S[]' => [
+                P\Seq::of()
+                , $some1
+                , -1
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider indexOfProvider
+     */
+    public function test_indexOf($haystack, $needle, $expected) {
+        $this->assertEquals(
+            $expected
+            , $haystack->indexOf($needle)
+            , 'Seq->indexOf should yield the expected results for $needle in $haystack'
+        );
+    }
 
     public function isEmptyProvider() {
         return [
@@ -884,7 +962,4 @@ class SeqTest extends PHPixme_TestCase
             , 'Seq->isEmpty should be true if the source was empty'
         );
     }
-
-
-
 }
