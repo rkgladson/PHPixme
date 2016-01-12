@@ -23,7 +23,8 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         parent::__construct($this->array);
     }
 
-    protected static function arrayLikeToArray ($arrayLike) {
+    protected static function arrayLikeToArray($arrayLike)
+    {
         if ($arrayLike instanceof NaturalTransformationInterface) {
             return $arrayLike->toArray();
         }
@@ -162,7 +163,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         array_unshift($arrayLikeN, $this->array);
         return static::from(call_user_func_array('array_merge', map(function ($value) {
             return static::arrayLikeToArray($value);
-        },$arrayLikeN)));
+        }, $arrayLikeN)));
     }
 
     public function find(callable $hof)
@@ -209,13 +210,16 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function partition($hof)
     {
         __assertCallable($hof);
-        $output = [/*false =>*/
-            [],/*true =>*/
-            []];
+        $true = [];
+        $false = [];
         foreach ($this->array as $key => $value) {
-            $output[(boolean)$hof($value, $key, $this) ? 1 : 0][$key] = $value;
+            if ($hof($value, $key, $this)) {
+                $true[$key] = $value;
+            } else {
+                $false[$key] = $value;
+            }
         }
-        return $this::from($output);
+        return static::of(static::from($false), static::from($true));
     }
 
     public function group($hof)

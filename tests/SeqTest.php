@@ -788,7 +788,7 @@ class SeqTest extends PHPixme_TestCase
      */
     public function test_walk_callback($seq)
     {
-        $seq->find(function () use ($seq) {
+        $seq->walk(function () use ($seq) {
             $this->assertTrue(
                 3 === func_num_args()
                 , 'Seq->walk callback should receive three arguments'
@@ -807,7 +807,7 @@ class SeqTest extends PHPixme_TestCase
             );
             $this->assertTrue(
                 $seq === $container
-                , 'Seq->find callback $container should be itself'
+                , 'Seq->walk callback $container should be itself'
             );
         });
     }
@@ -829,10 +829,11 @@ class SeqTest extends PHPixme_TestCase
     }
 
 
-    public function headProvider() {
+    public function headProvider()
+    {
         return [
             'keyless' => [
-                P\Seq::of(1,2,3)
+                P\Seq::of(1, 2, 3)
                 , 1
             ]
             , 'keyed' => [
@@ -853,7 +854,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider headProvider
      */
-    public function test_head($seq, $expects) {
+    public function test_head($seq, $expects)
+    {
         $this->assertEquals(
             $expects
             , $seq->head()
@@ -862,11 +864,12 @@ class SeqTest extends PHPixme_TestCase
     }
 
 
-    public function tailProvider() {
+    public function tailProvider()
+    {
         return [
             'keyless' => [
-                P\Seq::of(1,2,3)
-                , P\Seq::of(2,3)
+                P\Seq::of(1, 2, 3)
+                , P\Seq::of(2, 3)
             ]
             , 'keyed' => [
                 P\Seq::from([
@@ -889,7 +892,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider tailProvider
      */
-    public function test_tail($seq, $expects) {
+    public function test_tail($seq, $expects)
+    {
         $this->assertEquals(
             $expects
             , $seq->tail()
@@ -897,13 +901,14 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function indexOfProvider() {
+    public function indexOfProvider()
+    {
         $none = P\None;
         $some1 = P\Some(1);
         $one = 1;
         return [
-            'keyed source find None S[one=>1, none=>None, some=>Some(1) ]'=>[
-                P\Seq::from(['one'=>$one, 'none'=>$none, 'some'=>$some1])
+            'keyed source find None S[one=>1, none=>None, some=>Some(1) ]' => [
+                P\Seq::from(['one' => $one, 'none' => $none, 'some' => $some1])
                 , $none
                 , 'none'
             ]
@@ -913,12 +918,12 @@ class SeqTest extends PHPixme_TestCase
                 , 1
             ]
             , 'source find Some(1) in S[1,2,Some(1),3]' => [
-                P\Seq::of(1,2,$some1, 3)
+                P\Seq::of(1, 2, $some1, 3)
                 , $some1
                 , 2
             ]
             , 'fail to find Some(1) in S[1,2,3]' => [
-                P\Seq::of(1,2,3)
+                P\Seq::of(1, 2, 3)
                 , $some1
                 , -1
             ]
@@ -933,7 +938,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider indexOfProvider
      */
-    public function test_indexOf($haystack, $needle, $expected) {
+    public function test_indexOf($haystack, $needle, $expected)
+    {
         $this->assertEquals(
             $expected
             , $haystack->indexOf($needle)
@@ -941,13 +947,72 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function isEmptyProvider() {
+    public function partitionProvider()
+    {
         return [
-            'nothing'=>[
+            'from 1 to 9 paritioned by odd (true) and even(false)' => [
+                P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+                , function ($value, $key) {
+                    return ($key % 2) === 0;
+                }
+                , P\Seq::of(
+                    P\Seq::from([1 => 2, 3 => 4, 5 => 6, 7 => 8])
+                    , P\Seq::From([0 => 1, 2 => 3, 4 => 5, 6 => 7, 8 => 9])
+                )
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider partitionProvider
+     */
+    public function test_partition_callback($seq)
+    {
+        $seq->partition(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->partition callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->partition callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->partition callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->partition callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider partitionProvider
+     */
+    public function test_partition($seq, $hof, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->partition($hof)
+            , 'Seq->partition should seperate as expected the results of the $hof based on its true(index 1) false(index 0) value'
+        );
+    }
+
+    public function isEmptyProvider()
+    {
+        return [
+            'nothing' => [
                 []
             ],
             'from 1 to 9' => [
-                [1,2,3,4,5,6,7,8,9]
+                [1, 2, 3, 4, 5, 6, 7, 8, 9]
             ]
         ];
     }
@@ -955,7 +1020,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider isEmptyProvider
      */
-    public function test_isEmpty($source) {
+    public function test_isEmpty($source)
+    {
         $this->assertEquals(
             empty($source)
             , P\Seq::from($source)->isEmpty()
