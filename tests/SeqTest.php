@@ -1023,9 +1023,9 @@ class SeqTest extends PHPixme_TestCase
                     return 'donno';
                 }
                 , P\Seq::from([
-                    'number'=>P\Seq::from([0=>1, 2=>3, 4=>5, 6=>7])
-                    , 'string' =>P\Seq::from([1=>'2', 5=>6])
-                    , 'object' => P\Seq::from([3=>P\Some(4)])
+                    'number' => P\Seq::from([0 => 1, 2 => 3, 4 => 5, 6 => 7])
+                    , 'string' => P\Seq::from([1 => '2', 5 => 6])
+                    , 'object' => P\Seq::from([3 => P\Some(4)])
                 ])
             ]
         ];
@@ -1034,7 +1034,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider groupProvider
      */
-    public function test_group_callback ($seq) {
+    public function test_group_callback($seq)
+    {
         $seq->group(function () use ($seq) {
             $this->assertTrue(
                 3 === func_num_args()
@@ -1063,7 +1064,8 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider groupProvider
      */
-    public function test_group($seq, $hof, $expected) {
+    public function test_group($seq, $hof, $expected)
+    {
         $this->assertEquals(
             $expected
             , $seq->group($hof)
@@ -1071,7 +1073,8 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function dropProvider() {
+    public function dropProvider()
+    {
         return [
             'empty drop 5' => [
                 P\Seq::of()
@@ -1079,9 +1082,9 @@ class SeqTest extends PHPixme_TestCase
                 , P\Seq::of()
             ]
             , 'S[1,2,3,4] drop 3' => [
-                P\Seq::of(1,2,3,4)
+                P\Seq::of(1, 2, 3, 4)
                 , 3
-                , P\Seq::from([3=>4])
+                , P\Seq::from([3 => 4])
             ]
         ];
     }
@@ -1089,11 +1092,40 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider dropProvider
      */
-    public function test_drop($seq, $number, $expected) {
+    public function test_drop($seq, $number, $expected)
+    {
         $this->assertEquals(
             $expected
             , $seq->drop($number)
             , 'Seq->drop of amount results are functionally equivilent to expected'
+        );
+    }
+
+    public function dropRightProvider()
+    {
+        return [
+            'empty drop right 5' => [
+                P\Seq::of()
+                , 5
+                , P\Seq::of()
+            ]
+            , 'S[1,2,3,4] drop right 3' => [
+                P\Seq::of(1, 2, 3, 4)
+                , 3
+                , P\Seq::from([0 => 1])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider dropRightProvider
+     */
+    public function test_dropRight($seq, $amount, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->dropRight($amount)
+            , 'Seq->dropRight of amount should produce the Sequence expected'
         );
     }
 
