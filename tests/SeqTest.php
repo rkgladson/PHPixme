@@ -689,7 +689,7 @@ class SeqTest extends PHPixme_TestCase
                 , [[4], P\Seq::of(5, 6), P\None()]
                 , P\Seq::of(1, 2, 3, 4, 5, 6)
             ]
-            , 'S[None, Some(1)] with Some(1)'=>[
+            , 'S[None, Some(1)] with Some(1)' => [
                 P\Seq::of(P\None, P\Some(1))
                 , [P\None(), P\Some(2)]
                 , P\Seq::of(P\None, P\Some(1), 2)
@@ -710,4 +710,64 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
+    public function findProvider()
+    {
+        return [
+            'find 1' => [
+                P\Seq::of(1, 2, 3)
+                , 1
+                , P\Some(1)
+            ]
+            , 'fail to find 4' => [
+                P\Seq::of(1, 2, 3)
+                , 4
+                , P\None()
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider findProvider
+     * @requires test_magic_invoke
+     */
+    public function test_find_callback($seq)
+    {
+        $seq->find(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->find callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->find callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->find callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->find callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider findProvider
+     */
+    public function test_find($seq, $value, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->find(function ($x) use ($value) {
+            return $x === $value;
+        })
+            , 'Seq->find should result in the expected value for any positive otucome of callback'
+        );
+    }
 }
