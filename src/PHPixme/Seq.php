@@ -228,12 +228,14 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         $output = [];
         foreach ($this->array as $key => $value) {
             $groupKey = (string)$hof($value, $key, $this);
-            if (!is_array($output[$groupKey])) {
+            if (!isset($output[$groupKey])) {
                 $output[$groupKey] = [];
             }
             $output[$groupKey][$key] = $value;
         }
-        return $this::from($output);
+        return static::from(map(function ($value) {
+            return static::from($value);
+        }, $output));
     }
 
     public function drop($number = 0)

@@ -1001,7 +1001,73 @@ class SeqTest extends PHPixme_TestCase
         $this->assertEquals(
             $expected
             , $seq->partition($hof)
-            , 'Seq->partition should seperate as expected the results of the $hof based on its true(index 1) false(index 0) value'
+            , 'Seq->partition should separate as expected the results of the $hof based on its true(index 1) false(index 0) value'
+        );
+    }
+
+    public function groupProvider()
+    {
+        return [
+            '' => [
+                P\Seq::of(1, '2', 3, P\Some(4), 5, '6', 7)
+                , function ($value) {
+                    if (is_string($value)) {
+                        return 'string';
+                    }
+                    if (is_numeric($value)) {
+                        return 'number';
+                    }
+                    if (is_object($value)) {
+                        return 'object';
+                    }
+                    return 'donno';
+                }
+                , P\Seq::from([
+                    'number'=>P\Seq::from([0=>1, 2=>3, 4=>5, 6=>7])
+                    , 'string' =>P\Seq::from([1=>'2', 5=>6])
+                    , 'object' => P\Seq::from([3=>P\Some(4)])
+                ])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider groupProvider
+     */
+    public function test_group_callback ($seq) {
+        $seq->group(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->group callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->group callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->group callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->group callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider groupProvider
+     */
+    public function test_group($seq, $hof, $expected) {
+        $this->assertEquals(
+            $expected
+            , $seq->group($hof)
+            , 'Seq->group, applied to the key values given by the hof, should be a nested sequence of expected Seq'
         );
     }
 
