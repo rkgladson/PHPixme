@@ -19,19 +19,25 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
      */
     public function __construct($arrayLike)
     {
+        $this->array = static::arrayLikeToArray($arrayLike);
+        parent::__construct($this->array);
+    }
+
+    protected static function arrayLikeToArray ($arrayLike) {
         if ($arrayLike instanceof NaturalTransformationInterface) {
-            $this->array = $arrayLike->toArray();
+            return $arrayLike->toArray();
         }
         __assertTraversable($arrayLike);
         if (is_array($arrayLike)) {
-            $this->array = $arrayLike;
-        } else {
-            $this->array = [];
-            foreach ($arrayLike as $key => $value) {
-                $this->array[$key] = $value;
-            }
+            return $arrayLike;
         }
-        parent::__construct($this->array);
+
+        $output = [];
+        foreach ($arrayLike as $key => $value) {
+            $output[$key] = $value;
+        }
+        return $output;
+
     }
 
     /**
@@ -87,12 +93,16 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function flatMap(callable $hof)
     {
-        // TODO: Implement flatMap() method.
+        return static::from(call_user_func_array('array_merge', map(function ($value, $key) use ($hof) {
+            return static::arrayLikeToArray($hof($value, $key, $this));
+        }, $this->array)));
     }
 
     public function flatten()
     {
-        // TODO: Implement flatten() method.
+        return static::from(call_user_func_array('array_merge', map(function ($value) {
+            return static::arrayLikeToArray($value);
+        }, $this->array)));
     }
 
     public function fold($startVal, callable $hof)
@@ -106,17 +116,18 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function forAll(callable $predicate)
     {
-        foreach($this->array as $key=>$value) {
+        foreach ($this->array as $key => $value) {
             if (!($predicate($value, $key, $this))) {
                 return false;
             }
         }
         return true;
     }
+
     public function forSome(callable $predicate)
     {
-        foreach($this->array as $key=>$value) {
-            if($predicate($value, $key, $this)) {
+        foreach ($this->array as $key => $value) {
+            if ($predicate($value, $key, $this)) {
                 return true;
             }
         }
@@ -125,8 +136,8 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function forNone(callable $predicate)
     {
-        foreach($this->array as $key=>$value) {
-            if($predicate($value, $key, $this)) {
+        foreach ($this->array as $key => $value) {
+            if ($predicate($value, $key, $this)) {
                 return false;
             }
         }
@@ -149,13 +160,12 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function union(...$arrayLikeN)
     {
         $output = $this->array;
-        foreach ($arrayLikeN as $arrayLike) {
-            __assertTraversable($arrayLike);
-            foreach ($arrayLike as $key => $value) {
-                $output[$key] = $value;
-            }
-        }
-        return $this::from($output);
+       foreach ($arrayLikeN as $arrayLike) {
+           // Append the list of array Likes to this output array
+           $output = array_merge($output, static::arrayLikeToArray($arrayLike));
+       }
+        // Wrap the output in its type
+        return static::from($output);
     }
 
     public function find(callable $hof)
@@ -255,15 +265,19 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return empty($this->array);
     }
 
-    public function toString($glue = ',') {
+    public function toString($glue = ',')
+    {
         return implode($glue, $this->array);
     }
-    public function toJson() {
+
+    public function toJson()
+    {
         return json_encode($this->array);
     }
-    public function reverse() {
+
+    public function reverse()
+    {
         return $this::from(array_reverse($this->array, true));
     }
-
 
 }

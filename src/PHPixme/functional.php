@@ -2,12 +2,12 @@
 namespace PHPixme;
 //Fixme: figure out a way to get auto-loader to let me pass in my namespace level function instances
 global $__PHPIXME_NAMESPACE;
-    /**
-     * Created by PhpStorm.
-     * User: rgladson
-     * Date: 12/24/2015
-     * Time: 12:11 PM
-     */
+/**
+ * Created by PhpStorm.
+ * User: rgladson
+ * Date: 12/24/2015
+ * Time: 12:11 PM
+ */
 
 // -- curry --
 
@@ -272,21 +272,18 @@ $__PHPIXME_NAMESPACE[map] = curry(2, function (callable $hof, $traversable) {
     }
     __assertTraversable($traversable);
     $output = [];
-    foreach($traversable as $key => $value) {
+    foreach ($traversable as $key => $value) {
         $output[$key] = $hof($value, $key, $traversable);
     }
     return $output;
 });
-function map(callable $hof)
+function map(callable $hof, $traversable = null)
 {
     global $__PHPIXME_NAMESPACE;
-    $map = $__PHPIXME_NAMESPACE[map];
-    return $map($hof);
+    return call_user_func_array($__PHPIXME_NAMESPACE[map], func_get_args());
 }
 
 // == map ==
-
-
 
 
 // -- Internal functions --

@@ -64,6 +64,27 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
+    public function test_toArray()
+    {
+        // The only meaningful way to test this is with array only sources
+        $values = [
+            []
+            , [1, 2, 3]
+            , ['one' => 1, 'two' => 2]
+            , [P\Some(1), P\None()]
+            , [P\Seq::of(1, 2, 3), P\Seq::of(4, 5, 6)]
+        ];
+        foreach ($values as $value) {
+            $seq = P\Seq($value);
+            $this->assertEquals(
+                $value
+                , $seq->toArray()
+                , 'Seq->toArray will should return its inner array, and should be functionally equivalent to the array it was given'
+            );
+        }
+
+    }
+
     /**
      * @dataProvider seqSourceProvider
      */
@@ -253,4 +274,88 @@ class SeqTest extends PHPixme_TestCase
             , 'Seq-filterNot callback true should contain no data'
         );
     }
+
+    public function nestedTestProvider()
+    {
+        // Provides flatten operations with the solution
+        return [
+            'nested array' => [
+                [[1, 2, 3], [4, 5, 6]]
+                , [1, 2, 3, 4, 5, 6]
+            ]
+            , 'array with some' => [
+                [P\Some(1), P\Some(2), P\Some(3)]
+                , [1, 2, 3]
+            ]
+            , 'Seq of Seq' => [
+                P\Seq::of(P\Seq::of(1, 2, 3), P\Seq::of(4, 5, 6))
+                , [1, 2, 3, 4, 5, 6]
+            ]
+            , 'Seq of array' => [
+                P\seq::of([1, 2, 3], [4, 5, 6])
+                , [1, 2, 3, 4, 5, 6]
+            ]
+        ];
+    }
+
+
+    /**
+     * @dataProvider nestedTestProvider
+     */
+    public function test_flatMap_callback($value, $solution)
+    {
+        $seq = P\Seq($value);
+        $seq->flatMap(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->flatMap callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->flatMap callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->flatMap callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->flatMap callback $container should be itself'
+            );
+            return $value;
+        });
+    }
+
+    /**
+     * Ensure the function throws an exception when the contract of a non-traversable item is passed to it from the $hof
+     * @expectedException \Exception
+     */
+    public function test_flatMap_contract_broken()
+    {
+        P\Seq::of(1, 2, 3)->flatMap(function () {
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider nestedTestProvider
+     * @depends      test_toArray
+     */
+    public function test_flatMap_scenario_idenity($input, $expected)
+    {
+        $id = function ($value) {
+            return $value;
+        };
+        $this->assertEquals(
+            $expected
+            , P\Seq::from($input)->flatMap($id)->toArray()
+            , 'Seq->flatMap applied with id should be functionally equivalent to flatten'
+        );
+    }
+
+
 }
