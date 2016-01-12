@@ -546,7 +546,63 @@ class SeqTest extends PHPixme_TestCase
         $this->assertEquals(
             $expected
             , $seq->forNone($positive)
-            , 'Seq->forNone callback should all be as expected based on positive result'
+            , 'Seq->forNone callback should have none be as expected based on positive result'
         );
     }
+
+    public function forSomeProvider()
+    {
+        return [
+            'seq from 1 to 4' => [P\Seq::of(1, 2, 3, 4), true]
+            , 'seq from -2 to 2' => [P\Seq::of(-2, -1, 0, 1, 2), true]
+            , 'seq from -4 to -1' => [P\Seq::of(-4, -3, -2, -1), false]
+        ];
+    }
+
+    /**
+     * @dataProvider forSomeProvider
+     * @requires test_magic_invoke
+     */
+    public function test_forSome_callback($seq)
+    {
+        $seq->forSome(function () use ($seq) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'Seq->forSome callback should receive three arguments'
+            );
+            $value = func_get_arg(0);
+            $key = func_get_arg(1);
+            $container = func_get_arg(2);
+
+            $this->assertTrue(
+                ($seq($key)) === $value
+                , 'Seq->forSome callback $value should be equal to the value at $key'
+            );
+            $this->assertNotFalse(
+                $key
+                , 'Seq->forSome callback $key should be defined'
+            );
+            $this->assertTrue(
+                $seq === $container
+                , 'Seq->forSome callback $container should be itself'
+            );
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider forSomeProvider
+     */
+    public function test_forSome_scenario_positive($seq, $expected)
+    {
+        $positive = function ($value) {
+            return $value > 0;
+        };
+        $this->assertEquals(
+            $expected
+            , $seq->forSome($positive)
+            , 'Seq->forNone callback should at least one be as expected based on positive result'
+        );
+    }
+
 }
