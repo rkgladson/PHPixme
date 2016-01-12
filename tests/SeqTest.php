@@ -1206,7 +1206,7 @@ class SeqTest extends PHPixme_TestCase
     {
         return [
             'empty' => [
-                [] , ''
+                [], ''
             ]
             , 'S{integer}' => [
                 [1, 2, 3, 4, 5]
@@ -1261,6 +1261,28 @@ class SeqTest extends PHPixme_TestCase
             json_encode($array)
             , P\Seq::from($array)->toJson()
             , 'Seq->toJson should be functionally equivalent to json_encode(Seq->toArray)'
+        );
+    }
+
+    public function reverseProvider()
+    {
+        return [
+            'S[1,2,3]' => [
+                P\Seq::of(1, 2, 3)
+                , P\Seq::from([2 => 3, 1 => 2, 0 => 1])
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider reverseProvider
+     */
+    public function test_reverse($seq, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , $seq->reverse()
+            , 'Seq->reverse should reverse the traversal order of a Seq'
         );
     }
 }
