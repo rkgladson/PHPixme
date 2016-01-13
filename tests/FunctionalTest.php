@@ -269,4 +269,22 @@ class FunctionalTest extends PHPixme_TestCase
             , 'K resultant closure should return the constant that has been closed'
         );
     }
+
+    public function test_KI_te($value = true, $notValue = false) {
+        $this->assertStringEndsWith(
+            '\KI'
+            , P\KI
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\KI($value)
+            , 'KI should return a closure'
+        );
+        $this->assertEquals(
+            $notValue
+            , P\KI($value)->__invoke($notValue)
+            , 'K resultant closure should ignore the constant and return the argument it recieves'
+        );
+    }
 }
