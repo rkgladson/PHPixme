@@ -12,8 +12,11 @@ use PHPixme as P;
 const Closure = '\Closure';
 class FunctionalTest extends PHPixme_TestCase
 {
-    public function test_curry() {
-        $countArgs = function () {return func_num_args();};
+    public function test_curry()
+    {
+        $countArgs = function () {
+            return func_num_args();
+        };
         $param3 = P\curry(3, $countArgs);
         $this->assertStringEndsWith(
             '\curry'
@@ -27,17 +30,17 @@ class FunctionalTest extends PHPixme_TestCase
         );
         $this->assertInstanceOf(
             Closure
-            ,  $param3(1)
+            , $param3(1)
             , 'Curried functions should be still a closure when partially applied'
         );
         $this->assertEquals(
             3
-            , $param3(1,2,3)
+            , $param3(1, 2, 3)
             , 'Curried functions should run when the minimum arguments are applied'
         );
         $this->assertEquals(
             4
-            , $param3(1,2,3,4)
+            , $param3(1, 2, 3, 4)
             , 'Curried functions may pass more than the minimum arity is passed'
         );
         $this->assertEquals(
@@ -58,13 +61,16 @@ class FunctionalTest extends PHPixme_TestCase
         );
         $this->assertEquals(
             2
-            , $curry2($countArgs)->__invoke(1,2)
+            , $curry2($countArgs)->__invoke(1, 2)
             , 'The partially applied version of curry should behave just like the non-partially applied one'
         );
     }
 
-    public function test_nAry() {
-        $countArgs = function () { return func_num_args(); };
+    public function test_nAry()
+    {
+        $countArgs = function () {
+            return func_num_args();
+        };
         $this->assertStringEndsWith(
             '\nAry'
             , P\nAry
@@ -77,7 +83,7 @@ class FunctionalTest extends PHPixme_TestCase
         );
         $this->assertEquals(
             1
-            , P\nAry(1)->__invoke($countArgs)->__invoke(1,2,3)
+            , P\nAry(1)->__invoke($countArgs)->__invoke(1, 2, 3)
             , 'nAry Partially applied should still produce a wrapped function that eats arguments'
         );
         $this->assertInstanceOf(
@@ -87,14 +93,16 @@ class FunctionalTest extends PHPixme_TestCase
         );
         $this->assertEquals(
             1
-            , P\nAry(1, $countArgs)->__invoke(1,2,3,4)
+            , P\nAry(1, $countArgs)->__invoke(1, 2, 3, 4)
             , 'fully applied should still work the same as partially applied, eating arguments'
         );
     }
 
     public function test_unary()
     {
-        $countArgs = function () {return func_num_args();};
+        $countArgs = function () {
+            return func_num_args();
+        };
         $this->assertStringEndsWith(
             '\unary'
             , P\unary
@@ -108,14 +116,16 @@ class FunctionalTest extends PHPixme_TestCase
 
         $this->assertEquals(
             1
-            , P\unary($countArgs)->__invoke(1,2,3)
+            , P\unary($countArgs)->__invoke(1, 2, 3)
             , 'Unary should eat all but one argument'
         );
     }
 
     public function test_binary()
     {
-        $countArgs = function () {return func_num_args();};
+        $countArgs = function () {
+            return func_num_args();
+        };
         $this->assertStringEndsWith(
             '\binary'
             , P\binary
@@ -129,13 +139,16 @@ class FunctionalTest extends PHPixme_TestCase
 
         $this->assertEquals(
             2
-            , P\binary($countArgs)->__invoke(1,2,3)
+            , P\binary($countArgs)->__invoke(1, 2, 3)
             , 'binary should eat all but two arguments'
         );
     }
+
     public function test_ternary()
     {
-        $countArgs = function () {return func_num_args();};
+        $countArgs = function () {
+            return func_num_args();
+        };
         $this->assertStringEndsWith(
             '\ternary'
             , P\ternary
@@ -149,13 +162,16 @@ class FunctionalTest extends PHPixme_TestCase
 
         $this->assertEquals(
             3
-            , P\ternary($countArgs)->__invoke(1,2,3,4)
+            , P\ternary($countArgs)->__invoke(1, 2, 3, 4)
             , 'ternary should eat all but three arguments'
         );
     }
+
     public function test_nullary()
     {
-        $countArgs = function () {return func_num_args();};
+        $countArgs = function () {
+            return func_num_args();
+        };
         $this->assertStringEndsWith(
             '\nullary'
             , P\nullary
@@ -169,13 +185,14 @@ class FunctionalTest extends PHPixme_TestCase
 
         $this->assertEquals(
             0
-            , P\nullary($countArgs)->__invoke(1,2,3,4)
+            , P\nullary($countArgs)->__invoke(1, 2, 3, 4)
             , 'nullary should eat all arguments'
         );
     }
 
-    public function test_flip() {
-        $getArgs = function() {
+    public function test_flip()
+    {
+        $getArgs = function () {
             return func_get_args();
         };
         $this->assertStringEndsWith(
@@ -191,21 +208,47 @@ class FunctionalTest extends PHPixme_TestCase
         );
 
         $this->assertEquals(
-            [2,1,3,4,5]
-            , P\flip($getArgs)->__invoke(1,2,3,4,5)
+            [2, 1, 3, 4, 5]
+            , P\flip($getArgs)->__invoke(1, 2, 3, 4, 5)
             , 'Flip should flip the first two arguments'
         );
         $this->assertInstanceOf(
             Closure
             , P\flip($getArgs)->__invoke(1)
             , 'Flip partially applied should return a closure'
-        )
-        ;$this->assertEquals(
-            [2,1,3,4,5]
-            , P\flip($getArgs)->__invoke(1)->__invoke(2,3,4,5)
+        );
+
+        $this->assertEquals(
+            [2, 1, 3, 4, 5]
+            , P\flip($getArgs)->__invoke(1)->__invoke(2, 3, 4, 5)
             , 'Flip partially applied should return the flipped arguments'
         );
 
+    }
 
+    public function test_combine() {
+        $this->assertStringEndsWith(
+            '\combine'
+            , P\combine
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\combine('json_encode', 'array_reverse')
+            , 'combine should return a closure'
+        );
+
+        $this->assertInstanceOf(
+            Closure
+            , P\combine('json_encode')
+            , 'combine should be a curried function'
+        );
+
+        $array = [1,2,3];
+        $this->assertEquals(
+            json_encode(array_reverse($array))
+            , P\combine('json_encode')->__invoke('array_reverse')->__invoke($array)
+            , 'combine should be able to chain the outputs to produce hof results'
+        );
     }
 }

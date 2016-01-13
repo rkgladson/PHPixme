@@ -122,17 +122,17 @@ const combine = 'PHPixme\combine';
 $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
     __assertCallable($x);
     __assertCallable($y);
-    return function ($z) use (&$x, &$y) {
+    return function ($z) use ($x, $y) {
         $step1 = $y($z);
         return $x($step1);
     };
 });
 /**
  * @param callable $hofSecond
- * @param callable = $hofFirst
+ * @param callable= $hofFirst
  * @return callable
  */
-function combine($hofSecond, $hofFirst)
+function combine($hofSecond, $hofFirst = null)
 {
     global $__PHPIXME_NAMESPACE;
     return call_user_func_array($__PHPIXME_NAMESPACE[combine], func_get_args());
