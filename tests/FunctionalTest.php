@@ -15,7 +15,11 @@ class FunctionalTest extends PHPixme_TestCase
     public function test_curry() {
         $countArgs = function () {return func_num_args();};
         $param3 = P\curry(3, $countArgs);
-
+        $this->assertStringEndsWith(
+            '\curry'
+            , P\curry
+            , 'Ensure the constant is assigned to its function name'
+        );
         $this->assertInstanceOf(
             Closure
             , $param3
@@ -61,6 +65,11 @@ class FunctionalTest extends PHPixme_TestCase
 
     public function test_nAry() {
         $countArgs = function () { return func_num_args(); };
+        $this->assertStringEndsWith(
+            '\nAry'
+            , P\nAry
+            , 'Ensure the constant is assigned to its function name'
+        );
         $this->assertInstanceOf(
             Closure
             , P\nAry(1)
@@ -83,4 +92,24 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
+    public function test_unary()
+    {
+        $countArgs = function () {return func_num_args();};
+        $this->assertStringEndsWith(
+            '\unary'
+            , P\unary
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\unary($countArgs)
+            , 'unary should return a closure'
+        );
+
+        $this->assertEquals(
+            1
+            , P\unary($countArgs)->__invoke(1,2,3)
+            , 'Unary should eat all but one argument'
+        );
+    }
 }
