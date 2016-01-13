@@ -1285,4 +1285,49 @@ class SeqTest extends PHPixme_TestCase
             , 'Seq->reverse should reverse the traversal order of a Seq'
         );
     }
+
+    public function forEachProvider() {
+        return [
+            'S[1,2,3,4]'=>[
+                P\Seq::of(1,2,3,4)
+                ,[0,1,2,3]
+                ,[1,2,3,4]
+            ]
+            , 'S[1,2,3,4]->reverse()'=>[
+                P\Seq::of(1,2,3,4)->reverse()
+                , [3,2,1,0]
+                , [4,3,2,1]
+            ]
+            , 'S[Some(1),Some(2)]'=>[
+                P\Seq::of(P\Some(1), P\Some(2))
+                , [0, 1]
+                , [P\Some(1), P\Some(2)]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider forEachProvider
+     */
+    public function test_forEach($seq, $keyR, $valueR)
+    {
+        $idx = 0;
+        foreach($seq as $key => $value) {
+            $this->assertEquals(
+                $keyR[$idx]
+                , $key
+                , 'The key at this step should equal the expected key'
+            );
+            $this->assertEquals(
+                $valueR[$idx]
+                , $value
+                , 'The value at this step should equal the expected value'
+            );
+            $idx+=1;
+        }
+        $this->assertEquals(
+            $seq->count()
+            , $idx
+        );
+    }
 }
