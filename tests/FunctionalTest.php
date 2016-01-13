@@ -251,4 +251,22 @@ class FunctionalTest extends PHPixme_TestCase
             , 'combine should be able to chain the outputs to produce hof results'
         );
     }
+
+    public function test_K_estrel ($value = true, $notValue = false) {
+        $this->assertStringEndsWith(
+            '\K'
+            , P\K
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\K($value)
+            , 'K should return a closure'
+        );
+        $this->assertEquals(
+            $value
+            , P\K($value)->__invoke($notValue)
+            , 'K resultant closure should return the constant that has been closed'
+        );
+    }
 }
