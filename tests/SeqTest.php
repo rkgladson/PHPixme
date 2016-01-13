@@ -1328,6 +1328,7 @@ class SeqTest extends PHPixme_TestCase
         $this->assertEquals(
             $seq->count()
             , $idx
+            , 'The for each should of ran the length of the contained array'
         );
     }
 }
