@@ -331,4 +331,87 @@ class FunctionalTest extends PHPixme_TestCase
             ,P\S($kvMap, 'array_keys')->__invoke($array)
         );
     }
+
+    public function test_fold($value = 1, $array = [1,2,3,4]) {
+        $this->assertStringEndsWith(
+            '\fold'
+            , P\fold
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\fold(P\I, $value)
+            , 'fold when partially applied should return a closure'
+        );
+        $this->assertEquals(
+            $value
+            , P\fold(P\I, $value)->__invoke($array)
+            , 'An idiot applied to fold should always return the start value'
+        );
+    }
+
+    public function foldScenarioProvider() {
+        $add = function($a, $b) { return $a + $b; };
+        return [
+            'add simple empty array'=>[
+                []
+                , 0
+                , $add
+                , 0
+            ]
+            , 'add simple S[]'=>[
+                P\Seq::of()
+                , 0
+                , $add
+                , 0
+            ]
+            , 'add simple None'=>[
+                P\None()
+                , 0
+                , $add
+                , 0
+            ]
+            , 'add empty ArrayObject' => [
+                new \ArrayIterator([])
+                , 0
+                , $add
+                , 0
+            ]
+            , 'add 1+2+3'=>[
+                [1,2,3]
+                , 0
+                , $add
+                , 6
+            ]
+            , 'add S[1,2,3]'=>[
+                P\Seq::of()
+                , 0
+                , $add
+                , 0
+            ]
+            , 'Some(2)+2'=>[
+                P\Some(2)
+                , 2
+                , $add
+                , 4
+            ]
+            , 'add ArrayObject[1,2,3]' => [
+                new \ArrayIterator([1,2,3])
+                , 0
+                , $add
+                , 6
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider foldScenarioProvider
+     */
+    public function test_fold_scenario($arrayLike, $startVal, $action, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , P\fold($action, $startVal, $arrayLike)
+        );
+    }
 }

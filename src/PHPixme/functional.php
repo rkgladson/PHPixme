@@ -214,7 +214,7 @@ const fold = 'PHPixme\fold';
 $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
-        return $arrayLike->fold($hof, $startVal);
+        return $arrayLike->fold($startVal, $hof);
     }
     __assertTraversable($arrayLike);
     $output = $startVal;
