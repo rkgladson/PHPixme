@@ -87,7 +87,15 @@ function ternary($hof)
 }
 
 // == ternary ==
-
+// -- nullary --
+const nullary = 'PHPixme\nullary';
+function nullary ($hof) {
+    __assertCallable($hof);
+    return function() use ($hof) {
+        return $hof();
+    };
+}
+// == nullary ==
 
 // -- flip --
 const flip = 'PHPixme\flip';

@@ -153,4 +153,24 @@ class FunctionalTest extends PHPixme_TestCase
             , 'ternary should eat all but three arguments'
         );
     }
+    public function test_nullary()
+    {
+        $countArgs = function () {return func_num_args();};
+        $this->assertStringEndsWith(
+            '\nullary'
+            , P\nullary
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\nullary($countArgs)
+            , 'nullary should return a closure'
+        );
+
+        $this->assertEquals(
+            0
+            , P\nullary($countArgs)->__invoke(1,2,3,4)
+            , 'nullary should eat all arguments'
+        );
+    }
 }
