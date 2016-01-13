@@ -58,4 +58,29 @@ class FunctionalTest extends PHPixme_TestCase
             , 'The partially applied version of curry should behave just like the non-partially applied one'
         );
     }
+
+    public function test_nAry() {
+        $countArgs = function () { return func_num_args(); };
+        $this->assertInstanceOf(
+            Closure
+            , P\nAry(1)
+            , 'nAry should be partially applied'
+        );
+        $this->assertEquals(
+            1
+            , P\nAry(1)->__invoke($countArgs)->__invoke(1,2,3)
+            , 'nAry Partially applied should still produce a wrapped function that eats arguments'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\nAry(1, $countArgs)
+            , 'nAry fully applied should produce a closure'
+        );
+        $this->assertEquals(
+            1
+            , P\nAry(1, $countArgs)->__invoke(1,2,3,4)
+            , 'fully applied should still work the same as partially applied, eating arguments'
+        );
+    }
+
 }
