@@ -173,4 +173,39 @@ class FunctionalTest extends PHPixme_TestCase
             , 'nullary should eat all arguments'
         );
     }
+
+    public function test_flip() {
+        $getArgs = function() {
+            return func_get_args();
+        };
+        $this->assertStringEndsWith(
+            '\flip'
+            , P\flip
+            , 'Ensure the constant is assigned to its function name'
+        );
+
+        $this->assertInstanceOf(
+            Closure
+            , P\flip($getArgs)
+            , 'Flip should return a closure'
+        );
+
+        $this->assertEquals(
+            [2,1,3,4,5]
+            , P\flip($getArgs)->__invoke(1,2,3,4,5)
+            , 'Flip should flip the first two arguments'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\flip($getArgs)->__invoke(1)
+            , 'Flip partially applied should return a closure'
+        )
+        ;$this->assertEquals(
+            [2,1,3,4,5]
+            , P\flip($getArgs)->__invoke(1)->__invoke(2,3,4,5)
+            , 'Flip partially applied should return the flipped arguments'
+        );
+
+
+    }
 }
