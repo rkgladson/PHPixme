@@ -287,4 +287,17 @@ class FunctionalTest extends PHPixme_TestCase
             , 'K resultant closure should ignore the constant and return the argument it recieves'
         );
     }
+
+    public function test_I_diot_bird($value = true) {
+        $this->assertStringEndsWith(
+            '\I'
+            , P\I
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertEquals(
+            $value
+            , P\I($value)
+            , 'The notoriously simple idiot bird proves useful in unusual places'
+        );
+    }
 }
