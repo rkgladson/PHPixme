@@ -66,6 +66,7 @@ function unary($hof)
 // == unary ==
 
 // -- binary --
+const binary = 'PHPixme\binary';
 function binary($hof)
 {
     __assertCallable($hof);

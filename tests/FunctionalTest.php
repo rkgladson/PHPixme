@@ -112,4 +112,45 @@ class FunctionalTest extends PHPixme_TestCase
             , 'Unary should eat all but one argument'
         );
     }
+
+    public function test_binary()
+    {
+        $countArgs = function () {return func_num_args();};
+        $this->assertStringEndsWith(
+            '\binary'
+            , P\binary
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\binary($countArgs)
+            , 'binary should return a closure'
+        );
+
+        $this->assertEquals(
+            2
+            , P\binary($countArgs)->__invoke(1,2,3)
+            , 'binary should eat all but two arguments'
+        );
+    }
+    public function test_ternary()
+    {
+        $countArgs = function () {return func_num_args();};
+        $this->assertStringEndsWith(
+            '\ternary'
+            , P\ternary
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\ternary($countArgs)
+            , 'ternary should return a closure'
+        );
+
+        $this->assertEquals(
+            3
+            , P\ternary($countArgs)->__invoke(1,2,3,4)
+            , 'ternary should eat all but three arguments'
+        );
+    }
 }
