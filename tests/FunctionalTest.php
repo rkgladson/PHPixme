@@ -332,6 +332,63 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
+
+    public function foldCallbackProvider() {
+        return [
+            'array callback' => [
+                [1], 1, 0
+            ]
+            , 'traversable callback' => [
+                new \ArrayIterator([1]), 1, 0
+            ]
+            , 'natural interface callback'=>[
+                P\Seq([1]), 1, 0
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider foldCallbackProvider
+     */
+    public function test_fold_callback($value, $expVal, $expKey) {
+        $startVal = 1;
+        P\fold(function() use ($startVal, $value, $expVal, $expKey) {
+            $this->assertEquals(
+                4
+                , func_num_args()
+                , 'fold callback should receive four arguments'
+            );
+            $this->assertEquals(
+                $startVal
+                , func_get_arg(0)
+                , '$prevVal should equal startValue'
+            );
+            $this->assertEquals(
+                $expVal
+                , func_get_arg(1)
+                , '$value should equal to expected value'
+            );
+            $this->assertEquals(
+                $expKey
+                , func_get_arg(2)
+                , '$key should equal to expected key'
+            );
+            if (is_object($value)) {
+                $this->assertTrue(
+                    $value === func_get_arg(3)
+                    , '$container should be the same instance of the fold operation'
+                );
+            } else {
+                $this->assertEquals(
+                    $value
+                    , func_get_arg(3)
+                    , '$container should equal to the array being fold'
+                );
+            }
+
+            return func_get_arg(0);
+        }, $startVal, $value);
+    }
     public function test_fold($value = 1, $array = [1,2,3,4]) {
         $this->assertStringEndsWith(
             '\fold'
