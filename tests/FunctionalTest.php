@@ -428,7 +428,7 @@ class FunctionalTest extends PHPixme_TestCase
                 , $add
                 , 0
             ]
-            , 'add empty ArrayObject' => [
+            , 'ArrayObject[]' => [
                 new \ArrayIterator([])
                 , 0
                 , $add
@@ -441,10 +441,10 @@ class FunctionalTest extends PHPixme_TestCase
                 , 6
             ]
             , 'add S[1,2,3]'=>[
-                P\Seq::of()
+                P\Seq::of(1,2,3)
                 , 0
                 , $add
-                , 0
+                , 6
             ]
             , 'Some(2)+2'=>[
                 P\Some(2)
@@ -471,4 +471,58 @@ class FunctionalTest extends PHPixme_TestCase
             , P\fold($action, $startVal, $arrayLike)
         );
     }
+
+    public function reduceScenarioProvider() {
+        $add = function($a, $b) { return $a + $b; };
+        return [
+            'add 1'=>[
+                [1]
+                , $add
+                , 1
+            ]
+            , 'add S[1]'=>[
+                P\Seq::of(1)
+                , $add
+                , 1
+            ]
+
+            , 'add ArrayObject[1]' => [
+                new \ArrayIterator([1])
+                , $add
+                , 1
+            ]
+            , 'add Some(2)'=>[
+                P\Some(2)
+                , $add
+                , 2
+            ]
+            , 'add 1+2+3'=>[
+                [1,2,3]
+                , $add
+                , 6
+            ]
+            , 'add S[1,2,3]'=>[
+                P\Seq::of(1,2,3)
+                , $add
+                , 6
+            ]
+
+            , 'add ArrayObject[1,2,3]' => [
+                new \ArrayIterator([1,2,3])
+                , $add
+                , 6
+            ]
+        ];
+    }
+    /**
+     * @dataProvider reduceScenarioProvider
+     */
+    public function test_reduce_scenario($arrayLike,$action, $expected)
+    {
+        $this->assertEquals(
+            $expected
+            , P\reduce($action, $arrayLike)
+        );
+    }
+
 }

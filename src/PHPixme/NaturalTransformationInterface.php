@@ -32,6 +32,7 @@ interface NaturalTransformationInterface
      * @param callable $hof ($prevVal, $value, $key, $container): mixed
      * @return mixed - whatever the last cycle of $hof returns
      */
+    //FIXME: flip arguments
     public function fold($startVal, callable $hof);
 
     /**
