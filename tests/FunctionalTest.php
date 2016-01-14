@@ -226,7 +226,8 @@ class FunctionalTest extends PHPixme_TestCase
 
     }
 
-    public function test_combine() {
+    public function test_combine()
+    {
         $this->assertStringEndsWith(
             '\combine'
             , P\combine
@@ -244,7 +245,7 @@ class FunctionalTest extends PHPixme_TestCase
             , 'combine should be a curried function'
         );
 
-        $array = [1,2,3];
+        $array = [1, 2, 3];
         $this->assertEquals(
             json_encode(array_reverse($array))
             , P\combine('json_encode')->__invoke('array_reverse')->__invoke($array)
@@ -252,7 +253,8 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
-    public function test_K_estrel ($value = true, $notValue = false) {
+    public function test_K_estrel($value = true, $notValue = false)
+    {
         $this->assertStringEndsWith(
             '\K'
             , P\K
@@ -270,7 +272,8 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
-    public function test_KI_te($value = true, $notValue = false) {
+    public function test_KI_te($value = true, $notValue = false)
+    {
         $this->assertStringEndsWith(
             '\KI'
             , P\KI
@@ -288,7 +291,8 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
-    public function test_I_diot_bird($value = true) {
+    public function test_I_diot_bird($value = true)
+    {
         $this->assertStringEndsWith(
             '\I'
             , P\I
@@ -301,7 +305,8 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
-    public function test_S_tarling($value = true) {
+    public function test_S_tarling($value = true)
+    {
         $this->assertStringEndsWith(
             '\S'
             , P\S
@@ -320,7 +325,8 @@ class FunctionalTest extends PHPixme_TestCase
 
     }
 
-    public function test_S_tarling_scenario_tupleMaker ($array = [1,2,3,4]) {
+    public function test_S_tarling_scenario_tupleMaker($array = [1, 2, 3, 4])
+    {
         // Test to see if we can fix array_map through starling to get the key with the value
         $kvTupple = function ($v, $k) {
             return [$k, $v];
@@ -328,12 +334,13 @@ class FunctionalTest extends PHPixme_TestCase
         $kvMap = P\ternary('array_map')->__invoke($kvTupple);
         $this->assertEquals(
             array_map($kvTupple, $array, array_keys($array))
-            ,P\S($kvMap, 'array_keys')->__invoke($array)
+            , P\S($kvMap, 'array_keys')->__invoke($array)
         );
     }
 
 
-    public function foldCallbackProvider() {
+    public function foldCallbackProvider()
+    {
         return [
             'array callback' => [
                 [1], 1, 0
@@ -341,7 +348,7 @@ class FunctionalTest extends PHPixme_TestCase
             , 'traversable callback' => [
                 new \ArrayIterator([1]), 1, 0
             ]
-            , 'natural interface callback'=>[
+            , 'natural interface callback' => [
                 P\Seq([1]), 1, 0
             ]
         ];
@@ -350,9 +357,10 @@ class FunctionalTest extends PHPixme_TestCase
     /**
      * @dataProvider foldCallbackProvider
      */
-    public function test_fold_callback($value, $expVal, $expKey) {
+    public function test_fold_callback($value, $expVal, $expKey)
+    {
         $startVal = 1;
-        P\fold(function() use ($startVal, $value, $expVal, $expKey) {
+        P\fold(function () use ($startVal, $value, $expVal, $expKey) {
             $this->assertEquals(
                 4
                 , func_num_args()
@@ -389,7 +397,9 @@ class FunctionalTest extends PHPixme_TestCase
             return func_get_arg(0);
         }, $startVal, $value);
     }
-    public function test_fold($value = 1, $array = [1,2,3,4]) {
+
+    public function test_fold($value = 1, $array = [1, 2, 3, 4])
+    {
         $this->assertStringEndsWith(
             '\fold'
             , P\fold
@@ -406,28 +416,31 @@ class FunctionalTest extends PHPixme_TestCase
             , 'An idiot applied to fold should always return the start value'
         );
         $this->assertEquals(
-            $array[count($array) -1]
+            $array[count($array) - 1]
             , P\fold(P\flip(P\I), $value, $array)
             , 'The flipped idiot applied to reduce should always return the last unless empty'
         );
     }
 
-    public function foldScenarioProvider() {
-        $add = function($a, $b) { return $a + $b; };
+    public function foldScenarioProvider()
+    {
+        $add = function ($a, $b) {
+            return $a + $b;
+        };
         return [
-            'add simple empty array'=>[
+            'add simple empty array' => [
                 []
                 , 0
                 , $add
                 , 0
             ]
-            , 'add simple S[]'=>[
+            , 'add simple S[]' => [
                 P\Seq::of()
                 , 0
                 , $add
                 , 0
             ]
-            , 'add simple None'=>[
+            , 'add simple None' => [
                 P\None()
                 , 0
                 , $add
@@ -439,26 +452,26 @@ class FunctionalTest extends PHPixme_TestCase
                 , $add
                 , 0
             ]
-            , 'add 1+2+3'=>[
-                [1,2,3]
+            , 'add 1+2+3' => [
+                [1, 2, 3]
                 , 0
                 , $add
                 , 6
             ]
-            , 'add S[1,2,3]'=>[
-                P\Seq::of(1,2,3)
+            , 'add S[1,2,3]' => [
+                P\Seq::of(1, 2, 3)
                 , 0
                 , $add
                 , 6
             ]
-            , 'Some(2)+2'=>[
+            , 'Some(2)+2' => [
                 P\Some(2)
                 , 2
                 , $add
                 , 4
             ]
             , 'add ArrayObject[1,2,3]' => [
-                new \ArrayIterator([1,2,3])
+                new \ArrayIterator([1, 2, 3])
                 , 0
                 , $add
                 , 6
@@ -478,7 +491,8 @@ class FunctionalTest extends PHPixme_TestCase
     }
 
 
-    public function test_reduce($array = [1,2,3,4]) {
+    public function test_reduce($array = [1, 2, 3, 4])
+    {
         $this->assertStringEndsWith(
             '\reduce'
             , P\reduce
@@ -487,7 +501,7 @@ class FunctionalTest extends PHPixme_TestCase
         $this->assertInstanceOf(
             Closure
             , P\reduce(P\I)
-            , 'fold when partially applied should return a closure'
+            , 'reduce when partially applied should return a closure'
         );
         $this->assertEquals(
             $array[0]
@@ -495,38 +509,42 @@ class FunctionalTest extends PHPixme_TestCase
             , 'An idiot applied to fold should always return the start value'
         );
         $this->assertEquals(
-            $array[count($array) -1]
+            $array[count($array) - 1]
             , P\reduce(P\flip(P\I), $array)
             , 'The flipped idiot applied to reduce should always return the last'
         );
     }
 
-    public function reduceUndefinedBehaviorProvider() {
+    public function reduceUndefinedBehaviorProvider()
+    {
         return [
-            '[]'=>[[]]
+            '[]' => [[]]
             , 'None' => [P\None()]
             , 'S[]' => [P\Seq::of()]
             , 'ArrayItterator[]' => [new \ArrayIterator([])]
         ];
     }
+
     /**
      * @dataProvider reduceUndefinedBehaviorProvider
      * @expectedException \Exception
      */
-    public function test_reduce_contract_violation ($arrayLike = []) {
+    public function test_reduce_contract_violation($arrayLike = [])
+    {
         P\reduce(P\I, $arrayLike);
     }
 
-    public function reduceCallbackProvider() {
+    public function reduceCallbackProvider()
+    {
         return [
             'array callback' => [
-                [1,2], 1, 2, 1
+                [1, 2], 1, 2, 1
             ]
             , 'traversable callback' => [
-                new \ArrayIterator([1,2]),1, 2, 1
+                new \ArrayIterator([1, 2]), 1, 2, 1
             ]
-            , 'natural interface callback'=>[
-                P\Seq::of(1,2), 1, 2, 1
+            , 'natural interface callback' => [
+                P\Seq::of(1, 2), 1, 2, 1
             ]
         ];
     }
@@ -534,8 +552,9 @@ class FunctionalTest extends PHPixme_TestCase
     /**
      * @dataProvider reduceCallbackProvider
      */
-    public function test_reduce_callback($arrayLike, $firstVal, $expVal, $expKey) {
-        P\reduce(function() use ($firstVal, $expVal, $expKey, $arrayLike) {
+    public function test_reduce_callback($arrayLike, $firstVal, $expVal, $expKey)
+    {
+        P\reduce(function () use ($firstVal, $expVal, $expKey, $arrayLike) {
             $this->assertEquals(
                 4
                 , func_num_args()
@@ -573,15 +592,18 @@ class FunctionalTest extends PHPixme_TestCase
         }, $arrayLike);
     }
 
-    public function reduceScenarioProvider() {
-        $add = function($a, $b) { return $a + $b; };
+    public function reduceScenarioProvider()
+    {
+        $add = function ($a, $b) {
+            return $a + $b;
+        };
         return [
-            'add 1'=>[
+            'add 1' => [
                 [1]
                 , $add
                 , 1
             ]
-            , 'add S[1]'=>[
+            , 'add S[1]' => [
                 P\Seq::of(1)
                 , $add
                 , 1
@@ -592,33 +614,34 @@ class FunctionalTest extends PHPixme_TestCase
                 , $add
                 , 1
             ]
-            , 'add Some(2)'=>[
+            , 'add Some(2)' => [
                 P\Some(2)
                 , $add
                 , 2
             ]
-            , 'add 1+2+3'=>[
-                [1,2,3]
+            , 'add 1+2+3' => [
+                [1, 2, 3]
                 , $add
                 , 6
             ]
-            , 'add S[1,2,3]'=>[
-                P\Seq::of(1,2,3)
+            , 'add S[1,2,3]' => [
+                P\Seq::of(1, 2, 3)
                 , $add
                 , 6
             ]
 
             , 'add ArrayObject[1,2,3]' => [
-                new \ArrayIterator([1,2,3])
+                new \ArrayIterator([1, 2, 3])
                 , $add
                 , 6
             ]
         ];
     }
+
     /**
      * @dataProvider reduceScenarioProvider
      */
-    public function test_reduce_scenario($arrayLike,$action, $expected)
+    public function test_reduce_scenario($arrayLike, $action, $expected)
     {
         $this->assertEquals(
             $expected
@@ -626,4 +649,82 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
+    public function test_map($array = [1, 2, 3])
+    {
+        $this->assertStringEndsWith(
+            '\map'
+            , P\map
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\map(P\I)
+            , 'map when partially applied should return a closure'
+        );
+        $result = P\map(P\I)->__invoke($array);
+        $this->assertEquals(
+            $array
+            , $result
+            , 'map applied with idiot should produce a functionally identical array'
+        );
+        $result[0] += 1;
+        $this->assertNotEquals(
+            $array
+            , $result
+            , 'map applied with idiot should not actually be the same instance of array'
+        );
+    }
+
+    public function mapCallbackProvider()
+    {
+        return [
+            '[1]' => [
+                [1], 1, 0
+            ]
+            , 'S[1]' => [
+                P\Seq::of(1), 1, 0
+            ]
+            , 'Some(1)' => [
+                P\Some::of(1), 1, 0
+            ]
+            , 'ArrayItterator[1]' => [
+                new \ArrayIterator([1]), 1, 0
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider mapCallbackProvider
+     */
+    public function test_map_callback($arrayLike, $expVal, $expKey)
+    {
+        P\map(function () use ($arrayLike, $expVal, $expKey) {
+            $this->assertTrue(
+                3 === func_num_args()
+                , 'map callback should receive three arguments'
+            );
+            $this->assertEquals(
+                $expVal
+                , func_get_arg(0)
+                , 'map callback $value should be equal to the value expected'
+            );
+            $this->assertEquals(
+                $expKey
+                , func_get_arg(1)
+                , 'map callback $key should be defined'
+            );
+            if (is_object($arrayLike)) {
+                $this->assertTrue(
+                    $arrayLike === func_get_arg(2)
+                    , 'map callback $container should be the same instance as the source data being mapped'
+                );
+            } else {
+                $this->assertEquals(
+                    $arrayLike
+                    , func_get_arg(2)
+                    , 'map callback $container should equal to the array being mapped'
+                );
+            }
+        }, $arrayLike);
+    }
 }
