@@ -14,6 +14,11 @@ class SuccessTest extends PHPixme_TestCase
 
     public function test_success_companion()
     {
+        $this->assertStringEndsWith(
+            '\Success'
+            , P\Success
+            , 'Ensure the constant ends with the function/class name'
+        );
         $this->assertInstanceOf(
             P\Success,
             P\Success(false),

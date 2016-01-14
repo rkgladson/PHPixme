@@ -15,6 +15,11 @@ class FailureTest extends PHPixme_TestCase
 {
     public function test_failure_companion()
     {
+        $this->assertStringEndsWith(
+            '\Failure'
+            , P\Failure
+            , 'Ensure the constant ends with the function name'
+        );
         $this->assertInstanceOf(
             P\Failure
             , P\Failure(new \Exception('Test Exception'))

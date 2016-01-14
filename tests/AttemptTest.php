@@ -13,6 +13,12 @@ class AttemptTest extends PHPixme_TestCase
 {
 
     public function test_companion_returns_children() {
+        $this->assertStringEndsWith(
+            '\Attempt'
+            , P\Attempt
+            , 'Ensure constant ends with the function name'
+        );
+
         $this->assertInstanceOf(
             P\Success
             , P\Attempt(function(){})

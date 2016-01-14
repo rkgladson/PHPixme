@@ -13,6 +13,14 @@ use PHPixme as P;
 
 class MaybeTest extends PHPixme_TestCase
 {
+
+    public function test_maybe_companion() {
+        $this->assertStringEndsWith(
+            '\Maybe'
+            , P\Maybe
+            , 'Ensure the constant ends with the function name'
+        );
+    }
     public function maybeEmptyProvider()
     {
         return [
@@ -44,6 +52,7 @@ class MaybeTest extends PHPixme_TestCase
      */
     public function test_Maybe_companion_none_result($value)
     {
+
         $this->assertInstanceOf(
             P\None
             , P\Maybe($value)

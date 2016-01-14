@@ -13,6 +13,11 @@ class SomeTest extends PHPixme_TestCase
 {
     public function test_Some_companion($value = true)
     {
+        $this->assertStringEndsWith(
+            '\Some'
+            , P\Some
+            , 'Ensure the constant ends with the function/class name'
+        );
         $this->assertInstanceOf(
             P\Some,
             P\Some($value)

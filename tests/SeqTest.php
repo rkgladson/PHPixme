@@ -30,6 +30,11 @@ class SeqTest extends PHPixme_TestCase
     public function test_seq_companion($value)
     {
         $seq = P\Seq($value);
+        $this->assertStringEndsWith(
+            '\Seq'
+            , P\Seq
+            , 'Ensure the constant ends with the function/class name'
+        );
         $this->assertInstanceOf(
             P\Seq
             , $seq

@@ -14,6 +14,12 @@ class NoneTest extends PHPixme_TestCase
 {
     public function test_None_companion()
     {
+
+        $this->assertStringEndsWith(
+            '\None'
+            , P\None
+            , 'Ensure the constant ends with the function/class name'
+        );
         $this->assertInstanceOf(
             P\None
             , P\None()
