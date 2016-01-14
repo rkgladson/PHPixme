@@ -761,10 +761,10 @@ class FunctionalTest extends PHPixme_TestCase
             ]
             , '[1,2,3] to string' => [
                 [1, 2, 3]
-                , function ($value) {
-                    return "$value";
+                , function ($value, $key) {
+                    return "$key => $value";
                 }
-                , ['1', '2', '3']
+                , ['0 => 1', '1 => 2', '2 => 3']
             ]
         ];
     }
