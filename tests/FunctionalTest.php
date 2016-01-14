@@ -361,28 +361,28 @@ class FunctionalTest extends PHPixme_TestCase
             $this->assertEquals(
                 $startVal
                 , func_get_arg(0)
-                , '$prevVal should equal startValue'
+                , 'fold callback $prevVal should equal startValue'
             );
             $this->assertEquals(
                 $expVal
                 , func_get_arg(1)
-                , '$value should equal to expected value'
+                , 'fold callback $value should equal to expected value'
             );
             $this->assertEquals(
                 $expKey
                 , func_get_arg(2)
-                , '$key should equal to expected key'
+                , 'fold callback $key should equal to expected key'
             );
             if (is_object($value)) {
                 $this->assertTrue(
                     $value === func_get_arg(3)
-                    , '$container should be the same instance of the fold operation'
+                    , 'fold callback $container should be the same instance as the object'
                 );
             } else {
                 $this->assertEquals(
                     $value
                     , func_get_arg(3)
-                    , '$container should equal to the array being fold'
+                    , 'fold callback $container should equal to the array'
                 );
             }
 
@@ -404,6 +404,11 @@ class FunctionalTest extends PHPixme_TestCase
             $value
             , P\fold(P\I, $value)->__invoke($array)
             , 'An idiot applied to fold should always return the start value'
+        );
+        $this->assertEquals(
+            $array[count($array) -1]
+            , P\fold(P\flip(P\I), $value, $array)
+            , 'The flipped idiot applied to reduce should always return the last unless empty'
         );
     }
 
@@ -470,6 +475,102 @@ class FunctionalTest extends PHPixme_TestCase
             $expected
             , P\fold($action, $startVal, $arrayLike)
         );
+    }
+
+
+    public function test_reduce($array = [1,2,3,4]) {
+        $this->assertStringEndsWith(
+            '\reduce'
+            , P\reduce
+            , 'Ensure the constant is assigned to its function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\reduce(P\I)
+            , 'fold when partially applied should return a closure'
+        );
+        $this->assertEquals(
+            $array[0]
+            , P\reduce(P\I)->__invoke($array)
+            , 'An idiot applied to fold should always return the start value'
+        );
+        $this->assertEquals(
+            $array[count($array) -1]
+            , P\reduce(P\flip(P\I), $array)
+            , 'The flipped idiot applied to reduce should always return the last'
+        );
+    }
+
+    public function reduceUndefinedBehaviorProvider() {
+        return [
+            '[]'=>[[]]
+            , 'None' => [P\None()]
+            , 'S[]' => [P\Seq::of()]
+            , 'ArrayItterator[]' => [new \ArrayIterator([])]
+        ];
+    }
+    /**
+     * @dataProvider reduceUndefinedBehaviorProvider
+     * @expectedException \Exception
+     */
+    public function test_reduce_contract_violation ($arrayLike = []) {
+        P\reduce(P\I, $arrayLike);
+    }
+
+    public function reduceCallbackProvider() {
+        return [
+            'array callback' => [
+                [1,2], 1, 2, 1
+            ]
+            , 'traversable callback' => [
+                new \ArrayIterator([1,2]),1, 2, 1
+            ]
+            , 'natural interface callback'=>[
+                P\Seq::of(1,2), 1, 2, 1
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider reduceCallbackProvider
+     */
+    public function test_reduce_callback($arrayLike, $firstVal, $expVal, $expKey) {
+        P\reduce(function() use ($firstVal, $expVal, $expKey, $arrayLike) {
+            $this->assertEquals(
+                4
+                , func_num_args()
+                , 'reduce callback should receive four arguments'
+            );
+            $this->assertEquals(
+                $firstVal
+                , func_get_arg(0)
+                , 'reduce callback $prevVal should equal startValue'
+            );
+            $this->assertEquals(
+                $expVal
+                , func_get_arg(1)
+                , 'reduce callback should equal to expected value'
+            );
+            $this->assertEquals(
+                $expKey
+                , func_get_arg(2)
+                , 'reduce callback $key should equal to expected key'
+            );
+            if (is_object($arrayLike)) {
+                $this->assertTrue(
+                    $arrayLike === func_get_arg(3)
+                    , 'reduce callback $container should be the same instance as the source data'
+                );
+            } else {
+                $this->assertEquals(
+                    $arrayLike
+                    , func_get_arg(3)
+                    , '$container should equal to the array being reduced'
+                );
+            }
+
+            return func_get_arg(0);
+        }, $arrayLike);
     }
 
     public function reduceScenarioProvider() {
