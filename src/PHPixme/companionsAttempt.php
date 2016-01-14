@@ -1,6 +1,6 @@
 <?php
 namespace PHPixme;
-const Attempt = 'PHPixme\Attempt';
+const Attempt = __NAMESPACE__.'\Attempt';
 
 /**
  * @param callable $hof
@@ -15,7 +15,7 @@ function Attempt(callable $hof)
     }
 }
 
-const Success = 'PHPixme\Success';
+const Success = __NAMESPACE__.'\Success';
 /**
  * @param $value
  * @return Success
@@ -26,7 +26,7 @@ function Success($value)
 }
 
 
-const Failure = 'PHPixme\Failure';
+const Failure = __NAMESPACE__.'\Failure';
 /**
  * @param $exception - The failure value
  * @return Failure

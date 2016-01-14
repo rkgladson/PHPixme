@@ -808,6 +808,30 @@ class FunctionalTest extends PHPixme_TestCase
             , 'callWith when partially applied should invoke the function with the returned closure'
         );
     }
+
+    public function test_puckWith()
+    {
+        $object = new TestClass();
+        $this->assertStringEndsWith(
+            '\pluckWith'
+            , P\pluckWith
+            , 'Ensure the constant is assigned to the function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\pluckWith('')
+            , 'Pluck with should be able to be partially applied'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\pluckWith('value')->__invoke($object)
+            , 'pluckWith should return a closure when fully applied'
+        );
+        $this->assertTrue(
+            P\pluckWith('value', $object)->__invoke()
+            ,  'pluckWith\'s yeilded closure should retrieve the value of the property on object when applied'
+        );
+    }
 }
 
 /**
@@ -816,7 +840,7 @@ class FunctionalTest extends PHPixme_TestCase
  * A class to assist in testing properties of object functions
  */
 class TestClass {
-    const value = true;
+    public $value = true;
     public function getArgs () {
         return func_get_args();
     }

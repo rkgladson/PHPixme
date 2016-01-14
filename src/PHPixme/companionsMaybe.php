@@ -2,7 +2,7 @@
 namespace PHPixme;
 
 use tests\PHPixme\PHPixme_TestCase;
-const Maybe = 'PHPixme\Maybe';
+const Maybe = __NAMESPACE__.'\Maybe';
 /**
  * Takes a value and wraps it in a Maybe family object
  * @param $x - the maybe existing value
@@ -20,13 +20,13 @@ function Maybe($x = null)
 
 
 
-const None = 'PHPixme\None';
+const None = __NAMESPACE__.'\None';
 function None()
 {
     return None::getInstance();
 }
 
-const Some = 'PHPixme\Some';
+const Some = __NAMESPACE__.'\Some';
 /**
  * @param $x - a non- null value
  * @return \PHPixme\Some

@@ -2,7 +2,7 @@
 namespace PHPixme;
 
 
-const Seq = 'PHPixme\Seq';
+const Seq = __NAMESPACE__.'\Seq';
 function Seq($arrayLike)
 {
     return new Seq($arrayLike);

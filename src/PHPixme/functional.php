@@ -11,8 +11,8 @@ global $__PHPIXME_NAMESPACE;
 
 // -- curry --
 
-const curry = '\PHPixme\curry';
-$__PHPIXME_NAMESPACE[curry] = __curry(2, 'PHPixme\__curry');
+const curry = __NAMESPACE__.'\curry';
+$__PHPIXME_NAMESPACE[curry] = __curry(2, __NAMESPACE__.'\__curry');
 /**
  * Take a callable and produce a curried \Closure
  * @param int $arity
@@ -28,7 +28,7 @@ function curry($arity, $hof = null)
 // == curry ==
 
 // -- nAry --
-const nAry = 'PHPixme\nAry';
+const nAry = __NAMESPACE__.'\nAry';
 $__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
     __assertPositiveOrZero($number);
     __assertCallable($hof);
@@ -40,7 +40,7 @@ $__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
 /**
  * Wrap a function in an argument that will eat all but n arguments
  * @param int $arity
- * @param callable= $hof
+ * @param callable = $hof
  * @return \Closure
  */
 function nAry($arity, $hof = null)
@@ -52,7 +52,7 @@ function nAry($arity, $hof = null)
 // == nAry ==
 
 // -- unary --
-const unary = 'PHPixme\unary';
+const unary = __NAMESPACE__.'\unary';
 /**
  * wrap a callable in a function that will eat but one argument
  * @param callable $hof
@@ -69,7 +69,7 @@ function unary($hof)
 // == unary ==
 
 // -- binary --
-const binary = 'PHPixme\binary';
+const binary = __NAMESPACE__.'\binary';
 /**
  * Wrap a callable in a function that will eat all but two arguments
  * @param callable $hof
@@ -85,7 +85,7 @@ function binary($hof)
 
 // == binary ==
 // -- ternary --
-const ternary = 'PHPixme\ternary';
+const ternary = __NAMESPACE__.'\ternary';
 /**
  * Wrap a callable function in one that will eat all but three arguments
  * @param callable $hof
@@ -101,22 +101,24 @@ function ternary($hof)
 
 // == ternary ==
 // -- nullary --
-const nullary = 'PHPixme\nullary';
+const nullary = __NAMESPACE__.'\nullary';
 /**
  * Wrap a function in one that will eat all arguments
  * @param $hof
  * @return \Closure
  */
-function nullary ($hof) {
+function nullary($hof)
+{
     __assertCallable($hof);
-    return function() use ($hof) {
+    return function () use ($hof) {
         return $hof();
     };
 }
+
 // == nullary ==
 
 // -- flip --
-const flip = 'PHPixme\flip';
+const flip = __NAMESPACE__.'\flip';
 /**
  * Takes a callable, then flips the two next arguments before calling tthe function
  * @sig f(a, b, ....z) -> f(b,a, ... z)
@@ -138,7 +140,7 @@ function flip($hof)
 // == flip ==
 
 // -- combine --
-const combine = 'PHPixme\combine';
+const combine = __NAMESPACE__.'\combine';
 $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
     __assertCallable($x);
     __assertCallable($y);
@@ -151,7 +153,7 @@ $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
  * Takes two functions and has the first consume the output of the second, combining them to a single function
  * @sig x y z -> x(y(z))
  * @param callable $hofSecond
- * @param callable= $hofFirst
+ * @param callable = $hofFirst
  * @return \Closure
  */
 function combine($hofSecond, $hofFirst = null)
@@ -163,7 +165,7 @@ function combine($hofSecond, $hofFirst = null)
 // == combine ==
 
 // -- Kestrel --
-const K = 'PHPixme\K';
+const K = __NAMESPACE__.'\K';
 /**
  * @param mixed $first
  * @return \Closure
@@ -180,7 +182,7 @@ function K($first)
 // == Kestrel ==
 
 // -- Kite --
-const KI = 'PHPixme\KI';
+const KI = __NAMESPACE__.'\KI';
 /**
  * @return \Closure
  * @sig ignored -> second -> second
@@ -193,7 +195,7 @@ function KI()
 // == Kite ==
 
 // -- Idiot --
-const I = 'PHPixme\I';
+const I = __NAMESPACE__.'\I';
 /**
  * @param mixed $x
  * @return mixed $x
@@ -207,7 +209,7 @@ function I($x)
 // == Idiot ==
 
 // -- Starling --
-const S = 'PHPixme\S';
+const S = __NAMESPACE__.'\S';
 $__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
     __assertCallable($x);
     __assertCallable($y);
@@ -232,7 +234,7 @@ function S($x, $y = null, $z = null)
 // == Starling ==
 
 // -- fold --
-const fold = 'PHPixme\fold';
+const fold = __NAMESPACE__.'\fold';
 $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
@@ -260,7 +262,7 @@ function fold($hof, $startVal = null, $traversable = null)
 // == fold ==
 
 // -- reduce --
-const reduce = 'PHPixme\reduce';
+const reduce = __NAMESPACE__.'\reduce';
 $__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
@@ -294,8 +296,8 @@ function reduce($hof, $traversable = null)
 // == reduce ==
 
 // -- map --
-const map = 'PHPixme\map';
-$__PHPIXME_NAMESPACE[map] = curry(2, function (callable $hof, $traversable) {
+const map = __NAMESPACE__.'\map';
+$__PHPIXME_NAMESPACE[map] = __curry(2, function (callable $hof, $traversable) {
 
     // Reflect on natural transformations
     if ($traversable instanceof NaturalTransformationInterface) {
@@ -322,8 +324,8 @@ function map(callable $hof, $traversable = null)
 // == map ==
 
 // -- callWith --
-const callWith = 'PHPixme\callWith';
-$__PHPIXME_NAMESPACE[callWith] = curry(2, function ($method, $object) {
+const callWith = __NAMESPACE__.'\callWith';
+$__PHPIXME_NAMESPACE[callWith] = __curry(2, function ($method, $object) {
     $callable = [$object, $method];
     __assertCallable($callable);
     return function () use (&$callable) {
@@ -336,13 +338,34 @@ $__PHPIXME_NAMESPACE[callWith] = curry(2, function ($method, $object) {
  * @param mixed $object
  * @return \Closure|mixed
  */
-function callWith($method, $object = null) {
+function callWith($method, $object = null)
+{
     global $__PHPIXME_NAMESPACE;
     return call_user_func_array($__PHPIXME_NAMESPACE[callWith], func_get_args());
 }
 
 // == callWith ==
 
+// -- pluckWith --
+const pluckWith = __NAMESPACE__.'\pluckWith';
+$__PHPIXME_NAMESPACE[pluckWith] = __curry(2, function ($property, $object) {
+    return function () use ($object, $property) {
+        return $object->{$property};
+    };
+});
+/**
+ * A function to access the property of an object
+ * @param string $property
+ * @param $object
+ * @return \Closure|mixed
+ */
+function pluckWith($property, $object = null)
+{
+    global $__PHPIXME_NAMESPACE;
+    return call_user_func_array($__PHPIXME_NAMESPACE[pluckWith], func_get_args());
+}
+
+// == pluckWith ==
 
 // -- Internal functions --
 function __assertCallable($callable)
@@ -380,9 +403,14 @@ function __curryGiven($prevArgs, &$arity, &$callable)
     };
 }
 
-;
 
-function __curry($arity = 0, $callable)
+/**
+ * Uncurried curry function for internal use
+ * @param int $arity
+ * @param callable $callable
+ * @return \Closure
+ */
+function __curry($arity = 0, callable $callable)
 {
     __assertPositiveOrZero($arity);
     __assertCallable($callable);
