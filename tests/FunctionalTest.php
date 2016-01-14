@@ -759,6 +759,13 @@ class FunctionalTest extends PHPixme_TestCase
                 , $x2
                 , P\None()
             ]
+            , '[1,2,3] to string' => [
+                [1, 2, 3]
+                , function ($value) {
+                    return "$value";
+                }
+                , ['1', '2', '3']
+            ]
         ];
     }
 
