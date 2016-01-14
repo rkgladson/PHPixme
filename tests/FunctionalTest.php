@@ -727,4 +727,49 @@ class FunctionalTest extends PHPixme_TestCase
             }
         }, $arrayLike);
     }
+
+    public function mapScenarioProvider()
+    {
+        $x2 = function ($value) {
+            return $value * 2;
+        };
+        return [
+            '[1,2] * 2' => [
+                [1, 2]
+                , $x2
+                , [2, 4]
+            ]
+            , 'ArrayIterator[1,2] * 2' => [
+                new \ArrayIterator([1, 2])
+                , $x2
+                , [2, 4]
+            ]
+            , 'S[1,2] * 2' => [
+                P\Seq::of(1, 2)
+                , $x2
+                , P\Seq::of(2, 4)
+            ]
+            , 'Some(1) *2' => [
+                P\Some(1)
+                , $x2
+                , P\Some(2)
+            ]
+            , 'None * 2' => [
+                P\None()
+                , $x2
+                , P\None()
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider mapScenarioProvider
+     */
+    public function test_map_scenario($arrayLike, $hof, $expected)
+    {
+        $this->assertEquals($expected
+            , P\map($hof, $arrayLike)
+            , 'map on array like should have the expected resultant'
+        );
+    }
 }
