@@ -779,4 +779,48 @@ class FunctionalTest extends PHPixme_TestCase
             , 'map on array like should have the expected resultant'
         );
     }
+
+    public function callWith() {
+        $object = new TestClass();
+        $this->assertStringEndsWith(
+            '\callWith'
+            , P\callWith
+            , 'Ensure the constant is assigned to the function name'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\callWith('')
+            , 'callWith partially applied should be a closure'
+        );
+        $this->assertInstanceOf(
+            Closure
+            , P\callWith('getArgs')->__invoke($object)
+            , 'callWith when fully applied should be a closure'
+        );
+        $this->assertEquals(
+            [1,2,3]
+            , P\callWith('getArgs', $object)->__invoke(1,2,3)
+            , 'callWith should invoke the function with the returned closure'
+        );
+        $this->assertEquals(
+            4,
+            P\callWith('countArgs')->__invoke($object)->__invoke(1,2,3,4)
+            , 'callWith when partially applied should invoke the function with the returned closure'
+        );
+    }
+}
+
+/**
+ * Class TestClass
+ * @package tests\PHPixme
+ * A class to assist in testing properties of object functions
+ */
+class TestClass {
+    const value = true;
+    public function getArgs () {
+        return func_get_args();
+    }
+    public function countArgs() {
+        return func_num_args();
+    }
 }

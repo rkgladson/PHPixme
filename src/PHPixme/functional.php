@@ -14,9 +14,10 @@ global $__PHPIXME_NAMESPACE;
 const curry = '\PHPixme\curry';
 $__PHPIXME_NAMESPACE[curry] = __curry(2, 'PHPixme\__curry');
 /**
+ * Take a callable and produce a curried \Closure
  * @param int $arity
  * @param callable = $hof
- * @return callable
+ * @return \Closure
  */
 function curry($arity, $hof = null)
 {
@@ -37,9 +38,10 @@ $__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
     };
 });
 /**
+ * Wrap a function in an argument that will eat all but n arguments
  * @param int $arity
- * @param callable = $hof
- * @return callable
+ * @param callable= $hof
+ * @return \Closure
  */
 function nAry($arity, $hof = null)
 {
@@ -52,8 +54,9 @@ function nAry($arity, $hof = null)
 // -- unary --
 const unary = 'PHPixme\unary';
 /**
+ * wrap a callable in a function that will eat but one argument
  * @param callable $hof
- * @return callable
+ * @return \Closure
  */
 function unary($hof)
 {
@@ -67,6 +70,11 @@ function unary($hof)
 
 // -- binary --
 const binary = 'PHPixme\binary';
+/**
+ * Wrap a callable in a function that will eat all but two arguments
+ * @param callable $hof
+ * @return \Closure
+ */
 function binary($hof)
 {
     __assertCallable($hof);
@@ -78,6 +86,11 @@ function binary($hof)
 // == binary ==
 // -- ternary --
 const ternary = 'PHPixme\ternary';
+/**
+ * Wrap a callable function in one that will eat all but three arguments
+ * @param callable $hof
+ * @return \Closure
+ */
 function ternary($hof)
 {
     __assertCallable($hof);
@@ -89,6 +102,11 @@ function ternary($hof)
 // == ternary ==
 // -- nullary --
 const nullary = 'PHPixme\nullary';
+/**
+ * Wrap a function in one that will eat all arguments
+ * @param $hof
+ * @return \Closure
+ */
 function nullary ($hof) {
     __assertCallable($hof);
     return function() use ($hof) {
@@ -100,8 +118,10 @@ function nullary ($hof) {
 // -- flip --
 const flip = 'PHPixme\flip';
 /**
- * @param $hof
- * @return callable
+ * Takes a callable, then flips the two next arguments before calling tthe function
+ * @sig f(a, b, ....z) -> f(b,a, ... z)
+ * @param callable $hof
+ * @return \Closure
  */
 function flip($hof)
 {
@@ -128,9 +148,11 @@ $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
     };
 });
 /**
+ * Takes two functions and has the first consume the output of the second, combining them to a single function
+ * @sig x y z -> x(y(z))
  * @param callable $hofSecond
  * @param callable= $hofFirst
- * @return callable
+ * @return \Closure
  */
 function combine($hofSecond, $hofFirst = null)
 {
@@ -144,7 +166,7 @@ function combine($hofSecond, $hofFirst = null)
 const K = 'PHPixme\K';
 /**
  * @param mixed $first
- * @return callable
+ * @return \Closure
  * @sig first -> ignored -> first
  */
 function K($first)
@@ -160,7 +182,7 @@ function K($first)
 // -- Kite --
 const KI = 'PHPixme\KI';
 /**
- * @return callable
+ * @return \Closure
  * @sig ignored -> second -> second
  */
 function KI()
@@ -198,7 +220,7 @@ $__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
  * @param callable $x
  * @param callable = $y
  * @param mixed = $z
- * @return callable|mixed
+ * @return \Closure|mixed
  * @sig x, y, z -> x(z)(y(z)
  */
 function S($x, $y = null, $z = null)
@@ -227,7 +249,7 @@ $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
  * @param callable $hof
  * @param mixed = $startVal
  * @param \Traversable= $traversable
- * @return callable|mixed
+ * @return \Closure|mixed
  */
 function fold($hof, $startVal = null, $traversable = null)
 {
@@ -261,7 +283,7 @@ $__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
 /**
  * @param callable $hof
  * @param \Traversable= $traversable
- * @return callable|mixed
+ * @return \Closure|mixed
  */
 function reduce($hof, $traversable = null)
 {
@@ -286,6 +308,11 @@ $__PHPIXME_NAMESPACE[map] = curry(2, function (callable $hof, $traversable) {
     }
     return $output;
 });
+/**
+ * @param callable $hof
+ * @param array|\Traversable|\PHPixme\NaturalTransformationInterface $traversable
+ * @return \Closure|mixed
+ */
 function map(callable $hof, $traversable = null)
 {
     global $__PHPIXME_NAMESPACE;
@@ -293,6 +320,28 @@ function map(callable $hof, $traversable = null)
 }
 
 // == map ==
+
+// -- callWith --
+const callWith = 'PHPixme\callWith';
+$__PHPIXME_NAMESPACE[callWith] = curry(2, function ($method, $object) {
+    $callable = [$object, $method];
+    __assertCallable($callable);
+    return function () use (&$callable) {
+        return call_user_func_array($callable, func_get_args());
+    };
+});
+/**
+ * Produce a function that calls a method on an object
+ * @param string $method
+ * @param mixed $object
+ * @return \Closure|mixed
+ */
+function callWith($method, $object = null) {
+    global $__PHPIXME_NAMESPACE;
+    return call_user_func_array($__PHPIXME_NAMESPACE[callWith], func_get_args());
+}
+
+// == callWith ==
 
 
 // -- Internal functions --
