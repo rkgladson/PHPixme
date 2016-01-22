@@ -184,9 +184,9 @@ class NoneTest extends PHPixme_TestCase
     {
         $startVal = true;
         $this->assertTrue(
-            $startVal === (P\None()->fold($startVal, function () {
+            $startVal === (P\None()->fold(function () {
                 throw new \Exception('This should not run!');
-            }))
+            }, $startVal))
             , 'Folds on empty collections should return start values'
         );
     }

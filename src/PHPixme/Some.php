@@ -86,7 +86,10 @@ class Some extends Maybe
         return __assertMaybeType($this->x);
     }
 
-    public function fold($startVal, callable $hof)
+    /**
+     * @inheritdoc
+     */
+    public function fold(callable $hof, $startVal)
     {
         return $hof($startVal, $this->get(), 0, $this);
     }

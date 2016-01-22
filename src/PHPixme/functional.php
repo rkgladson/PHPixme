@@ -184,10 +184,11 @@ function K($first)
 // -- Kite --
 const KI = __NAMESPACE__ . '\KI';
 /**
+ * @param $ignored= This parameter will be ignored
  * @return \Closure
  * @sig ignored -> second -> second
  */
-function KI()
+function KI($ignored = null)
 {
     return unary(I);
 }
@@ -238,7 +239,7 @@ const fold = __NAMESPACE__ . '\fold';
 $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
-        return $arrayLike->fold($startVal, $hof);
+        return $arrayLike->fold($hof, $startVal);
     }
     __assertTraversable($arrayLike);
     $output = $startVal;

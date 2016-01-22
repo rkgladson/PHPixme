@@ -307,7 +307,7 @@ class SeqTest extends PHPixme_TestCase
     /**
      * @dataProvider nestedTestProvider
      */
-    public function test_flatMap_callback($value, $solution)
+    public function test_flatMap_callback($value)
     {
         $seq = P\Seq($value);
         $seq->flatMap(function () use ($seq) {
@@ -391,7 +391,7 @@ class SeqTest extends PHPixme_TestCase
     public function test_fold_callback($value)
     {
         $seq = P\Seq($value);
-        $seq->fold(0, function () use ($seq) {
+        $seq->fold(function () use ($seq) {
             $this->assertTrue(
                 4 === func_num_args()
                 , 'Seq->fold callback should receive four arguments'
@@ -419,7 +419,7 @@ class SeqTest extends PHPixme_TestCase
                 , 'Seq->fold callback $container should be itself'
             );
             return $prevValue;
-        });
+        }, 0);
     }
 
     public function foldAdditionProvider()
@@ -437,9 +437,9 @@ class SeqTest extends PHPixme_TestCase
     {
         $this->assertEquals(
             $expected
-            , $seq->fold(0, function ($a, $b) {
+            , $seq->fold(function ($a, $b) {
             return $a + $b;
-        })
+        }, 0)
             , 'Seq->fold applied to addition should produce the sum of the sequence'
         );
     }

@@ -137,7 +137,7 @@ class None extends Maybe
     /**
      * @inheritdoc
      */
-    public function fold($startVal, callable $hof)
+    public function fold(callable $hof, $startVal)
     {
         return $startVal;
     }

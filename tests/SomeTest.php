@@ -136,7 +136,7 @@ class SomeTest extends PHPixme_TestCase
     public function test_fold_callback($value = true, $startValue = null)
     {
         $some = P\Some($value);
-        $some->fold($startValue, function ($lastVal) use ($startValue, $value, $some) {
+        $some->fold(function ($lastVal) use ($startValue, $value, $some) {
             $this->assertTrue(
                 4 === func_num_args()
                 , 'Some->fold callback should receive four arguments'
@@ -159,7 +159,7 @@ class SomeTest extends PHPixme_TestCase
             );
 
             return $lastVal;
-        });
+        }, $startValue);
     }
 
     public function test_fold_scenario_add($value = 1, $startVal = 1)
@@ -168,7 +168,7 @@ class SomeTest extends PHPixme_TestCase
             return $x + $y;
         };
         $this->assertTrue(
-            ($value + $startVal) === (P\Some($value)->fold($startVal, $add))
+            ($value + $startVal) === (P\Some($value)->fold($add, $startVal))
             , 'The fold should be able to preform a simple add on a single length item'
         );
     }

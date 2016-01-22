@@ -106,7 +106,10 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         }, $this->array)));
     }
 
-    public function fold($startVal, callable $hof)
+    /**
+     * @inheritdoc
+     */
+    public function fold(callable $hof, $startVal)
     {
         $output = $startVal;
         foreach ($this->array as $key => $value) {

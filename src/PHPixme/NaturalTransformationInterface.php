@@ -28,12 +28,11 @@ interface NaturalTransformationInterface
 
     /**
      * Fold across this class
-     * @param mixed $startVal
      * @param callable $hof ($prevVal, $value, $key, $container): mixed
+     * @param mixed $startVal
      * @return mixed - whatever the last cycle of $hof returns
      */
-    //FIXME: flip arguments
-    public function fold($startVal, callable $hof);
+    public function fold(callable $hof, $startVal);
 
     /**
      * Reduce across this class

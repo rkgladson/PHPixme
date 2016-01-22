@@ -11,7 +11,6 @@ namespace PHPixme;
 
 abstract class Maybe implements NaturalTransformationInterface, \Iterator
 {
-    private $done;
 
     // -- Natural Transformation Interface Statics --
     static function of(...$args)

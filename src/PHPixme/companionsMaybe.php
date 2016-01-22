@@ -1,7 +1,5 @@
 <?php
 namespace PHPixme;
-
-use tests\PHPixme\PHPixme_TestCase;
 const Maybe = __NAMESPACE__.'\Maybe';
 /**
  * Takes a value and wraps it in a Maybe family object
