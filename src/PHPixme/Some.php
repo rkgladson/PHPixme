@@ -159,5 +159,11 @@ class Some extends Maybe
         return !$this->done;
     }
     // == Iterator Interface ==
+    // -- Countable Interface--
+    public function count()
+    {
+        return 1;
+    }
+    // == Countable Interface==
 
 }

@@ -280,4 +280,13 @@ class NoneTest extends PHPixme_TestCase
             , 'None should always be at its end'
         );
     }
+
+    public function test_count()
+    {
+        $this->assertEquals(
+            0
+            , P\None()->count()
+            , 'None->count should always equal 0'
+        );
+    }
 }

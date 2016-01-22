@@ -579,13 +579,22 @@ class SomeTest extends PHPixme_TestCase
             $run += 1;
             $this->assertTrue(
                 $value === $val
-                , 'The current of Some should result its contents. Expected '.json_encode($value).' but got '.json_encode($val)
+                , 'The current of Some should result its contents. Expected ' . json_encode($value) . ' but got ' . json_encode($val)
             );
         }
 
         $this->assertTrue(
             $run === 1
-            , 'Some should always have one value to iterate over before halting. Ran '.$run.' times.'
+            , 'Some should always have one value to iterate over before halting. Ran ' . $run . ' times.'
+        );
+    }
+
+    public function test_count($value = true)
+    {
+        $this->assertEquals(
+            1
+            , P\Some($value)->count()
+            , 'Some->count should always equal 1'
         );
     }
 }

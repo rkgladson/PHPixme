@@ -232,4 +232,10 @@ class None extends Maybe
     }
     // == Iterator interface methods==
 
+    // -- Countable Interface --
+    public function count()
+    {
+        return 0;
+    }
+    // == Countable Interface ==
 }
