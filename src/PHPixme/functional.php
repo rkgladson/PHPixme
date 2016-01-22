@@ -11,8 +11,8 @@ global $__PHPIXME_NAMESPACE;
 
 // -- curry --
 
-const curry = __NAMESPACE__.'\curry';
-$__PHPIXME_NAMESPACE[curry] = __curry(2, __NAMESPACE__.'\__curry');
+const curry = __NAMESPACE__ . '\curry';
+$__PHPIXME_NAMESPACE[curry] = __curry(2, __NAMESPACE__ . '\__curry');
 /**
  * Take a callable and produce a curried \Closure
  * @param int $arity
@@ -28,7 +28,7 @@ function curry($arity, $hof = null)
 // == curry ==
 
 // -- nAry --
-const nAry = __NAMESPACE__.'\nAry';
+const nAry = __NAMESPACE__ . '\nAry';
 $__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
     __assertPositiveOrZero($number);
     __assertCallable($hof);
@@ -52,7 +52,7 @@ function nAry($arity, $hof = null)
 // == nAry ==
 
 // -- unary --
-const unary = __NAMESPACE__.'\unary';
+const unary = __NAMESPACE__ . '\unary';
 /**
  * wrap a callable in a function that will eat but one argument
  * @param callable $hof
@@ -69,7 +69,7 @@ function unary($hof)
 // == unary ==
 
 // -- binary --
-const binary = __NAMESPACE__.'\binary';
+const binary = __NAMESPACE__ . '\binary';
 /**
  * Wrap a callable in a function that will eat all but two arguments
  * @param callable $hof
@@ -85,7 +85,7 @@ function binary($hof)
 
 // == binary ==
 // -- ternary --
-const ternary = __NAMESPACE__.'\ternary';
+const ternary = __NAMESPACE__ . '\ternary';
 /**
  * Wrap a callable function in one that will eat all but three arguments
  * @param callable $hof
@@ -101,7 +101,7 @@ function ternary($hof)
 
 // == ternary ==
 // -- nullary --
-const nullary = __NAMESPACE__.'\nullary';
+const nullary = __NAMESPACE__ . '\nullary';
 /**
  * Wrap a function in one that will eat all arguments
  * @param $hof
@@ -118,7 +118,7 @@ function nullary($hof)
 // == nullary ==
 
 // -- flip --
-const flip = __NAMESPACE__.'\flip';
+const flip = __NAMESPACE__ . '\flip';
 /**
  * Takes a callable, then flips the two next arguments before calling tthe function
  * @sig f(a, b, ....z) -> f(b,a, ... z)
@@ -140,7 +140,7 @@ function flip($hof)
 // == flip ==
 
 // -- combine --
-const combine = __NAMESPACE__.'\combine';
+const combine = __NAMESPACE__ . '\combine';
 $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
     __assertCallable($x);
     __assertCallable($y);
@@ -165,7 +165,7 @@ function combine($hofSecond, $hofFirst = null)
 // == combine ==
 
 // -- Kestrel --
-const K = __NAMESPACE__.'\K';
+const K = __NAMESPACE__ . '\K';
 /**
  * @param mixed $first
  * @return \Closure
@@ -182,7 +182,7 @@ function K($first)
 // == Kestrel ==
 
 // -- Kite --
-const KI = __NAMESPACE__.'\KI';
+const KI = __NAMESPACE__ . '\KI';
 /**
  * @return \Closure
  * @sig ignored -> second -> second
@@ -195,7 +195,7 @@ function KI()
 // == Kite ==
 
 // -- Idiot --
-const I = __NAMESPACE__.'\I';
+const I = __NAMESPACE__ . '\I';
 /**
  * @param mixed $x
  * @return mixed $x
@@ -209,7 +209,7 @@ function I($x)
 // == Idiot ==
 
 // -- Starling --
-const S = __NAMESPACE__.'\S';
+const S = __NAMESPACE__ . '\S';
 $__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
     __assertCallable($x);
     __assertCallable($y);
@@ -234,7 +234,7 @@ function S($x, $y = null, $z = null)
 // == Starling ==
 
 // -- fold --
-const fold = __NAMESPACE__.'\fold';
+const fold = __NAMESPACE__ . '\fold';
 $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
@@ -262,7 +262,7 @@ function fold($hof, $startVal = null, $traversable = null)
 // == fold ==
 
 // -- reduce --
-const reduce = __NAMESPACE__.'\reduce';
+const reduce = __NAMESPACE__ . '\reduce';
 $__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
     __assertCallable($hof);
     if ($arrayLike instanceof NaturalTransformationInterface) {
@@ -296,7 +296,7 @@ function reduce($hof, $traversable = null)
 // == reduce ==
 
 // -- map --
-const map = __NAMESPACE__.'\map';
+const map = __NAMESPACE__ . '\map';
 $__PHPIXME_NAMESPACE[map] = __curry(2, function (callable $hof, $traversable) {
 
     // Reflect on natural transformations
@@ -324,21 +324,23 @@ function map(callable $hof, $traversable = null)
 // == map ==
 
 // -- callWith --
-const callWith = __NAMESPACE__.'\callWith';
-$__PHPIXME_NAMESPACE[callWith] = __curry(2, function ($method, $object) {
-    $callable = [$object, $method];
+const callWith = __NAMESPACE__ . '\callWith';
+$__PHPIXME_NAMESPACE[callWith] = __curry(2, function ($accessor, $container) {
+    $callable = is_array($container) ?
+        (isset($container[$accessor]) ? $container[$accessor] : null)
+        : [$container, $accessor];
     __assertCallable($callable);
     return function () use (&$callable) {
         return call_user_func_array($callable, func_get_args());
     };
 });
 /**
- * Produce a function that calls a method on an object
- * @param string $method
- * @param mixed $object
- * @return \Closure|mixed
+ * Produce a function that calls a function within a array or object
+ * @param string $accessor
+ * @param object|array $container =
+ * @return \Closure ($container) -> ((args) -> $container{[$accessor]}(...args))
  */
-function callWith($method, $object = null)
+function callWith($accessor, $container = null)
 {
     global $__PHPIXME_NAMESPACE;
     return call_user_func_array($__PHPIXME_NAMESPACE[callWith], func_get_args());
@@ -346,26 +348,36 @@ function callWith($method, $object = null)
 
 // == callWith ==
 
-// -- pluckWith --
-const pluckWith = __NAMESPACE__.'\pluckWith';
-$__PHPIXME_NAMESPACE[pluckWith] = __curry(2, function ($property, $object) {
-    return function () use ($object, $property) {
-        return $object->{$property};
-    };
-});
+// -- pluckObjectWith --
+const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
 /**
- * A function to access the property of an object
- * @param string $property
- * @param $object
- * @return \Closure|mixed
+ * Creates a function to access the property of an object
+ * @param string $accessor
+ * @return \Closure ($object) -> object->accessor
  */
-function pluckWith($property, $object = null)
+function pluckObjectWith($accessor)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[pluckWith], func_get_args());
+    return function ($container) use ($accessor) {
+        return $container->{$accessor};
+    };
 }
 
-// == pluckWith ==
+// == pluckObjectWith ==
+// -- pluckArrayWith --
+const pluckArrayWith = __NAMESPACE__ . '\pluckArrayWith';
+/**
+ * Creates a function to access the property of an object
+ * @param string $accessor
+ * @return \Closure ($object) -> object->accessor
+ */
+function pluckArrayWith($accessor)
+{
+    return function ($container) use ($accessor) {
+        return $container[$accessor];
+    };
+}
+
+// == pluckArrayWith ==
 
 // -- Internal functions --
 function __assertCallable($callable)

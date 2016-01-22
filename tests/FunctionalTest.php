@@ -780,8 +780,26 @@ class FunctionalTest extends PHPixme_TestCase
         );
     }
 
-    public function callWith() {
-        $object = new TestClass();
+    public function callWithProvider()
+    {
+        return [
+            'Object' => [new TestClass()]
+            , 'Array' => [[
+                'getArgs' => function () {
+                    return func_get_args();
+                }
+                , 'countArgs' => function () {
+                    return func_num_args();
+                }
+            ]]
+        ];
+    }
+
+    /**
+     * @dataProvider callWithProvider
+     */
+    public function test_callWith($container)
+    {
         $this->assertStringEndsWith(
             '\callWith'
             , P\callWith
@@ -794,42 +812,65 @@ class FunctionalTest extends PHPixme_TestCase
         );
         $this->assertInstanceOf(
             Closure
-            , P\callWith('getArgs')->__invoke($object)
+            , P\callWith('getArgs')->__invoke($container)
             , 'callWith when fully applied should be a closure'
         );
         $this->assertEquals(
-            [1,2,3]
-            , P\callWith('getArgs', $object)->__invoke(1,2,3)
+            [1, 2, 3]
+            , P\callWith('getArgs', $container)->__invoke(1, 2, 3)
             , 'callWith should invoke the function with the returned closure'
         );
         $this->assertEquals(
             4,
-            P\callWith('countArgs')->__invoke($object)->__invoke(1,2,3,4)
+            P\callWith('countArgs')->__invoke($container)->__invoke(1, 2, 3, 4)
             , 'callWith when partially applied should invoke the function with the returned closure'
         );
     }
 
-    public function test_puckWith()
+    /**
+     * @expectedException  \InvalidArgumentException
+     * @dataProvider callWithProvider
+     */
+    public function test_callWithNonFunction ($container) {
+        P\callWith('404', $container)->__invoke(1, 2, 3, 4);
+    }
+
+    public function test_puckObjectWith()
     {
         $object = new TestClass();
         $this->assertStringEndsWith(
-            '\pluckWith'
-            , P\pluckWith
+            '\pluckObjectWith'
+            , P\pluckObjectWith
             , 'Ensure the constant is assigned to the function name'
         );
         $this->assertInstanceOf(
             Closure
-            , P\pluckWith('')
-            , 'Pluck with should be able to be partially applied'
+            , P\pluckObjectWith('')
+            , 'pluckObjectWith should be able to be partially applied'
+        );
+        $this->assertTrue(
+            P\pluckObjectWith('value')->__invoke($object)
+            , 'pluckObjectWith\'s yielded closure should retrieve the value of the property on object when applied'
+        );
+    }
+
+    public function test_puckArrayWith()
+    {
+        $array = [1, 2, 3];
+        $this->assertStringEndsWith(
+            '\pluckArrayWith'
+            , P\pluckArrayWith
+            , 'Ensure the constant is assigned to the function name'
         );
         $this->assertInstanceOf(
             Closure
-            , P\pluckWith('value')->__invoke($object)
-            , 'pluckWith should return a closure when fully applied'
+            , P\pluckArrayWith('')
+            , 'pluckArrayWith should be able to be partially applied'
         );
-        $this->assertTrue(
-            P\pluckWith('value', $object)->__invoke()
-            ,  'pluckWith\'s yeilded closure should retrieve the value of the property on object when applied'
+        $this->assertEquals(
+            $array[0]
+            , P\pluckArrayWith(0)->__invoke($array)
+            , 'pluckArrayWith\'s yielded closure should retrieve the value of the property on object when applied'
         );
     }
 }
@@ -839,12 +880,17 @@ class FunctionalTest extends PHPixme_TestCase
  * @package tests\PHPixme
  * A class to assist in testing properties of object functions
  */
-class TestClass {
+class TestClass
+{
     public $value = true;
-    public function getArgs () {
+
+    public function getArgs()
+    {
         return func_get_args();
     }
-    public function countArgs() {
+
+    public function countArgs()
+    {
         return func_num_args();
     }
 }
