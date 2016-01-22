@@ -8,7 +8,7 @@
 
 namespace PHPixme;
 
-interface NaturalTransformationInterface
+interface NaturalTransformationInterface extends \Iterator
 {
     // Static constructors:
     /**

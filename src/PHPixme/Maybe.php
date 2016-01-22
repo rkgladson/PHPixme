@@ -9,7 +9,7 @@
 namespace PHPixme;
 
 
-abstract class Maybe implements NaturalTransformationInterface, \Iterator
+abstract class Maybe implements NaturalTransformationInterface
 {
 
     // -- Natural Transformation Interface Statics --

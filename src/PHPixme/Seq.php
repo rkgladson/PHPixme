@@ -9,9 +9,15 @@
 namespace PHPixme;
 
 
-class Seq extends \ArrayIterator implements NaturalTransformationInterface
+class Seq implements NaturalTransformationInterface, \Countable
 {
-    private $array = [];
+    private $hash = [];
+    private $keyR = [];
+    private $length = 0;
+    // -- iterator state --
+    private $pointer = 0;
+    // == iterator state ==
+
 
     /**
      * Seq constructor.
@@ -19,8 +25,9 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
      */
     public function __construct($arrayLike)
     {
-        $this->array = static::arrayLikeToArray($arrayLike);
-        parent::__construct($this->array);
+        $this->hash = static::arrayLikeToArray($arrayLike);
+        $this->keyR = array_keys($this->hash);
+        $this->length = count($this->hash);
     }
 
     protected static function arrayLikeToArray($arrayLike)
@@ -38,7 +45,6 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
             $output[$key] = $value;
         }
         return $output;
-
     }
 
     /**
@@ -56,15 +62,15 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         return new static($args);
     }
 
-    public function __invoke($index)
+    public function __invoke($offeset)
     {
-        return $this->array[$index];
+        return isset($this->hash[$offeset]) ? $this->hash[$offeset] : null;
     }
 
     public function map(callable $hof)
     {
         $output = [];
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             $output[$key] = $hof($value, $key, $this);
         }
         return static::from($output);
@@ -73,7 +79,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function filter(callable $hof)
     {
         $output = [];
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if ($hof($value, $key, $this)) {
                 $output[$key] = $value;
             }
@@ -84,7 +90,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function filterNot(callable $hof)
     {
         $output = [];
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if (!($hof($value, $key, $this))) {
                 $output[$key] = $value;
             }
@@ -96,14 +102,14 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     {
         return static::from(call_user_func_array('array_merge', map(function ($value, $key) use ($hof) {
             return static::arrayLikeToArray($hof($value, $key, $this));
-        }, $this->array)));
+        }, $this->hash)));
     }
 
     public function flatten()
     {
         return static::from(call_user_func_array('array_merge', map(function ($value) {
             return static::arrayLikeToArray($value);
-        }, $this->array)));
+        }, $this->hash)));
     }
 
     /**
@@ -112,7 +118,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
     public function fold(callable $hof, $startVal)
     {
         $output = $startVal;
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             $output = $hof($output, $value, $key, $this);
         }
         return $output;
@@ -120,7 +126,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function forAll(callable $predicate)
     {
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if (!($predicate($value, $key, $this))) {
                 return false;
             }
@@ -130,7 +136,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function forSome(callable $predicate)
     {
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if ($predicate($value, $key, $this)) {
                 return true;
             }
@@ -140,7 +146,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function forNone(callable $predicate)
     {
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if ($predicate($value, $key, $this)) {
                 return false;
             }
@@ -150,32 +156,34 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function reduce(callable $hof)
     {
-        if (($length = count($this->array)) < 1) {
+        if ($this->length < 1) {
             throw new \OutOfRangeException('Cannot reduce a set of 0, this behavior is undefined');
         }
-        $keyR = array_keys($this->array);
-        $output = $this->array[array_shift($keyR)];
+        // Make a copy to shift the first value
+        $keyR = $this->keyR;
+        $output = $this->hash[array_shift($keyR)];
         foreach ($keyR as $key) {
-            $output = $hof($output, $this->array[$key], $key, $this);
+            $output = $hof($output, $this->hash[$key], $key, $this);
         }
         return $output;
     }
 
     public function union(...$arrayLikeN)
     {
-        array_unshift($arrayLikeN, $this->array);
+        array_unshift($arrayLikeN, $this->hash);
         return static::from(call_user_func_array('array_merge', map(function ($value) {
             return static::arrayLikeToArray($value);
         }, $arrayLikeN)));
     }
 
+
     public function find(callable $hof)
     {
         $found = null;
-        foreach (array_keys($this->array) as $key) {
+        foreach ($this->keyR as $key) {
 
-            if ($hof($this->array[$key], $key, $this)) {
-                $found = $this->array[$key];
+            if ($hof($this->hash[$key], $key, $this)) {
+                $found = $this->hash[$key];
                 break;
             }
         }
@@ -184,20 +192,20 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function walk(callable $hof)
     {
-        foreach (array_keys($this->array) as $key) {
-            $hof($this->array[$key], $key, $this);
+        foreach ($this->keyR as $key) {
+            $hof($this->hash[$key], $key, $this);
         }
     }
 
     public function head()
     {
-        return $this->isEmpty() ? null : $this->array[array_keys($this->array)[0]];
+        return $this->isEmpty() ? null : $this->hash[$this->keyR[0]];
     }
 
     public function tail()
     {
-        if (count($this->array) > 1) {
-            $tail = $this->array;
+        if ($this->length > 1) {
+            $tail = $this->hash;
             array_shift($tail);
             return $this::from($tail);
         }
@@ -206,7 +214,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function indexOf($thing)
     {
-        $key = array_search($thing, $this->array, true);
+        $key = array_search($thing, $this->hash, true);
         return $key === false ? -1 : $key;
     }
 
@@ -215,7 +223,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
         __assertCallable($hof);
         $true = [];
         $false = [];
-        foreach ($this->array as $key => $value) {
+        foreach ($this->hash as $key => $value) {
             if ($hof($value, $key, $this)) {
                 $true[$key] = $value;
             } else {
@@ -243,7 +251,7 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
                         return $output;
                     }
                     , []
-                    , $this->array
+                    , $this->hash
                 )
             )
         );
@@ -251,47 +259,123 @@ class Seq extends \ArrayIterator implements NaturalTransformationInterface
 
     public function drop($number = 0)
     {
-        return $this::from(array_slice($this->array, $number, null, true));
+        return $this::from(array_slice($this->hash, $number, null, true));
     }
 
     public function dropRight($number = 0)
     {
-        return $this::from(array_slice($this->array, 0, -1 * $number, true));
+        return $this::from(array_slice($this->hash, 0, -1 * $number, true));
     }
 
     public function take($number = 0)
     {
-        return $this::from(array_slice($this->array, 0, $number, true));
+        return $this::from(array_slice($this->hash, 0, $number, true));
     }
 
     public function takeRight($number = 0)
     {
-        return $this::from(array_slice($this->array, -1 * $number, null, true));
+        return $this::from(array_slice($this->hash, -1 * $number, null, true));
     }
 
     public function toArray()
     {
-        return $this->array;
+        return $this->hash;
     }
+
+    public function values () {
+        return static::from(array_values($this->hash));
+    }
+
+    public function keys() {
+        return static::from($this->keyR);
+    }
+
 
     public function isEmpty()
     {
-        return empty($this->array);
+        return $this->length === 0;
+    }
+    /**
+     * Gets the number of the contained in the collection
+     * @return integer
+     */
+    public function count () {
+        return $this->length;
     }
 
     public function toString($glue = ',')
     {
-        return implode($glue, $this->array);
+        return implode($glue, $this->hash);
     }
 
     public function toJson()
     {
-        return json_encode($this->array);
+        return json_encode($this->hash);
     }
 
     public function reverse()
     {
-        return $this::from(array_reverse($this->array, true));
+        return $this::from(array_reverse($this->hash, true));
     }
 
+
+    // -- iterator interface --
+    /**
+     * Return the current element
+     * @link http://php.net/manual/en/iterator.current.php
+     * @return mixed Can return any type.
+     * @since 5.0.0
+     */
+    public function current()
+    {
+        return $this->valid() ? $this->hash[$this->keyR[$this->pointer]] : null;
+    }
+
+    /**
+     * Move forward to next element
+     * @link http://php.net/manual/en/iterator.next.php
+     * @return void Any returned value is ignored.
+     * @since 5.0.0
+     */
+    public function next()
+    {
+        $this->pointer += 1;
+    }
+
+    /**
+     * Return the key of the current element
+     * @link http://php.net/manual/en/iterator.key.php
+     * @return mixed scalar on success, or null on failure.
+     * @since 5.0.0
+     */
+    public function key()
+    {
+        return $this->valid() ? $this->keyR[$this->pointer] : null;
+    }
+
+    /**
+     * Checks if current position is valid
+     * @link http://php.net/manual/en/iterator.valid.php
+     * @return boolean The return value will be casted to boolean and then evaluated.
+     * Returns true on success or false on failure.
+     * @since 5.0.0
+     */
+    public function valid()
+    {
+        return $this->length > $this->pointer;
+    }
+
+    /**
+     * Rewind the Iterator to the first element
+     * @link http://php.net/manual/en/iterator.rewind.php
+     * @return void Any returned value is ignored.
+     * @since 5.0.0
+     */
+    public function rewind()
+    {
+        if ($this->length > 0) {
+            $this->pointer = 0;
+        }
+    }
+    // == iterator interface ==
 }

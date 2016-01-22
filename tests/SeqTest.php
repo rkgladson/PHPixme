@@ -15,12 +15,13 @@ class SeqTest extends PHPixme_TestCase
     public function seqSourceProvider()
     {
         return [
-            [[]]
-            , [[1, 2, 3]]
-            , [P\Some(1)]
-            , [P\None()]
-            , [['one' => 1, 'two' => 2]]
-            , [P\Seq([])]
+            '[]' => [[]]
+            , '[1,2,3]' => [[1, 2, 3]]
+            , 'Some(1)' => [P\Some(1)]
+            , 'None' => [P\None()]
+            , 'JSON({one:1, two: 2})' => [['one' => 1, 'two' => 2]]
+            , 'S[]' => [P\Seq([])]
+            , 'S[1,2,3]' => [P\Seq([1, 2, 3])]
         ];
     }
 
@@ -69,25 +70,61 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function test_toArray()
-    {
-        // The only meaningful way to test this is with array only sources
-        $values = [
-            []
-            , [1, 2, 3]
-            , ['one' => 1, 'two' => 2]
-            , [P\Some(1), P\None()]
-            , [P\Seq::of(1, 2, 3), P\Seq::of(4, 5, 6)]
-        ];
-        foreach ($values as $value) {
-            $seq = P\Seq($value);
-            $this->assertEquals(
-                $value
-                , $seq->toArray()
-                , 'Seq->toArray will should return its inner array, and should be functionally equivalent to the array it was given'
-            );
-        }
 
+    public function arrayOfThingsProvider()
+    {
+        return [
+            [[]]
+            , [[1, 2, 3]]
+            , [['one' => 1, 'two' => 2]]
+            , [[P\Some(1), P\None()]]
+            , [[P\Seq::of(1, 2, 3), P\Seq::of(4, 5, 6)]]
+        ];
+    }
+
+    /**
+     * @dataProvider arrayOfThingsProvider
+     */
+    public function test_toArray($value)
+    {
+        $this->assertEquals(
+            $value
+            , P\Seq($value)->toArray()
+            , 'Seq->toArray will should return its inner array, and should be functionally equivalent to the array it was given'
+        );
+    }
+
+    /**
+     * @dataProvider arrayOfThingsProvider
+     */
+    public function test_values ($source) {
+        $values = P\Seq($source)->values();
+        $this->assertInstanceOf(
+            P\Seq
+            , $values
+            , 'Seq->values should return an instance of itself'
+        );
+        $this->assertEquals(
+            array_values($source)
+            , $values->toArray()
+            , 'Seq->values should return a sequence only containing the values'
+        );
+    }
+    /**
+     * @dataProvider arrayOfThingsProvider
+     */
+    public function test_keys($source) {
+        $keys = P\Seq($source)->keys();
+        $this->assertInstanceOf(
+            P\Seq
+            , $keys
+            , 'Seq->keys should return an instance of itself'
+        );
+        $this->assertEquals(
+            array_keys($source)
+            , $keys->toArray()
+            , 'Seq->keys should return a sequence only containing the keys'
+        );
     }
 
     /**
@@ -511,7 +548,6 @@ class SeqTest extends PHPixme_TestCase
 
     /**
      * @dataProvider forNoneProvider
-     * @requires test_magic_invoke
      */
     public function test_forNone_callback($seq)
     {
@@ -566,7 +602,6 @@ class SeqTest extends PHPixme_TestCase
 
     /**
      * @dataProvider forSomeProvider
-     * @requires test_magic_invoke
      */
     public function test_forSome_callback($seq)
     {
@@ -620,8 +655,6 @@ class SeqTest extends PHPixme_TestCase
 
     /**
      * @dataProvider reduceAdditionProvider
-     * @requires test_magic_invoke
-     * @requires test_head
      */
     public function test_reduce_callback($seq)
     {
@@ -733,7 +766,6 @@ class SeqTest extends PHPixme_TestCase
 
     /**
      * @dataProvider findProvider
-     * @requires test_magic_invoke
      */
     public function test_find_callback($seq)
     {
@@ -1182,20 +1214,20 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function isEmptyProvider()
+    public function justArraysProvider()
     {
         return [
-            'nothing' => [
+            '[]' => [
                 []
             ],
-            'from 1 to 9' => [
+            '[1, 2, 3, ... 9]' => [
                 [1, 2, 3, 4, 5, 6, 7, 8, 9]
             ]
         ];
     }
 
     /**
-     * @dataProvider isEmptyProvider
+     * @dataProvider justArraysProvider
      */
     public function test_isEmpty($source)
     {
@@ -1206,22 +1238,34 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
+    /**
+     * @dataProvider justArraysProvider
+     */
+    public function test_count($source)
+    {
+        $this->assertEquals(
+            count($source)
+            , P\Seq::from($source)->count()
+            , 'Seq->count should be the amount of items that was sent to it'
+        );
+    }
+
 
     public function toStringProvider()
     {
         return [
-            'empty' => [
+            '[]' => [
                 [], ''
             ]
-            , 'S{integer}' => [
+            , 'S[integer]' => [
                 [1, 2, 3, 4, 5]
                 , '!'
             ]
-            , 'S{string}' => [
+            , 'S[string]' => [
                 ['a', 'b', 'c', 'd']
                 , ';'
             ]
-            , 'Keyed S{integer}' => [
+            , 'S[string => integer]' => [
                 ['one' => 1, 'two' => 2]
                 , ', '
             ]
@@ -1291,19 +1335,20 @@ class SeqTest extends PHPixme_TestCase
         );
     }
 
-    public function forEachProvider() {
+    public function forEachProvider()
+    {
         return [
-            'S[1,2,3,4]'=>[
-                P\Seq::of(1,2,3,4)
-                ,[0,1,2,3]
-                ,[1,2,3,4]
+            'S[1,2,3,4]' => [
+                P\Seq::of(1, 2, 3, 4)
+                , [0, 1, 2, 3]
+                , [1, 2, 3, 4]
             ]
-            , 'S[1,2,3,4]->reverse()'=>[
-                P\Seq::of(1,2,3,4)->reverse()
-                , [3,2,1,0]
-                , [4,3,2,1]
+            , 'S[1,2,3,4]->reverse()' => [
+                P\Seq::of(1, 2, 3, 4)->reverse()
+                , [3, 2, 1, 0]
+                , [4, 3, 2, 1]
             ]
-            , 'S[Some(1),Some(2)]'=>[
+            , 'S[Some(1),Some(2)]' => [
                 P\Seq::of(P\Some(1), P\Some(2))
                 , [0, 1]
                 , [P\Some(1), P\Some(2)]
@@ -1317,7 +1362,7 @@ class SeqTest extends PHPixme_TestCase
     public function test_forEach($seq, $keyR, $valueR)
     {
         $idx = 0;
-        foreach($seq as $key => $value) {
+        foreach ($seq as $key => $value) {
             $this->assertEquals(
                 $keyR[$idx]
                 , $key
@@ -1328,7 +1373,7 @@ class SeqTest extends PHPixme_TestCase
                 , $value
                 , 'The value at this step should equal the expected value'
             );
-            $idx+=1;
+            $idx += 1;
         }
         $this->assertEquals(
             $seq->count()
