@@ -120,10 +120,9 @@ function nullary($hof)
 // -- flip --
 const flip = __NAMESPACE__ . '\flip';
 /**
- * Takes a callable, then flips the two next arguments before calling tthe function
- * @sig f(a, b, ....z) -> f(b,a, ... z)
- * @param callable $hof
- * @return \Closure
+ * Takes a callable, then flips the two next arguments before calling the function
+ * @param callable
+ * @return \Closure f(a, b, ....z) -> f(b,a, ... z)
  */
 function flip($hof)
 {
@@ -145,8 +144,7 @@ $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
     __assertCallable($x);
     __assertCallable($y);
     return function ($z) use ($x, $y) {
-        $step1 = $y($z);
-        return $x($step1);
+        return call_user_func($x, call_user_func($y, $z));
     };
 });
 /**
@@ -173,7 +171,7 @@ const K = __NAMESPACE__ . '\K';
  */
 function K($first)
 {
-    return function () use (&$first) {
+    return function ($ignored = null) use (&$first) {
         return $first;
     };
 
@@ -184,7 +182,7 @@ function K($first)
 // -- Kite --
 const KI = __NAMESPACE__ . '\KI';
 /**
- * @param $ignored= This parameter will be ignored
+ * @param $ignored = This parameter will be ignored
  * @return \Closure
  * @sig ignored -> second -> second
  */
@@ -214,10 +212,9 @@ const S = __NAMESPACE__ . '\S';
 $__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
     __assertCallable($x);
     __assertCallable($y);
-    $step1 = $y($z);
-    $step2 = $x($z);
-    __assertCallable($step2);
-    return $step2($step1);
+    $x_z = call_user_func($x, $z);
+    __assertCallable($x_z);
+    return call_user_func($x_z, call_user_func($y, $z));
 });
 /**
  * @param callable $x
@@ -244,7 +241,7 @@ $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
     __assertTraversable($arrayLike);
     $output = $startVal;
     foreach ($arrayLike as $key => $value) {
-        $output = $hof($output, $value, $key, $arrayLike);
+        $output = call_user_func($hof, $output, $value, $key, $arrayLike);
     }
     return $output;
 });
@@ -278,7 +275,7 @@ $__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
     $output = $iter->current();
     $iter->next();
     while ($iter->valid()) {
-        $output = $hof($output, $iter->current(), $iter->key(), $arrayLike);
+        $output = call_user_func($hof, $output, $iter->current(), $iter->key(), $arrayLike);
         $iter->next();
     }
     return $output;
@@ -307,7 +304,7 @@ $__PHPIXME_NAMESPACE[map] = __curry(2, function (callable $hof, $traversable) {
     __assertTraversable($traversable);
     $output = [];
     foreach ($traversable as $key => $value) {
-        $output[$key] = $hof($value, $key, $traversable);
+        $output[$key] = call_user_func($hof, $value, $key, $traversable);
     }
     return $output;
 });
@@ -405,7 +402,7 @@ function __assertTraversable($arrayLike)
     return $arrayLike;
 }
 
-function __curryGiven($prevArgs, &$arity, &$callable)
+function __curryGiven($prevArgs, $arity, $callable)
 {
     return function (...$newArgs) use ($arity, $callable, $prevArgs) {
         $args = array_merge($prevArgs, $newArgs);
