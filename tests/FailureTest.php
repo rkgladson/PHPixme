@@ -84,6 +84,28 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_orElse_scenario_recover_thrown_exception()
+  {
+    $exception = new \Exception('test');
+    $initialFailure = P\Failure(new \Exception('^_^'));
+    $thrownFailure = $initialFailure->orElse(function () use ($exception) {
+      throw $exception;
+    });
+    $this->assertInstanceOf(
+      P\Failure
+      , $thrownFailure
+      , 'Failure->orElse should return an error on thrown'
+    );
+    $this->assertTrue(
+      $initialFailure !== $thrownFailure
+      , 'Failure->orElse on thrown should not be an identity'
+    );
+    $this->assertTrue(
+      $thrownFailure->failed()->get() === $exception
+      , 'Failure->orElse returned failure should contain the Exception thrown'
+    );
+  }
+
   /**
    * Assure the contract of Failure->orElse is maintained
    * @expectedException \Exception
@@ -271,7 +293,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     $failRecover = function () use ($failure) {
       throw $failure;
     };
-    
+
     $results = P\Failure(new \Exception('Test'))->recoverWith($failRecover);
     $this->assertInstanceOf(
       P\Failure
