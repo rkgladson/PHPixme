@@ -1,11 +1,15 @@
 <?php
 namespace PHPixme;
-  /**
-   * Created by PhpStorm.
-   * User: rgladson
-   * Date: 12/24/2015
-   * Time: 12:11 PM
-   */
+
+// -- placeholder --
+/**
+ * Returns the placeholder instance that is used for placing gaps in curry
+ * @return \stdClass
+ */
+function _ () {
+  return __PRIVATE__::$placeholder;
+}
+// == placeholder ==
 
 // -- curry --
 

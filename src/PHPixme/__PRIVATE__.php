@@ -26,6 +26,7 @@ class __PRIVATE__
    * @var array Closure instances can be safely placed inside the array
    */
   static $instance = [];
+  static $placeholder;
 
   /**
    * Asserts that the input can be used in some way by user_call_function_array
@@ -105,3 +106,5 @@ class __PRIVATE__
     return self::curryGiven([], $arity, $callable);
   }
 }
+
+__PRIVATE__::$placeholder = new \stdClass();
