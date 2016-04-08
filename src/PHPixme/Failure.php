@@ -17,121 +17,122 @@ namespace PHPixme;
  */
 class Failure extends Attempt
 {
-    private $err;
+  private $err;
 
-    /**
-     * @inheritdoc
-     */
-    public function get()
-    {
-        throw $this->err;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function get()
+  {
+    throw $this->err;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function filter(callable $hof)
-    {
-        return $this;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function filter(callable $hof)
+  {
+    return $this;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function flatMap(callable $hof)
-    {
-        return $this;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function flatMap(callable $hof)
+  {
+    return $this;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function flatten()
-    {
-        return $this;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function flatten()
+  {
+    return $this;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function failed()
-    {
-        return Success($this->err);
-    }
+  /**
+   * @inheritdoc
+   */
+  public function failed()
+  {
+    return Success($this->err);
+  }
 
-    /**
-     * @inheritdoc
-     */
-    function isFailure()
-    {
-        return true;
-    }
+  /**
+   * @inheritdoc
+   */
+  function isFailure()
+  {
+    return true;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    function isSuccess()
-    {
-        return false;
-    }
+  /**
+   * @inheritdoc
+   */
+  function isSuccess()
+  {
+    return false;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function map(callable $hof)
-    {
-        return $this;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function map(callable $hof)
+  {
+    return $this;
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function recover(callable $rescueException)
-    {
-        return Attempt(function () use ($rescueException) {
-            return $rescueException($this->err, $this);
-        });
-    }
+  /**
+   * @inheritdoc
+   */
+  public function recover(callable $rescueException)
+  {
+    return Attempt(function () use ($rescueException) {
+      return $rescueException($this->err, $this);
+    });
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function recoverWith(callable $hof)
-    {
-        try {
-            $result = $hof($this->err, $this);
-        } catch (\Exception $e) {
-            return Failure($e);
-        }
-        return static::assertAttemptType($result);
+  /**
+   * @inheritdoc
+   */
+  public function recoverWith(callable $hof)
+  {
+    try {
+      $result = $hof($this->err, $this);
+    } catch (\Exception $e) {
+      return Failure($e);
     }
+    return static::assertAttemptType($result);
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function transform(callable $success, callable $failure)
-    {
-        try {
-            $result = $failure($this->err, $this);
-        } catch (\Exception $e) {
-            return Failure($e);
-        }
-        return static::assertAttemptType($result);
+  /**
+   * @inheritdoc
+   */
+  public function transform(callable $success, callable $failure)
+  {
+    try {
+      $result = $failure($this->err, $this);
+    } catch (\Exception $e) {
+      return Failure($e);
     }
-    /**
-     * @inheritdoc
-     */
-    public function walk(callable $hof)
-    {
-        // This space is intentionally left blank.
-    }
+    return static::assertAttemptType($result);
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function __construct(\Exception $exception)
-    {
-        $this->err = $exception;
-    }
+  /**
+   * @inheritdoc
+   */
+  public function walk(callable $hof)
+  {
+    // This space is intentionally left blank.
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function __construct(\Exception $exception)
+  {
+    $this->err = $exception;
+  }
 
 }
