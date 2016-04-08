@@ -1,0 +1,15 @@
+<phpunit bootstrap="./phpunit.php">
+    <testsuites>
+        <testsuite>
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+            <exclude>
+                <file>./src/__PRIVATE__.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

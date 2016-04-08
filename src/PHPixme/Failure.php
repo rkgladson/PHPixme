@@ -103,7 +103,7 @@ class Failure extends Attempt
         } catch (\Exception $e) {
             return Failure($e);
         }
-        return __assertAttemptType($result);
+        return static::assertAttemptType($result);
     }
 
     /**
@@ -116,7 +116,7 @@ class Failure extends Attempt
         } catch (\Exception $e) {
             return Failure($e);
         }
-        return __assertAttemptType($result);
+        return static::assertAttemptType($result);
     }
     /**
      * @inheritdoc

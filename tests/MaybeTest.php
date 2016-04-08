@@ -7,11 +7,10 @@
  */
 
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
 
-class MaybeTest extends PHPixme_TestCase
+class MaybeTest extends \PHPUnit_Framework_TestCase
 {
 
     public function test_maybe_companion() {

@@ -6,10 +6,9 @@
  * Time: 3:22 PM
  */
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
-class SuccessTest extends PHPixme_TestCase
+class SuccessTest extends \PHPUnit_Framework_TestCase
 {
 
     public function test_success_companion()

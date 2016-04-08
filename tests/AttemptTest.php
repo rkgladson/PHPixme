@@ -6,10 +6,9 @@
  * Time: 11:58 AM
  */
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
-class AttemptTest extends PHPixme_TestCase
+class AttemptTest extends \PHPUnit_Framework_TestCase
 {
 
     public function test_companion_returns_children() {

@@ -7,11 +7,10 @@
  */
 
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
 
-class FailureTest extends PHPixme_TestCase
+class FailureTest extends \PHPUnit_Framework_TestCase
 {
     public function test_failure_companion()
     {

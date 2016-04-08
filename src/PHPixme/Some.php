@@ -78,12 +78,12 @@ class Some extends Maybe
 
     public function flatMap(callable $hof)
     {
-        return __assertMaybeType($hof($this->x, 0, $this));
+        return static::assertMaybeType($hof($this->x, 0, $this));
     }
 
     public function flatten()
     {
-        return __assertMaybeType($this->x);
+        return static::assertMaybeType($this->x);
     }
 
     /**

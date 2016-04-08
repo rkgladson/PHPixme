@@ -35,7 +35,7 @@ class Seq implements NaturalTransformationInterface, \Countable
         if ($arrayLike instanceof NaturalTransformationInterface) {
             return $arrayLike->toArray();
         }
-        __assertTraversable($arrayLike);
+        __PRIVATE__::assertTraversable($arrayLike);
         if (is_array($arrayLike)) {
             return $arrayLike;
         }
@@ -220,7 +220,7 @@ class Seq implements NaturalTransformationInterface, \Countable
 
     public function partition($hof)
     {
-        __assertCallable($hof);
+        __PRIVATE__::assertCallable($hof);
         $true = [];
         $false = [];
         foreach ($this->hash as $key => $value) {
@@ -235,7 +235,7 @@ class Seq implements NaturalTransformationInterface, \Countable
 
     public function group($hof)
     {
-        __assertCallable($hof);
+        __PRIVATE__::assertCallable($hof);
         return static::from(
             map(
                 function ($value) {

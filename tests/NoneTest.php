@@ -7,10 +7,9 @@
  */
 
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 
-class NoneTest extends PHPixme_TestCase
+class NoneTest extends \PHPUnit_Framework_TestCase
 {
     public function test_None_companion()
     {

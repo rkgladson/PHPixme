@@ -7,10 +7,9 @@
  */
 
 namespace tests\PHPixme;
-require_once "tests/PHPixme_TestCase.php";
 use PHPixme as P;
 const Closure = '\Closure';
-class FunctionalTest extends PHPixme_TestCase
+class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
     public function test_curry()
     {

@@ -78,7 +78,7 @@ abstract class Maybe implements NaturalTransformationInterface, \Countable
     public function orElse(callable $hof)
     {
         if ($this->isEmpty()) {
-            return  __assertMaybeType($hof());
+            return static::assertMaybeType($hof());
         }
         return $this;
     }
@@ -104,12 +104,11 @@ abstract class Maybe implements NaturalTransformationInterface, \Countable
     }
 
     // == NaturalTransformationInterface ==
-
-}
-
-function __assertMaybeType($unknown) {
-    if (!($unknown instanceof Maybe)) {
-        throw new \Exception ('return value must be an instance of Maybe!');
+    protected function assertMaybeType($unknown) {
+        if (!($unknown instanceof Maybe)) {
+            throw new \Exception ('return value must be an instance of Maybe!');
+        }
+        return $unknown;
     }
-    return $unknown;
 }
+

@@ -1,18 +1,16 @@
 <?php
 namespace PHPixme;
-//Fixme: figure out a way to get auto-loader to let me pass in my namespace level function instances
-global $__PHPIXME_NAMESPACE;
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 12/24/2015
- * Time: 12:11 PM
- */
+  /**
+   * Created by PhpStorm.
+   * User: rgladson
+   * Date: 12/24/2015
+   * Time: 12:11 PM
+   */
 
 // -- curry --
 
 const curry = __NAMESPACE__ . '\curry';
-$__PHPIXME_NAMESPACE[curry] = __curry(2, __NAMESPACE__ . '\__curry');
+__PRIVATE__::$instance[curry] = __PRIVATE__::curry(2, __NAMESPACE__ . '\__PRIVATE__::curry');
 /**
  * Take a callable and produce a curried \Closure
  * @param int $arity
@@ -21,21 +19,20 @@ $__PHPIXME_NAMESPACE[curry] = __curry(2, __NAMESPACE__ . '\__curry');
  */
 function curry($arity, $hof = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[curry], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[curry], func_get_args());
 }
 
 // == curry ==
 
 // -- nAry --
 const nAry = __NAMESPACE__ . '\nAry';
-$__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
-    __assertPositiveOrZero($number);
-    __assertCallable($hof);
-    return function () use (&$number, &$hof) {
-        $args = func_get_args();
-        return call_user_func_array($hof, array_slice($args, 0, $number));
-    };
+__PRIVATE__::$instance[nAry] = __PRIVATE__::curry(2, function ($number = 0, $hof = null) {
+  __PRIVATE__::assertPositiveOrZero($number);
+  __PRIVATE__::assertCallable($hof);
+  return function () use (&$number, &$hof) {
+    $args = func_get_args();
+    return call_user_func_array($hof, array_slice($args, 0, $number));
+  };
 });
 /**
  * Wrap a function in an argument that will eat all but n arguments
@@ -45,8 +42,7 @@ $__PHPIXME_NAMESPACE[nAry] = __curry(2, function ($number = 0, $hof = null) {
  */
 function nAry($arity, $hof = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[nAry], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[nAry], func_get_args());
 }
 
 // == nAry ==
@@ -60,10 +56,10 @@ const unary = __NAMESPACE__ . '\unary';
  */
 function unary($hof)
 {
-    __assertCallable($hof);
-    return function ($arg) use (&$hof) {
-        return $hof($arg);
-    };
+  __PRIVATE__::assertCallable($hof);
+  return function ($arg) use (&$hof) {
+    return $hof($arg);
+  };
 }
 
 // == unary ==
@@ -77,10 +73,10 @@ const binary = __NAMESPACE__ . '\binary';
  */
 function binary($hof)
 {
-    __assertCallable($hof);
-    return __curry(2, function ($x, $y) use (&$hof) {
-        return $hof($x, $y);
-    });
+  __PRIVATE__::assertCallable($hof);
+  return __PRIVATE__::curry(2, function ($x, $y) use (&$hof) {
+    return $hof($x, $y);
+  });
 }
 
 // == binary ==
@@ -93,10 +89,10 @@ const ternary = __NAMESPACE__ . '\ternary';
  */
 function ternary($hof)
 {
-    __assertCallable($hof);
-    return __curry(3, function ($x, $y, $z) use ($hof) {
-        return $hof($x, $y, $z);
-    });
+  __PRIVATE__::assertCallable($hof);
+  return __PRIVATE__::curry(3, function ($x, $y, $z) use ($hof) {
+    return $hof($x, $y, $z);
+  });
 }
 
 // == ternary ==
@@ -109,10 +105,10 @@ const nullary = __NAMESPACE__ . '\nullary';
  */
 function nullary($hof)
 {
-    __assertCallable($hof);
-    return function () use ($hof) {
-        return $hof();
-    };
+  __PRIVATE__::assertCallable($hof);
+  return function () use ($hof) {
+    return $hof();
+  };
 }
 
 // == nullary ==
@@ -126,13 +122,13 @@ const flip = __NAMESPACE__ . '\flip';
  */
 function flip($hof)
 {
-    __assertCallable($hof);
-    return __curry(2, function (...$args) use ($hof) {
-        $temp = $args[0];
-        $args[0] = $args[1];
-        $args[1] = $temp;
-        return call_user_func_array($hof, $args);
-    });
+  __PRIVATE__::assertCallable($hof);
+  return __PRIVATE__::curry(2, function (...$args) use ($hof) {
+    $temp = $args[0];
+    $args[0] = $args[1];
+    $args[1] = $temp;
+    return call_user_func_array($hof, $args);
+  });
 }
 
 ;
@@ -140,12 +136,12 @@ function flip($hof)
 
 // -- combine --
 const combine = __NAMESPACE__ . '\combine';
-$__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
-    __assertCallable($x);
-    __assertCallable($y);
-    return function ($z) use ($x, $y) {
-        return call_user_func($x, call_user_func($y, $z));
-    };
+__PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
+  __PRIVATE__::assertCallable($x);
+  __PRIVATE__::assertCallable($y);
+  return function ($z) use ($x, $y) {
+    return call_user_func($x, call_user_func($y, $z));
+  };
 });
 /**
  * Takes two functions and has the first consume the output of the second, combining them to a single function
@@ -156,8 +152,7 @@ $__PHPIXME_NAMESPACE[combine] = __curry(2, function ($x, $y) {
  */
 function combine($hofSecond, $hofFirst = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[combine], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[combine], func_get_args());
 }
 
 // == combine ==
@@ -171,9 +166,9 @@ const K = __NAMESPACE__ . '\K';
  */
 function K($first)
 {
-    return function ($ignored = null) use (&$first) {
-        return $first;
-    };
+  return function ($ignored = null) use (&$first) {
+    return $first;
+  };
 
 }
 
@@ -188,7 +183,7 @@ const KI = __NAMESPACE__ . '\KI';
  */
 function KI($ignored = null)
 {
-    return unary(I);
+  return unary(I);
 }
 
 // == Kite ==
@@ -202,19 +197,19 @@ const I = __NAMESPACE__ . '\I';
  */
 function I($x)
 {
-    return $x;
+  return $x;
 }
 
 // == Idiot ==
 
 // -- Starling --
 const S = __NAMESPACE__ . '\S';
-$__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
-    __assertCallable($x);
-    __assertCallable($y);
-    $x_z = call_user_func($x, $z);
-    __assertCallable($x_z);
-    return call_user_func($x_z, call_user_func($y, $z));
+__PRIVATE__::$instance[S] = __PRIVATE__::curry(3, function ($x, $y, $z) {
+  __PRIVATE__::assertCallable($x);
+  __PRIVATE__::assertCallable($y);
+  $x_z = call_user_func($x, $z);
+  __PRIVATE__::assertCallable($x_z);
+  return call_user_func($x_z, call_user_func($y, $z));
 });
 /**
  * @param callable $x
@@ -225,25 +220,24 @@ $__PHPIXME_NAMESPACE[S] = __curry(3, function ($x, $y, $z) {
  */
 function S($x, $y = null, $z = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[S], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[S], func_get_args());
 }
 
 // == Starling ==
 
 // -- fold --
 const fold = __NAMESPACE__ . '\fold';
-$__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
-    __assertCallable($hof);
-    if ($arrayLike instanceof NaturalTransformationInterface) {
-        return $arrayLike->fold($hof, $startVal);
-    }
-    __assertTraversable($arrayLike);
-    $output = $startVal;
-    foreach ($arrayLike as $key => $value) {
-        $output = call_user_func($hof, $output, $value, $key, $arrayLike);
-    }
-    return $output;
+__PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
+  __PRIVATE__::assertCallable($hof);
+  if ($arrayLike instanceof NaturalTransformationInterface) {
+    return $arrayLike->fold($hof, $startVal);
+  }
+  __PRIVATE__::assertTraversable($arrayLike);
+  $output = $startVal;
+  foreach ($arrayLike as $key => $value) {
+    $output = call_user_func($hof, $output, $value, $key, $arrayLike);
+  }
+  return $output;
 });
 /**
  * @param callable $hof
@@ -253,32 +247,31 @@ $__PHPIXME_NAMESPACE[fold] = __curry(3, function ($hof, $startVal, $arrayLike) {
  */
 function fold($hof, $startVal = null, $traversable = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[fold], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[fold], func_get_args());
 }
 
 // == fold ==
 
 // -- reduce --
 const reduce = __NAMESPACE__ . '\reduce';
-$__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
-    __assertCallable($hof);
-    if ($arrayLike instanceof NaturalTransformationInterface) {
-        return $arrayLike->reduce($hof);
-    }
-    __assertTraversable($arrayLike);
-    $iter = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : $arrayLike;
-    $iter->rewind();
-    if (!$iter->valid()) {
-        throw new \InvalidArgumentException('Cannot reduce on collection of less than one. Behaviour is undefined');
-    }
-    $output = $iter->current();
+__PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
+  __PRIVATE__::assertCallable($hof);
+  if ($arrayLike instanceof NaturalTransformationInterface) {
+    return $arrayLike->reduce($hof);
+  }
+  __PRIVATE__::assertTraversable($arrayLike);
+  $iter = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : $arrayLike;
+  $iter->rewind();
+  if (!$iter->valid()) {
+    throw new \InvalidArgumentException('Cannot reduce on collection of less than one. Behaviour is undefined');
+  }
+  $output = $iter->current();
+  $iter->next();
+  while ($iter->valid()) {
+    $output = call_user_func($hof, $output, $iter->current(), $iter->key(), $arrayLike);
     $iter->next();
-    while ($iter->valid()) {
-        $output = call_user_func($hof, $output, $iter->current(), $iter->key(), $arrayLike);
-        $iter->next();
-    }
-    return $output;
+  }
+  return $output;
 });
 /**
  * @param callable $hof
@@ -287,26 +280,25 @@ $__PHPIXME_NAMESPACE[reduce] = __curry(2, function ($hof, $arrayLike) {
  */
 function reduce($hof, $traversable = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[reduce], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[reduce], func_get_args());
 }
 
 // == reduce ==
 
 // -- map --
 const map = __NAMESPACE__ . '\map';
-$__PHPIXME_NAMESPACE[map] = __curry(2, function (callable $hof, $traversable) {
+__PRIVATE__::$instance[map] = __PRIVATE__::curry(2, function (callable $hof, $traversable) {
 
-    // Reflect on natural transformations
-    if ($traversable instanceof NaturalTransformationInterface) {
-        return $traversable->map($hof);
-    }
-    __assertTraversable($traversable);
-    $output = [];
-    foreach ($traversable as $key => $value) {
-        $output[$key] = call_user_func($hof, $value, $key, $traversable);
-    }
-    return $output;
+  // Reflect on natural transformations
+  if ($traversable instanceof NaturalTransformationInterface) {
+    return $traversable->map($hof);
+  }
+  __PRIVATE__::assertTraversable($traversable);
+  $output = [];
+  foreach ($traversable as $key => $value) {
+    $output[$key] = call_user_func($hof, $value, $key, $traversable);
+  }
+  return $output;
 });
 /**
  * @param callable $hof
@@ -315,22 +307,21 @@ $__PHPIXME_NAMESPACE[map] = __curry(2, function (callable $hof, $traversable) {
  */
 function map(callable $hof, $traversable = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[map], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[map], func_get_args());
 }
 
 // == map ==
 
 // -- callWith --
 const callWith = __NAMESPACE__ . '\callWith';
-$__PHPIXME_NAMESPACE[callWith] = __curry(2, function ($accessor, $container) {
-    $callable = is_array($container) ?
-        (isset($container[$accessor]) ? $container[$accessor] : null)
-        : [$container, $accessor];
-    __assertCallable($callable);
-    return function () use (&$callable) {
-        return call_user_func_array($callable, func_get_args());
-    };
+__PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $container) {
+  $callable = is_array($container) ?
+    (isset($container[$accessor]) ? $container[$accessor] : null)
+    : [$container, $accessor];
+  __PRIVATE__::assertCallable($callable);
+  return function () use (&$callable) {
+    return call_user_func_array($callable, func_get_args());
+  };
 });
 /**
  * Produce a function that calls a function within a array or object
@@ -340,8 +331,7 @@ $__PHPIXME_NAMESPACE[callWith] = __curry(2, function ($accessor, $container) {
  */
 function callWith($accessor, $container = null)
 {
-    global $__PHPIXME_NAMESPACE;
-    return call_user_func_array($__PHPIXME_NAMESPACE[callWith], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[callWith], func_get_args());
 }
 
 // == callWith ==
@@ -355,9 +345,9 @@ const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
  */
 function pluckObjectWith($accessor)
 {
-    return function ($container) use ($accessor) {
-        return $container->{$accessor};
-    };
+  return function ($container) use ($accessor) {
+    return $container->{$accessor};
+  };
 }
 
 // == pluckObjectWith ==
@@ -370,60 +360,10 @@ const pluckArrayWith = __NAMESPACE__ . '\pluckArrayWith';
  */
 function pluckArrayWith($accessor)
 {
-    return function ($container) use ($accessor) {
-        return $container[$accessor];
-    };
+  return function ($container) use ($accessor) {
+    return $container[$accessor];
+  };
 }
 
 // == pluckArrayWith ==
 
-// -- Internal functions --
-function __assertCallable($callable)
-{
-    if (!is_callable($callable)) {
-        throw new \InvalidArgumentException('callback must be a callable function');
-    }
-    return $callable;
-}
-
-function __assertPositiveOrZero($number)
-{
-    if (!is_integer($number) || $number < 0) {
-        throw new \InvalidArgumentException('argument must be a integer 0 or greater');
-    }
-    return $number;
-}
-
-function __assertTraversable($arrayLike)
-{
-    if (!is_array($arrayLike) && !($arrayLike instanceof \Traversable)) {
-        throw new \InvalidArgumentException('argument must be a Traversable or array');
-    }
-    return $arrayLike;
-}
-
-function __curryGiven($prevArgs, $arity, $callable)
-{
-    return function (...$newArgs) use ($arity, $callable, $prevArgs) {
-        $args = array_merge($prevArgs, $newArgs);
-        if (count($args) >= $arity) {
-            return call_user_func_array($callable, $args);
-        }
-        return __curryGiven($args, $arity, $callable);
-    };
-}
-
-
-/**
- * Uncurried curry function for internal use
- * @param int $arity
- * @param callable $callable
- * @return \Closure
- */
-function __curry($arity = 0, callable $callable)
-{
-    __assertPositiveOrZero($arity);
-    __assertCallable($callable);
-
-    return __curryGiven([], $arity, $callable);
-}
