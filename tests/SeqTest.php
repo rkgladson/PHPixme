@@ -827,6 +827,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider walkProvider
+   * @param $seq \PHPixme\Seq
    */
   public function test_walk_callback($seq)
   {
@@ -856,16 +857,20 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider walkProvider
+   * @param $seq \PHPixme\Seq
+   * @param $length int
    */
   public function test_walk($seq, $length)
   {
     $ran = 0;
-    $seq->walk(function () use (&$ran) {
-      $ran += 1;
-    });
-    $this->assertEquals(
-      $length
-      , $ran
+    $this->assertTrue(
+      $seq === $seq->walk(function () use (&$ran) {
+        $ran += 1;
+      })
+      , 'Seq-> walk should return its own instance'
+    );
+    $this->assertTrue(
+      $length === $ran
       , 'Seq->walk should of ran the length of the sequence'
     );
   }

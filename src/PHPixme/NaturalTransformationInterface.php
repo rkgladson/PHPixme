@@ -100,7 +100,7 @@ interface NaturalTransformationInterface extends \Iterator
     /**
      * Preform $hof over the container
      * @param callable $hof ($value, $key, $container) : null
-     * @return null
+     * @return $this
      */
     public function walk(callable $hof);
 

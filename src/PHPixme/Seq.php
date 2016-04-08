@@ -190,11 +190,15 @@ class Seq implements NaturalTransformationInterface, \Countable
     return Maybe($found);
   }
 
+  /**
+   * @inheritdoc
+   */
   public function walk(callable $hof)
   {
     foreach ($this->keyR as $key) {
       $hof($this->hash[$key], $key, $this);
     }
+    return $this;
   }
 
   public function head()

@@ -255,9 +255,13 @@ class NoneTest extends \PHPUnit_Framework_TestCase
   public function test_walk()
   {
     $times = 0;
-    P\None()->walk(function () use (&$times) {
+    $result = P\None()->walk(function () use (&$times) {
       $times += 1;
     });
+    $this->assertTrue(
+      $result === P\None()
+      , 'None->walk should return its own instance'
+    );
     $this->assertTrue(
       0 === $times
       , 'Walk should run no times on None'
