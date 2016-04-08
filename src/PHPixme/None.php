@@ -13,6 +13,9 @@ namespace PHPixme;
  */
 class None extends Maybe
 {
+  /**
+   * @var self
+   */
   protected static $instance = null;
 
   public function contains($x)
@@ -42,9 +45,14 @@ class None extends Maybe
    */
   public static function getInstance()
   {
+    // @codeCoverageIgnoreStart
+    // This section will never execute under testing as it passes it earlier on.
+    // It is however being tested for, as the output should be a constant instance of itself.
     if (is_null(static::$instance)) {
       static::$instance = new static();
     }
+    // @codeCoverageIgnoreEnd
+
     return static::$instance;
   }
 
@@ -212,6 +220,10 @@ class None extends Maybe
   // == Natural Transformation interface methods ==
 
   // -- Iterator interface methods--
+  /**
+   * @return null
+   * @codeCoverageIgnore - Transversable interface will never run this
+   */
   public function key()
   {
     return null;
@@ -226,6 +238,9 @@ class None extends Maybe
     return false;
   }
 
+  /**
+   * @codeCoverageIgnore Transversable interface will never exectue this
+   */
   public function next()
   {
     // This space is intentionally left blank
@@ -236,6 +251,10 @@ class None extends Maybe
     // This space is intentionally left blank
   }
 
+  /**
+   * @codeCoverageIgnore Interface will never execute this
+   * @return null
+   */
   public function current()
   {
     return null;
