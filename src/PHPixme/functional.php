@@ -6,9 +6,11 @@ namespace PHPixme;
  * Returns the placeholder instance that is used for placing gaps in curry
  * @return \stdClass
  */
-function _ () {
+function _()
+{
   return __PRIVATE__::placeholder();
 }
+
 // == placeholder ==
 
 // -- curry --
@@ -20,6 +22,7 @@ __PRIVATE__::$instance[curry] = __PRIVATE__::curry(2, __NAMESPACE__ . '\__PRIVAT
  * @param int $arity
  * @param callable = $hof
  * @return \Closure
+ * @sig Integer -> Calllable (*-> x) -> \Closure (* -> x)
  */
 function curry($arity, $hof = null)
 {
@@ -43,6 +46,7 @@ __PRIVATE__::$instance[nAry] = __PRIVATE__::curry(2, function ($number = 0, $hof
  * @param int $arity
  * @param callable = $hof
  * @return \Closure
+ * @sig Integer -> Callable (* -> x) -> \Closure (* -> x)
  */
 function nAry($arity, $hof = null)
 {
@@ -57,6 +61,7 @@ const unary = __NAMESPACE__ . '\unary';
  * wrap a callable in a function that will eat but one argument
  * @param callable $hof
  * @return \Closure
+ * @sig Callable (* -> x) -> \Closure (a -> x)
  */
 function unary($hof)
 {
@@ -74,6 +79,7 @@ const binary = __NAMESPACE__ . '\binary';
  * Wrap a callable in a function that will eat all but two arguments
  * @param callable $hof
  * @return \Closure
+ * @sig Callable (* -> x) -> \Closure (a, b -> x)
  */
 function binary($hof)
 {
@@ -90,6 +96,7 @@ const ternary = __NAMESPACE__ . '\ternary';
  * Wrap a callable function in one that will eat all but three arguments
  * @param callable $hof
  * @return \Closure
+ * @sig Callable (* -> x) -> \Closure (a, b, c -> x)
  */
 function ternary($hof)
 {
@@ -106,6 +113,7 @@ const nullary = __NAMESPACE__ . '\nullary';
  * Wrap a function in one that will eat all arguments
  * @param $hof
  * @return \Closure
+ * @sig Callable (* -> x) -> \Closure (->x)
  */
 function nullary($hof)
 {
@@ -141,6 +149,7 @@ function flip($hof)
 // -- combine --
 const combine = __NAMESPACE__ . '\combine';
 __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
+  // TODO: Revisit this function, and see if it can be made n-ary
   __PRIVATE__::assertCallable($x);
   __PRIVATE__::assertCallable($y);
   return function ($z) use ($x, $y) {
@@ -153,6 +162,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
  * @param callable $hofSecond
  * @param callable = $hofFirst
  * @return \Closure
+ * @sig (Uniary Callable(y->z), Unary Callable(x->y), Callable (*->x)) -> \Closure (* -> z)
  */
 function combine($hofSecond, $hofFirst = null)
 {
@@ -187,7 +197,9 @@ const KI = __NAMESPACE__ . '\KI';
  */
 function KI($ignored = null)
 {
-  return function ($second) {return $second;};
+  return function ($second) {
+    return $second;
+  };
 }
 
 // == Kite ==
@@ -220,7 +232,7 @@ __PRIVATE__::$instance[S] = __PRIVATE__::curry(3, function ($x, $y, $z) {
  * @param callable = $y
  * @param mixed = $z
  * @return \Closure|mixed
- * @sig x, y, z -> x(z)(y(z)
+ * @sig Callable x -> Callable y -> z -> a
  */
 function S($x, $y = null, $z = null)
 {
@@ -248,6 +260,7 @@ __PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, 
  * @param mixed = $startVal
  * @param \Traversable= $traversable
  * @return \Closure|mixed
+ * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
  */
 function fold($hof, $startVal = null, $traversable = null)
 {
@@ -281,6 +294,7 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLik
  * @param callable $hof
  * @param \Traversable= $traversable
  * @return \Closure|mixed
+ * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
  */
 function reduce($hof, $traversable = null)
 {
@@ -308,6 +322,8 @@ __PRIVATE__::$instance[map] = __PRIVATE__::curry(2, function (callable $hof, $tr
  * @param callable $hof
  * @param array|\Traversable|\PHPixme\NaturalTransformationInterface $traversable
  * @return \Closure|mixed
+ * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
+ *
  */
 function map(callable $hof, $traversable = null)
 {
@@ -330,8 +346,9 @@ __PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $c
 /**
  * Produce a function that calls a function within a array or object
  * @param string $accessor
- * @param object|array $container =
+ * @param object|array $container
  * @return \Closure ($container) -> ((args) -> $container{[$accessor]}(...args))
+ * @sig String -> Object -> \Closure (*->x)
  */
 function callWith($accessor, $container = null)
 {
@@ -346,6 +363,7 @@ const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
  * Creates a function to access the property of an object
  * @param string $accessor
  * @return \Closure ($object) -> object->accessor
+ * @sig String -> Object -> \Closure (->x)
  */
 function pluckObjectWith($accessor)
 {
@@ -361,6 +379,7 @@ const pluckArrayWith = __NAMESPACE__ . '\pluckArrayWith';
  * Creates a function to access the property of an object
  * @param string $accessor
  * @return \Closure ($object) -> object->accessor
+ * @sig String -> Array -> \Closure (->x)
  */
 function pluckArrayWith($accessor)
 {
