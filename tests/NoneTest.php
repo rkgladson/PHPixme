@@ -12,7 +12,8 @@ use PHPixme as P;
 
 class NoneTest extends \PHPUnit_Framework_TestCase
 {
-  public function test_None_constants() {
+  public function test_None_constants()
+  {
     $this->assertTrue(
       P\None::class === P\None
       , 'The constant for the Class and Function should be equal to the Class Path'
@@ -22,7 +23,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       , 'The companion function exists for the class.'
     );
   }
-  
+
   public function test_None_companion()
   {
 
@@ -330,7 +331,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       , 'The flatMap function should return the identity on None.'
     );
   }
-  
+
 
   public function test_traversable_interface()
   {
