@@ -68,39 +68,37 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
   public function test_curry_placeholder()
   {
-    $equivlentArray = [1, 2, 3, 4, 5];
+    $equivlentArray5 = [1, 2, 3, 4, 5];
+    $equivlentArray7 = [1, 2, 3, 4, 5, 6, 7];
+    $getArgs = function () {
+      return func_get_args();
+    };
     $this->assertInstanceOf(
       '\\stdClass'
       , P\_()
       , 'the placeholder should be an instance of standard class'
     );
     $this->assertEquals(
-      P\curry(5, function () {
-        return func_get_args();
-      })
+      P\curry(5, $getArgs)
         ->__invoke(1, P\_(), 3, P\_(), 5)
         ->__invoke(2)
         ->__invoke(4)
-      , $equivlentArray
+      , $equivlentArray5
       , 'When within, the placeholders in Curry should be filled in one by one.'
     );
     $this->assertEquals(
-      P\curry(5, function () {
-        return func_get_args();
-      })
+      P\curry(5, $getArgs)
         ->__invoke(P\_(), P\_(), 3, 4, 5)
         ->__invoke(1, 2)
-      , $equivlentArray
+      , $equivlentArray5
       , 'When using placeholders with curry, it should still be able to have a varadic follow up.'
     );
     $this->assertEquals(
-      P\curry(5, function () {
-        return func_get_args();
-      })
+      P\curry(5, $getArgs)
         ->__invoke(P\_(), P\_(), P\_(), P\_(), 5, 6)
         ->__invoke(1, P\_(), P\_(), P\_(), 7)
         ->__invoke(2, 3, 4)
-      , [1, 2, 3, 4, 5, 6, 7]
+      , $equivlentArray7
       , 'The function should be able to exceed its arity'
     );
   }
