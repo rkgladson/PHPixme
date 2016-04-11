@@ -23,6 +23,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\curry
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\curry)
+      , 'Ensure the constant points to an existing function.'
+    );
     $this->assertInstanceOf(
       Closure
       , $param3
@@ -69,7 +73,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
   public function test_placeholder()
   {
     $this->assertInstanceOf(
-      '\\stdClass'
+      \stdClass::class
       , P\_()
       , 'the placeholder should be an instance of standard class'
     );
@@ -121,6 +125,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\nAry
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\nAry)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\nAry(1)
@@ -153,6 +162,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\unary
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\unary)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\unary($countArgs)
@@ -176,6 +190,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\binary
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\binary)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\binary($countArgs)
@@ -199,6 +218,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\ternary
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\ternary)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\ternary($countArgs)
@@ -222,6 +246,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\nullary
       , 'Ensure the constant is assigned to its function name'
     );
+
+    $this->assertTrue(
+      function_exists(P\nullary)
+      , 'Ensure the constant points to an existing function.'
+    );
     $this->assertInstanceOf(
       Closure
       , P\nullary($countArgs)
@@ -244,6 +273,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       '\flip'
       , P\flip
       , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\flip)
+      , 'Ensure the constant points to an existing function.'
     );
 
     $this->assertInstanceOf(
@@ -278,6 +311,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\combine
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\combine)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\combine('json_encode', 'array_reverse')
@@ -305,6 +343,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\K
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\K)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\K($value)
@@ -324,6 +367,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\KI
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\KI)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\KI($value)
@@ -343,6 +391,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\I
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\I)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertEquals(
       $value
       , P\I($value)
@@ -357,6 +410,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\S
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\S)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\S(P\I)
@@ -450,6 +508,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\fold
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\fold)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\fold(P\I, $value)
@@ -543,6 +606,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\reduce
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\reduce)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\reduce(P\I)
@@ -701,6 +769,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\map
       , 'Ensure the constant is assigned to its function name'
     );
+    $this->assertTrue(
+      function_exists(P\map)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\map(P\I)
@@ -850,6 +923,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\callWith
       , 'Ensure the constant is assigned to the function name'
     );
+    $this->assertTrue(
+      function_exists(P\callWith)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\callWith('')
@@ -889,6 +967,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\pluckObjectWith
       , 'Ensure the constant is assigned to the function name'
     );
+    $this->assertTrue(
+      function_exists(P\pluckObjectWith)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\pluckObjectWith('')
@@ -908,6 +991,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\pluckArrayWith
       , 'Ensure the constant is assigned to the function name'
     );
+    $this->assertTrue(
+      function_exists(P\pluckArrayWith)
+      , 'Ensure the constant points to an existing function.'
+    );
+
     $this->assertInstanceOf(
       Closure
       , P\pluckArrayWith('')
