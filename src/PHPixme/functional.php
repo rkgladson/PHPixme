@@ -166,7 +166,6 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
 });
 /**
  * Takes two functions and has the first consume the output of the second, combining them to a single function
- * @sig x y z -> x(y(z))
  * @param callable $hofSecond
  * @param callable = $hofFirst
  * @return \Closure
