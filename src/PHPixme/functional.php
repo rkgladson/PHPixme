@@ -153,13 +153,13 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
   foreach($combine as $hof) {
     __PRIVATE__::assertCallable($hof);
   }
-  $combineReversed = array_reverse($combine);
-  $combineHead = $combineReversed[0];
-  $combineTail = array_slice($combineReversed, 1);
-  return function () use ($combineHead, $combineTail) {
+  $combineHead = end($combine);
+  $combineTail = array_slice($combine, 0, -1);
+  $combineTailSize = count($combineTail);
+  return function () use ($combineHead, $combineTail, $combineTailSize) {
     $acc = call_user_func_array($combineHead, func_get_args());
-    foreach($combineTail as $hof) {
-      $acc = call_user_func($hof, $acc);
+    for ($index = $combineTailSize - 1; -1 < $index; $index -= 1) {
+      $acc = call_user_func($combineTail[$index], $acc);
     }
     return $acc;
   };
