@@ -18,7 +18,6 @@ namespace PHPixme;
  * Place globals here.
  * @internal
  * @package PHPixme
- * @codeCoverageIgnore
  */
 class __PRIVATE__
 {
@@ -34,6 +33,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x->x
+   * @codeCoverageIgnore
    */
   static function assertCallable($callable)
   {
@@ -49,6 +49,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
+   * @codeCoverageIgnore
    */
   static function assertPositiveOrZero($number)
   {
@@ -64,6 +65,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
+   * @codeCoverageIgnore
    */
   static function assertTraversable($arrayLike)
   {
@@ -84,14 +86,15 @@ class __PRIVATE__
   static function curryGiven($prevArgs, $arity, $callable, $firstPlaceholder = -1)
   {
     return function () use ($arity, $callable, $prevArgs, $firstPlaceholder) {
-      $left = $arity;
+
       $prevArgsLength = count($prevArgs);
 
       $newArgs = func_get_args();
       $newArgsLength = count($newArgs);
-
       // Kickstart the process from the last known placeholder location
       $outputArgs = $firstPlaceholder < 0 ? $prevArgs : array_slice($prevArgs, 0, $firstPlaceholder);
+      // Mark how many have been inserted before picking up where we left off.
+      $left = $arity - count($outputArgs);
       // note the new placeholder's possible location
       $nextFirstPlaceholder = -1;
       for (
@@ -105,7 +108,7 @@ class __PRIVATE__
         ) {
           $cell = $prevArgs[$outputIdx];
         } else {
-          $cell = $newArgIdx[$newArgIdx];
+          $cell = $newArgs[$newArgIdx];
           $newArgIdx += 1;
 
         }
