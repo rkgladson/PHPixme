@@ -18,7 +18,6 @@ namespace PHPixme;
  * Place globals here.
  * @internal
  * @package PHPixme
- * @codeCoverageIgnore
  */
 class __PRIVATE__
 {
@@ -26,6 +25,7 @@ class __PRIVATE__
    * @var array Closure instances can be safely placed inside the array
    */
   static $instance = [];
+  static $placeholder;
 
   /**
    * Asserts that the input can be used in some way by user_call_function_array
@@ -33,6 +33,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x->x
+   * @codeCoverageIgnore
    */
   static function assertCallable($callable)
   {
@@ -48,6 +49,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
+   * @codeCoverageIgnore
    */
   static function assertPositiveOrZero($number)
   {
@@ -63,6 +65,7 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
+   * @codeCoverageIgnore
    */
   static function assertTraversable($arrayLike)
   {
@@ -77,16 +80,58 @@ class __PRIVATE__
    * @param $prevArgs
    * @param $arity
    * @param $callable
-   * @return \Closure
+   * @param $firstPlaceholder int
+   * @return \Closure (...args) -> \Closure|$callable()
    */
-  static function curryGiven($prevArgs, $arity, $callable)
+  static function curryGiven($prevArgs, $arity, $callable, $firstPlaceholder = -1)
   {
-    return function (...$newArgs) use ($arity, $callable, $prevArgs) {
-      $args = array_merge($prevArgs, $newArgs);
-      if (count($args) >= $arity) {
-        return call_user_func_array($callable, $args);
+    return function () use ($arity, $callable, $prevArgs, $firstPlaceholder) {
+
+      $prevArgsLength = count($prevArgs);
+
+      $newArgs = func_get_args();
+      $newArgsLength = count($newArgs);
+      // Kickstart the process from the last known placeholder location
+      $outputArgs = $firstPlaceholder < 0 ? $prevArgs : array_slice($prevArgs, 0, $firstPlaceholder);
+      // Mark how many have been inserted before picking up where we left off.
+      $left = $arity - count($outputArgs);
+      // note the new placeholder's possible location
+      $nextFirstPlaceholder = -1;
+      for (
+        $outputIdx = count($outputArgs), $newArgIdx = 0;
+        $outputIdx < $prevArgsLength || $newArgIdx < $newArgsLength;
+        $outputIdx += 1
+      ) {
+        if (
+          (
+            // The present index isn't a placeholder
+            $outputIdx < $prevArgsLength
+            && $prevArgs[$outputIdx] !== static::$placeholder
+          )
+          // There are none left to take
+          || $newArgIdx >= $newArgsLength
+        ) {
+          // Take from the previous arguments
+          $cell = $prevArgs[$outputIdx];
+        } else {
+          // Take from the newly given arguments
+          $cell = $newArgs[$newArgIdx];
+          $newArgIdx += 1;
+
+        }
+        $outputArgs[$outputIdx] = $cell;
+
+        if ($cell !== static::$placeholder) {
+          $left -= 1;
+        } else if ($nextFirstPlaceholder < 0) {
+          // Note the location of the first placeholder for next time.
+          $nextFirstPlaceholder = $outputIdx;
+        }
       }
-      return self::curryGiven($args, $arity, $callable);
+      return ($left < 1
+        ? call_user_func_array($callable, $outputArgs)
+        : self::curryGiven($outputArgs, $arity, $callable, $nextFirstPlaceholder)
+      );
     };
   }
 
@@ -95,7 +140,7 @@ class __PRIVATE__
    * @param int $arity
    * @param callable $callable
    * @return \Closure
-   * @throws \InvalidArgumentException when $callable is not a callabe
+   * @throws \InvalidArgumentException when $callable is not a callable
    */
   static function curry($arity = 0, callable $callable)
   {
@@ -105,3 +150,5 @@ class __PRIVATE__
     return self::curryGiven([], $arity, $callable);
   }
 }
+
+__PRIVATE__::$placeholder = new \stdClass();
