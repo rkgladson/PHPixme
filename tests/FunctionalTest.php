@@ -66,18 +66,26 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_curry_placeholder()
+  public function test_placeholder()
+  {
+    $this->assertInstanceOf(
+      '\\stdClass'
+      , P\_()
+      , 'the placeholder should be an instance of standard class'
+    );
+    $this->assertTrue(
+      P\_() === P\_()
+      , 'the placeholder value should not change between executions.'
+    );
+  }
+
+  public function test_curry_with_placeholder()
   {
     $equivlentArray5 = [1, 2, 3, 4, 5];
     $equivlentArray7 = [1, 2, 3, 4, 5, 6, 7];
     $getArgs = function () {
       return func_get_args();
     };
-    $this->assertInstanceOf(
-      '\\stdClass'
-      , P\_()
-      , 'the placeholder should be an instance of standard class'
-    );
     $this->assertEquals(
       P\curry(5, $getArgs)
         ->__invoke(1, P\_(), 3, P\_(), 5)
