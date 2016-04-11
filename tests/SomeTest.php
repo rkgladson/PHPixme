@@ -11,6 +11,18 @@ use PHPixme as P;
 
 class SomeTest extends \PHPUnit_Framework_TestCase
 {
+  public function test_Some_constants()
+  {
+    $this->assertTrue(
+      P\Some::class === P\Some
+      , 'The constant for the Class and Function should be equal to the Class Path'
+    );
+    $this->assertTrue(
+      function_exists(P\Some)
+      , 'The companion function exists for the class.'
+    );
+  }
+
   public function test_Some_companion($value = true)
   {
     $this->assertStringEndsWith(
@@ -503,13 +515,15 @@ class SomeTest extends \PHPUnit_Framework_TestCase
       );
     });
   }
-  
+
   public function test_walk($value = true)
   {
     $run = 0;
     $instance = P\Some($value);
     $this->assertTrue(
-      $instance === $instance->walk(function () use(&$run) {$run+=1;})
+      $instance === $instance->walk(function () use (&$run) {
+        $run += 1;
+      })
       , 'P\some->walk should return its own instance'
     );
     $this->assertTrue(

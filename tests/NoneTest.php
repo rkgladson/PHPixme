@@ -12,6 +12,17 @@ use PHPixme as P;
 
 class NoneTest extends \PHPUnit_Framework_TestCase
 {
+  public function test_None_constants() {
+    $this->assertTrue(
+      P\None::class === P\None
+      , 'The constant for the Class and Function should be equal to the Class Path'
+    );
+    $this->assertTrue(
+      function_exists(P\None)
+      , 'The companion function exists for the class.'
+    );
+  }
+  
   public function test_None_companion()
   {
 

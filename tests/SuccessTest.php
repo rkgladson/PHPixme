@@ -12,7 +12,19 @@ use PHPixme as P;
 class SuccessTest extends \PHPUnit_Framework_TestCase
 {
 
-  public function test_success_companion()
+  public function test_Success_constants()
+  {
+    $this->assertTrue(
+      P\Success::class === P\Success
+      , 'The constant for the Class and Function should be equal to the Class Path'
+    );
+    $this->assertTrue(
+      function_exists(P\Success)
+      , 'The companion function exists for the class.'
+    );
+  }
+
+  public function test_Success_companion()
   {
     $this->assertStringEndsWith(
       '\Success'
@@ -126,9 +138,9 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       , $success->filter($false)
       , 'Success->filter When receiving a false should become a Failure'
     );
-    
+
     $thrownValue = new \Exception('test');
-    $failureThrown = $success->filter(function () use ($thrownValue){
+    $failureThrown = $success->filter(function () use ($thrownValue) {
       throw $thrownValue;
     });
     $this->assertInstanceOf(
@@ -138,7 +150,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     );
     $this->assertTrue(
       $thrownValue === $failureThrown->failed()->get()
-      ,'Success->filter should return the failure containing the exception'
+      , 'Success->filter should return the failure containing the exception'
     );
 
   }
@@ -398,12 +410,15 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       , 'Success->transform Success callback type should be able to be a Failure'
     );
   }
-  
-  public function test_transform_scenario_thrown_to_failure($value = true) {
-    $exception = new \Exception('test'); 
+
+  public function test_transform_scenario_thrown_to_failure($value = true)
+  {
+    $exception = new \Exception('test');
     $noop = function () {
     };
-    $result = P\Success($value)->transform(function () use ($exception){ throw $exception; }, $noop);
+    $result = P\Success($value)->transform(function () use ($exception) {
+      throw $exception;
+    }, $noop);
     $this->assertInstanceOf(
       P\Failure
       , $result
@@ -414,7 +429,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       , 'Succes->transformation should return the Exception within the failure of what was thrown.'
     );
   }
-  
+
 
   /**
    * Ensure that Transform throws an exception if the callbacks violate the contract

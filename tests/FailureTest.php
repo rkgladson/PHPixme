@@ -13,7 +13,19 @@ use PHPixme as P;
 
 class FailureTest extends \PHPUnit_Framework_TestCase
 {
-  public function test_failure_companion()
+  public function test_Failure_constants()
+  {
+    $this->assertTrue(
+      P\Failure::class === P\Failure
+      , 'The constant for the Class and Function should be equal to the Class Path'
+    );
+    $this->assertTrue(
+      function_exists(P\Failure)
+      , 'The companion function exists for the class.'
+    );
+  }
+
+  public function test_Failure_companion()
   {
     $this->assertStringEndsWith(
       '\Failure'

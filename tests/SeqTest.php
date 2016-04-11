@@ -12,6 +12,16 @@ use PHPixme as P;
 
 class SeqTest extends \PHPUnit_Framework_TestCase
 {
+  public function test_Seq_constants() {
+    $this->assertTrue(
+      P\Seq::class === P\Seq
+      , 'The constant for the Class and Function should be equal to the Class Path'
+    );
+    $this->assertTrue(
+      function_exists(P\Seq)
+      , 'The companion function exists for the class.'
+    );
+  }
   public function seqSourceProvider()
   {
     return [
