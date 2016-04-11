@@ -187,7 +187,7 @@ const KI = __NAMESPACE__ . '\KI';
  */
 function KI($ignored = null)
 {
-  return unary(I);
+  return function ($second) {return $second;};
 }
 
 // == Kite ==
