@@ -103,16 +103,24 @@ class __PRIVATE__
         $outputIdx += 1
       ) {
         if (
-          $outputIdx < $prevArgsLength
-          && ($prevArgs[$outputIdx] !== static::$placeholder || $outputIdx >= $newArgsLength)
+          (
+            // The present index isn't a placeholder
+            $outputIdx < $prevArgsLength
+            && $prevArgs[$outputIdx] !== static::$placeholder
+          )
+          // There are none left to take
+          || $newArgIdx >= $newArgsLength
         ) {
+          // Take from the previous arguments
           $cell = $prevArgs[$outputIdx];
         } else {
+          // Take from the newly given arguments
           $cell = $newArgs[$newArgIdx];
           $newArgIdx += 1;
 
         }
         $outputArgs[$outputIdx] = $cell;
+
         if ($cell !== static::$placeholder) {
           $left -= 1;
         } else if ($nextFirstPlaceholder < 0) {
