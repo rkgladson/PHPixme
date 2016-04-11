@@ -7,7 +7,7 @@ namespace PHPixme;
  * @return \stdClass
  */
 function _ () {
-  return __PRIVATE__::$placeholder;
+  return __PRIVATE__::placeholder();
 }
 // == placeholder ==
 

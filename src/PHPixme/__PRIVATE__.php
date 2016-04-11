@@ -24,8 +24,29 @@ class __PRIVATE__
   /**
    * @var array Closure instances can be safely placed inside the array
    */
-  static $instance = [];
-  static $placeholder;
+  public static $instance = [];
+  private static $placeholder;
+  private static $initialized = false;
+
+  /**
+   * Define internal static values.
+   * @codeCoverageIgnore
+   */
+  public static function initialize() {
+    if (!static::$initialized) {
+      static::$initialized = true;
+      static::$placeholder = new \stdClass();
+    }
+  }
+
+  /**
+   *
+   * @return \stdClass
+   */
+  public static function placeholder () {
+    return static::$placeholder;
+  }
+
 
   /**
    * Asserts that the input can be used in some way by user_call_function_array
@@ -67,7 +88,7 @@ class __PRIVATE__
    * @sig x -> x
    * @codeCoverageIgnore
    */
-  static function assertTraversable($arrayLike)
+  public static function assertTraversable($arrayLike)
   {
     if (!is_array($arrayLike) && !($arrayLike instanceof \Traversable)) {
       throw new \InvalidArgumentException('argument must be a Traversable or array');
@@ -149,6 +170,34 @@ class __PRIVATE__
 
     return self::curryGiven([], $arity, $callable);
   }
+
+  // -- Magic Methods --
+  /**
+   * @codeCoverageIgnore
+   */
+  protected function __clone()
+  {
+    // This space intentionally left blank
+  }
+
+  /**
+   * @codeCoverageIgnore
+   */
+  protected function __wakeup()
+  {
+    // This space intentionally left blank
+  }
+
+  /**
+   * None constructor.
+   * @codeCoverageIgnore
+   */
+  protected function __construct()
+  {
+    // This space intentionally left blank
+  }
+  // == Magic Methods ==
+
 }
 
-__PRIVATE__::$placeholder = new \stdClass();
+__PRIVATE__::initialize();
