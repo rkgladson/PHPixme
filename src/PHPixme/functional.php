@@ -153,7 +153,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
   __PRIVATE__::assertCallable($x);
   __PRIVATE__::assertCallable($y);
   return function ($z) use ($x, $y) {
-    return call_user_func($x, call_user_func($y, $z));
+    return call_user_func($x, call_user_func_array($y, func_get_args()));
   };
 });
 /**
@@ -162,7 +162,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
  * @param callable $hofSecond
  * @param callable = $hofFirst
  * @return \Closure
- * @sig (Uniary Callable(y->z), Unary Callable(x->y), Callable (*->x)) -> \Closure (* -> z)
+ * @sig Uniary Callable(y->a) -> Unary Callable(x->y) -> \Closure (* -> a)
  */
 function combine($hofSecond, $hofFirst = null)
 {
@@ -170,6 +170,28 @@ function combine($hofSecond, $hofFirst = null)
 }
 
 // == combine ==
+
+// -- pipe --
+const pipe = __NAMESPACE__ . '\pipe';
+__PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x, $y) {
+  // TODO: Try to see if this can be made n-ary
+  __PRIVATE__::assertCallable($x);
+  __PRIVATE__::assertCallable($y);
+  return function ($z) use ($x, $y) {
+    return call_user_func($y, call_user_func_array($x, func_get_args()));
+  };
+});
+/**
+ * @param $hofFirst
+ * @param null $hofSecond
+ * @return mixed
+ * @sig Uniary Callable (x -> a) -> Uniary Callable ( y -> x ) -> \Closure (*->a)
+ */
+function pipe ($hofFirst , $hofSecond = null) {
+  return call_user_func_array(__PRIVATE__::$instance[pipe], func_get_args());
+}
+
+// == pipe ==
 
 // -- Kestrel --
 const K = __NAMESPACE__ . '\K';
@@ -389,4 +411,3 @@ function pluckArrayWith($accessor)
 }
 
 // == pluckArrayWith ==
-

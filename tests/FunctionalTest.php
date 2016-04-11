@@ -9,7 +9,7 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
-const Closure = '\Closure';
+const Closure = \Closure::class;
 class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
   public function test_curry()
@@ -333,6 +333,38 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       json_encode(array_reverse($array))
       , P\combine('json_encode')->__invoke('array_reverse')->__invoke($array)
       , 'combine should be able to chain the outputs to produce hof results'
+    );
+  }
+
+  public function test_pipe()
+  {
+    $this->assertStringEndsWith(
+      '\pipe'
+      , P\pipe
+      , 'Ensure the constant is assigned to the function name'
+    );
+    $this->assertTrue(
+      function_exists(P\pipe)
+      , 'Ensure the constant points to an existing function.'
+    );
+
+    $this->assertInstanceOf(
+      Closure
+      , P\pipe('array_reverse', 'json_encode')
+      , 'pipe should return a closure'
+    );
+
+    $this->assertInstanceOf(
+      Closure
+      , P\combine('array_reverse')
+      , 'pipe should be a curried function'
+    );
+
+    $array = [1, 2, 3];
+    $this->assertEquals(
+      json_encode(array_reverse($array))
+      , P\pipe('array_reverse')->__invoke('json_encode')->__invoke($array)
+      , 'pipe should be able to chain the outputs to produce hof results'
     );
   }
 
