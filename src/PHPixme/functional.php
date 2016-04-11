@@ -33,7 +33,7 @@ const nAry = __NAMESPACE__ . '\nAry';
 __PRIVATE__::$instance[nAry] = __PRIVATE__::curry(2, function ($number = 0, $hof = null) {
   __PRIVATE__::assertPositiveOrZero($number);
   __PRIVATE__::assertCallable($hof);
-  return function () use (&$number, &$hof) {
+  return function () use ($number, $hof) {
     $args = func_get_args();
     return call_user_func_array($hof, array_slice($args, 0, $number));
   };
@@ -61,7 +61,7 @@ const unary = __NAMESPACE__ . '\unary';
 function unary($hof)
 {
   __PRIVATE__::assertCallable($hof);
-  return function ($arg) use (&$hof) {
+  return function ($arg) use ($hof) {
     return $hof($arg);
   };
 }
@@ -78,7 +78,7 @@ const binary = __NAMESPACE__ . '\binary';
 function binary($hof)
 {
   __PRIVATE__::assertCallable($hof);
-  return __PRIVATE__::curry(2, function ($x, $y) use (&$hof) {
+  return __PRIVATE__::curry(2, function ($x, $y) use ($hof) {
     return $hof($x, $y);
   });
 }
@@ -170,7 +170,7 @@ const K = __NAMESPACE__ . '\K';
  */
 function K($first)
 {
-  return function ($ignored = null) use (&$first) {
+  return function ($ignored = null) use ($first) {
     return $first;
   };
 
@@ -323,7 +323,7 @@ __PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $c
     (isset($container[$accessor]) ? $container[$accessor] : null)
     : [$container, $accessor];
   __PRIVATE__::assertCallable($callable);
-  return function () use (&$callable) {
+  return function () use ($callable) {
     return call_user_func_array($callable, func_get_args());
   };
 });
