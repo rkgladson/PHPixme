@@ -148,12 +148,20 @@ function flip($hof)
 
 // -- combine --
 const combine = __NAMESPACE__ . '\combine';
-__PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
-  // TODO: Revisit this function, and see if it can be made n-ary
-  __PRIVATE__::assertCallable($x);
-  __PRIVATE__::assertCallable($y);
-  return function ($z) use ($x, $y) {
-    return call_user_func($x, call_user_func_array($y, func_get_args()));
+__PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
+  $combine = func_get_args();
+  foreach($combine as $hof) {
+    __PRIVATE__::assertCallable($hof);
+  }
+  $combineReversed = array_reverse($combine);
+  $combineHead = $combineReversed[0];
+  $combineTail = array_slice($combineReversed, 1);
+  return function () use ($combineHead, $combineTail) {
+    $acc = call_user_func_array($combineHead, func_get_args());
+    foreach($combineTail as $hof) {
+      $acc = call_user_func($hof, $acc);
+    }
+    return $acc;
   };
 });
 /**
@@ -162,7 +170,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x, $y) {
  * @param callable $hofSecond
  * @param callable = $hofFirst
  * @return \Closure
- * @sig Uniary Callable(y->a) -> Unary Callable(x->y) -> \Closure (* -> a)
+ * @sig (Unary Callable(y -> z), ..., Unary Callable(a -> b), Callable (*->a)) -> \Closure (* -> a)
  */
 function combine($hofSecond, $hofFirst = null)
 {
@@ -173,21 +181,28 @@ function combine($hofSecond, $hofFirst = null)
 
 // -- pipe --
 const pipe = __NAMESPACE__ . '\pipe';
-__PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x, $y) {
-  // TODO: Try to see if this can be made n-ary
-  __PRIVATE__::assertCallable($x);
-  __PRIVATE__::assertCallable($y);
-  return function ($z) use ($x, $y) {
-    return call_user_func($y, call_user_func_array($x, func_get_args()));
+__PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x) {
+  $pipe = func_get_args();
+  foreach ($pipe as $value) {
+    __PRIVATE__::assertCallable($value);
+  }
+  $pipeTail = array_splice($pipe, 1);
+  return function () use ($x, $pipeTail) {
+    $acc = call_user_func_array($x, func_get_args());
+    foreach ($pipeTail as $hof) {
+      $acc = call_user_func($hof, $acc);
+    }
+    return $acc;
   };
 });
 /**
  * @param $hofFirst
  * @param null $hofSecond
  * @return mixed
- * @sig Uniary Callable (x -> a) -> Uniary Callable ( y -> x ) -> \Closure (*->a)
+ * @sig (Callable (* -> a) -> Unary Callable ( a -> b ), ..., Unary Callable (y -> z)) -> \Closure (*->z)
  */
-function pipe ($hofFirst , $hofSecond = null) {
+function pipe($hofFirst, $hofSecond = null)
+{
   return call_user_func_array(__PRIVATE__::$instance[pipe], func_get_args());
 }
 

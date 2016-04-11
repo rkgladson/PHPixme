@@ -334,6 +334,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\combine('json_encode')->__invoke('array_reverse')->__invoke($array)
       , 'combine should be able to chain the outputs to produce hof results'
     );
+    $this->assertEquals(
+      json_decode(json_encode(array_reverse($array)))
+      , P\combine('json_decode', 'json_encode', 'array_reverse')->__invoke($array)
+      , 'combine should be able to chain more than two callables and still produce results'
+    );
   }
 
   public function test_pipe()
@@ -365,6 +370,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       json_encode(array_reverse($array))
       , P\pipe('array_reverse')->__invoke('json_encode')->__invoke($array)
       , 'pipe should be able to chain the outputs to produce hof results'
+    );
+    $this->assertEquals(
+      json_decode(json_encode(array_reverse($array)))
+      , P\pipe('array_reverse', 'json_encode', 'json_decode')->__invoke($array)
+      , 'pipe should be able to handle more than two functions in the chain'
     );
   }
 
