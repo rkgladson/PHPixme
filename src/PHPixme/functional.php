@@ -277,7 +277,7 @@ function S($x, $y = null, $z = null)
 
 // == Starling ==
 
-// -- Tap --
+// -- tap --
 const tap = __NAMESPACE__ . '\tap';
 /**
  * @param $callable
@@ -293,7 +293,8 @@ function tap($callable)
   };
 }
 
-// == Tap ==
+// == tap ==
+
 // -- before --
 const before = __NAMESPACE__ . '\before';
 __PRIVATE__::$instance[before] = __PRIVATE__::curry(2, function ($decorator, $fn) {
@@ -317,6 +318,7 @@ function before($decorator, $fn = null)
 }
 
 // == before ==
+
 // -- after --
 const after = __NAMESPACE__ . '\after';
 __PRIVATE__::$instance[after] = __PRIVATE__::curry(2, function ($decorator, $fn) {
@@ -339,6 +341,51 @@ function after($decorator, $fn = null)
   return call_user_func_array(__PRIVATE__::$instance[after], func_get_args());
 }
 // == after ==
+
+// -- provided --
+const provided = __NAMESPACE__ . '\provided';
+__PRIVATE__::$instance[provided] = __PRIVATE__::curry(2, function ($predicate, $fn) {
+  __PRIVATE__::assertCallable($predicate);
+  __PRIVATE__::assertCallable($fn);
+  return function () use ($predicate, $fn){
+    $args = func_get_args();
+    return call_user_func_array($predicate, $args) 
+      ? call_user_func_array($fn, $args) 
+      : null;
+  };
+});
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ */
+function provided($decorator, $fn = null ) {
+  return call_user_func_array(__PRIVATE__::$instance[provided], func_get_args());
+}
+// == provided ==
+
+// -- except --
+const except = __NAMESPACE__ .  '\except';
+__PRIVATE__::$instance[except] = __PRIVATE__::curry(2, function ($predicate, $fn) {
+  __PRIVATE__::assertCallable($predicate);
+  __PRIVATE__::assertCallable($fn);
+  return function () use ($predicate, $fn){
+    $args = func_get_args();
+    return call_user_func_array($predicate, $args) 
+      ? null 
+      : call_user_func_array($fn, $args);
+  };
+});
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ */
+function except($decorator, $fn = null ) {
+  return call_user_func_array(__PRIVATE__::$instance[except], func_get_args());
+}
+// == except ==
+
 // -- fold --
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
