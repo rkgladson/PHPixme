@@ -10,14 +10,27 @@ namespace tests\PHPixme;
 
 use PHPixme as P;
 const Closure = \Closure::class;
-class FunctionalTest extends \PHPUnit_Framework_TestCase
+
+class _Test extends \PHPUnit_Framework_TestCase
 {
-  public function test_curry()
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
-    $param3 = P\curry(3, $countArgs);
+    $this->assertInstanceOf(
+      \stdClass::class
+      , P\_()
+      , 'the placeholder should be an instance of standard class'
+    );
+    $this->assertTrue(
+      P\_() === P\_()
+      , 'the placeholder value should not change between executions.'
+    );
+  }
+}
+
+class curryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\curry'
       , P\curry
@@ -27,6 +40,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\curry)
       , 'Ensure the constant points to an existing function.'
     );
+  }
+
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
+    $param3 = P\curry(3, $countArgs);
     $this->assertInstanceOf(
       Closure
       , $param3
@@ -70,20 +91,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_placeholder()
-  {
-    $this->assertInstanceOf(
-      \stdClass::class
-      , P\_()
-      , 'the placeholder should be an instance of standard class'
-    );
-    $this->assertTrue(
-      P\_() === P\_()
-      , 'the placeholder value should not change between executions.'
-    );
-  }
-
-  public function test_curry_with_placeholder()
+  public function test_with_placeholder()
   {
     $equivlentArray5 = [1, 2, 3, 4, 5];
     $equivlentArray7 = [1, 2, 3, 4, 5, 6, 7];
@@ -114,12 +122,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'The function should be able to exceed its arity'
     );
   }
+}
 
-  public function test_nAry()
+class nAryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
     $this->assertStringEndsWith(
       '\nAry'
       , P\nAry
@@ -129,6 +137,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\nAry)
       , 'Ensure the constant points to an existing function.'
     );
+  }
+
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
 
     $this->assertInstanceOf(
       Closure
@@ -151,12 +166,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'fully applied should still work the same as partially applied, eating arguments'
     );
   }
+}
 
-  public function test_unary()
+class unaryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
     $this->assertStringEndsWith(
       '\unary'
       , P\unary
@@ -166,6 +181,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\unary)
       , 'Ensure the constant points to an existing function.'
     );
+  }
+
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
 
     $this->assertInstanceOf(
       Closure
@@ -179,12 +201,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'Unary should eat all but one argument'
     );
   }
+}
 
-  public function test_binary()
+class binaryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
     $this->assertStringEndsWith(
       '\binary'
       , P\binary
@@ -194,6 +216,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\binary)
       , 'Ensure the constant points to an existing function.'
     );
+  }
+
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
 
     $this->assertInstanceOf(
       Closure
@@ -207,12 +236,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'binary should eat all but two arguments'
     );
   }
+}
 
-  public function test_ternary()
+class ternaryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
     $this->assertStringEndsWith(
       '\ternary'
       , P\ternary
@@ -222,7 +251,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\ternary)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
     $this->assertInstanceOf(
       Closure
       , P\ternary($countArgs)
@@ -235,12 +270,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'ternary should eat all but three arguments'
     );
   }
+}
 
-  public function test_nullary()
+class nullaryTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $countArgs = function () {
-      return func_num_args();
-    };
     $this->assertStringEndsWith(
       '\nullary'
       , P\nullary
@@ -251,6 +286,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\nullary)
       , 'Ensure the constant points to an existing function.'
     );
+  }
+
+  public function test_return()
+  {
+    $countArgs = function () {
+      return func_num_args();
+    };
+
     $this->assertInstanceOf(
       Closure
       , P\nullary($countArgs)
@@ -263,12 +306,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'nullary should eat all arguments'
     );
   }
+}
 
-  public function test_flip()
+class flipTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
-    $getArgs = function () {
-      return func_get_args();
-    };
     $this->assertStringEndsWith(
       '\flip'
       , P\flip
@@ -278,7 +321,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\flip)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return()
+  {
+    $getArgs = function () {
+      return func_get_args();
+    };
     $this->assertInstanceOf(
       Closure
       , P\flip($getArgs)
@@ -301,10 +350,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\flip($getArgs)->__invoke(1)->__invoke(2, 3, 4, 5)
       , 'Flip partially applied should return the flipped arguments'
     );
-
   }
+}
 
-  public function test_combine()
+class combineTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\combine'
@@ -315,7 +366,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\combine)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return()
+  {
     $this->assertInstanceOf(
       Closure
       , P\combine('json_encode', 'array_reverse')
@@ -340,8 +394,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'combine should be able to chain more than two callables and still produce results'
     );
   }
+}
 
-  public function test_pipe()
+class pipeTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\pipe'
@@ -352,7 +409,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\pipe)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return()
+  {
     $this->assertInstanceOf(
       Closure
       , P\pipe('array_reverse', 'json_encode')
@@ -377,8 +437,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'pipe should be able to handle more than two functions in the chain'
     );
   }
+}
 
-  public function test_K_estrel($value = true, $notValue = false)
+class K_estrelTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\K'
@@ -389,7 +452,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\K)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return($value = true, $notValue = false)
+  {
     $this->assertInstanceOf(
       Closure
       , P\K($value)
@@ -401,8 +467,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'K resultant closure should return the constant that has been closed'
     );
   }
+}
 
-  public function test_KI_te($value = true, $notValue = false)
+class KI_teTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\KI'
@@ -413,7 +482,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\KI)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return($value = true, $notValue = false)
+  {
     $this->assertInstanceOf(
       Closure
       , P\KI($value)
@@ -425,8 +497,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , 'K resultant closure should ignore the constant and return the argument it recieves'
     );
   }
+}
 
-  public function test_I_diot_bird($value = true)
+class I_diotBirdTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\I'
@@ -437,15 +512,21 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\I)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return($value = true)
+  {
     $this->assertEquals(
       $value
       , P\I($value)
       , 'The notoriously simple idiot bird proves useful in unusual places'
     );
   }
+}
 
-  public function test_S_tarling($value = true)
+class S_tarlingTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\S'
@@ -456,7 +537,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\S)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  public function test_return($value = true)
+  {
     $this->assertInstanceOf(
       Closure
       , P\S(P\I)
@@ -470,7 +554,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
   }
 
-  public function test_S_tarling_scenario_tupleMaker($array = [1, 2, 3, 4])
+  public function test_scenario_tupleMaker($array = [1, 2, 3, 4])
   {
     // Test to see if we can fix array_map through starling to get the key with the value
     $kvTupple = function ($v, $k) {
@@ -482,27 +566,58 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\S($kvMap, 'array_keys')->__invoke($array)
     );
   }
+}
 
-
-  public function foldCallbackProvider()
+class tapTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_tap_constant()
   {
-    return [
-      'array callback' => [
-        [1], 1, 0
-      ]
-      , 'traversable callback' => [
-        new \ArrayIterator([1]), 1, 0
-      ]
-      , 'natural interface callback' => [
-        P\Seq([1]), 1, 0
-      ]
-    ];
+    $this->assertStringEndsWith(
+      '\tap'
+      , P\tap
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\tap)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  public function test_tap($value = 1)
+  {
+    $consoleLog = P\tap('printf');
+    $this->assertInstanceOf(
+      Closure
+      , $consoleLog
+      , 'Tap should return a closure'
+    );
+    $this->expectOutputString((string)$value);
+    $this->assertTrue(
+      $consoleLog($value) === $value
+      , 'Tap should not modify the value that passes through it.'
+    );
+  }
+}
+
+class foldTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\fold'
+      , P\fold
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\fold)
+      , 'Ensure the constant points to an existing function.'
+    );
   }
 
   /**
-   * @dataProvider foldCallbackProvider
+   * @dataProvider callbackProvider
    */
-  public function test_fold_callback($value, $expVal, $expKey)
+  public function test_callback($value, $expVal, $expKey)
   {
     $startVal = 1;
     P\fold(function () use ($startVal, $value, $expVal, $expKey) {
@@ -543,44 +658,8 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     }, $startVal, $value);
   }
 
-  public function test_tap_constant() {
-    $this->assertStringEndsWith(
-      '\tap'
-      , P\tap
-      , 'Ensure the constant is assigned to its function name'
-    );
-    $this->assertTrue(
-      function_exists(P\tap)
-      , 'Ensure the constant points to an existing function.'
-    );
-  }
-  public function test_tap($value = 1)
+  public function test_return($value = 1, $array = [1, 2, 3, 4])
   {
-    $consoleLog = P\tap('printf');
-    $this->assertInstanceOf(
-      Closure
-      , $consoleLog
-      , 'Tap should return a closure'
-    );
-    $this->expectOutputString((string)$value);
-    $this->assertTrue(
-      $consoleLog($value) === $value
-      , 'Tap should not modify the value that passes through it.'
-    );
-  }
-
-  public function test_fold($value = 1, $array = [1, 2, 3, 4])
-  {
-    $this->assertStringEndsWith(
-      '\fold'
-      , P\fold
-      , 'Ensure the constant is assigned to its function name'
-    );
-    $this->assertTrue(
-      function_exists(P\fold)
-      , 'Ensure the constant points to an existing function.'
-    );
-
     $this->assertInstanceOf(
       Closure
       , P\fold(P\I, $value)
@@ -598,7 +677,33 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function foldScenarioProvider()
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenario($arrayLike, $startVal, $action, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , P\fold($action, $startVal, $arrayLike)
+    );
+  }
+
+  public function callbackProvider()
+  {
+    return [
+      'array callback' => [
+        [1], 1, 0
+      ]
+      , 'traversable callback' => [
+        new \ArrayIterator([1]), 1, 0
+      ]
+      , 'natural interface callback' => [
+        P\Seq([1]), 1, 0
+      ]
+    ];
+  }
+
+  public function scenarioProvider()
   {
     $add = function ($a, $b) {
       return $a + $b;
@@ -654,20 +759,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       ]
     ];
   }
+}
 
-  /**
-   * @dataProvider foldScenarioProvider
-   */
-  public function test_fold_scenario($arrayLike, $startVal, $action, $expected)
-  {
-    $this->assertEquals(
-      $expected
-      , P\fold($action, $startVal, $arrayLike)
-    );
-  }
-
-
-  public function test_reduce($array = [1, 2, 3, 4])
+class reduceTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\reduce'
@@ -678,62 +774,21 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\reduce)
       , 'Ensure the constant points to an existing function.'
     );
-
-    $this->assertInstanceOf(
-      Closure
-      , P\reduce(P\I)
-      , 'reduce when partially applied should return a closure'
-    );
-    $this->assertEquals(
-      $array[0]
-      , P\reduce(P\I)->__invoke($array)
-      , 'An idiot applied to fold should always return the start value'
-    );
-    $this->assertEquals(
-      $array[count($array) - 1]
-      , P\reduce(P\flip(P\I), $array)
-      , 'The flipped idiot applied to reduce should always return the last'
-    );
-  }
-
-  public function reduceUndefinedBehaviorProvider()
-  {
-    return [
-      '[]' => [[]]
-      , 'None' => [P\None()]
-      , 'S[]' => [P\Seq::of()]
-      , 'ArrayItterator[]' => [new \ArrayIterator([])]
-    ];
   }
 
   /**
-   * @dataProvider reduceUndefinedBehaviorProvider
+   * @dataProvider undefinedBehaviorProvider
    * @expectedException \Exception
    */
-  public function test_reduce_contract_violation($arrayLike = [])
+  public function test_contract_violation($arrayLike = [])
   {
     P\reduce(P\I, $arrayLike);
   }
 
-  public function reduceCallbackProvider()
-  {
-    return [
-      'array callback' => [
-        [1, 2], 1, 2, 1
-      ]
-      , 'traversable callback' => [
-        new \ArrayIterator([1, 2]), 1, 2, 1
-      ]
-      , 'natural interface callback' => [
-        P\Seq::of(1, 2), 1, 2, 1
-      ]
-    ];
-  }
-
   /**
-   * @dataProvider reduceCallbackProvider
+   * @dataProvider callbackProvider
    */
-  public function test_reduce_callback($arrayLike, $firstVal, $expVal, $expKey)
+  public function test_callback($arrayLike, $firstVal, $expVal, $expKey)
   {
     P\reduce(function () use ($firstVal, $expVal, $expKey, $arrayLike) {
       $this->assertEquals(
@@ -773,7 +828,62 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     }, $arrayLike);
   }
 
-  public function reduceScenarioProvider()
+  public function test_return($array = [1, 2, 3, 4])
+  {
+    $this->assertInstanceOf(
+      Closure
+      , P\reduce(P\I)
+      , 'reduce when partially applied should return a closure'
+    );
+    $this->assertEquals(
+      $array[0]
+      , P\reduce(P\I)->__invoke($array)
+      , 'An idiot applied to fold should always return the start value'
+    );
+    $this->assertEquals(
+      $array[count($array) - 1]
+      , P\reduce(P\flip(P\I), $array)
+      , 'The flipped idiot applied to reduce should always return the last'
+    );
+  }
+
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenario($arrayLike, $action, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , P\reduce($action, $arrayLike)
+    );
+  }
+
+  public function undefinedBehaviorProvider()
+  {
+    return [
+      '[]' => [[]]
+      , 'None' => [P\None()]
+      , 'S[]' => [P\Seq::of()]
+      , 'ArrayItterator[]' => [new \ArrayIterator([])]
+    ];
+  }
+
+  public function callbackProvider()
+  {
+    return [
+      'array callback' => [
+        [1, 2], 1, 2, 1
+      ]
+      , 'traversable callback' => [
+        new \ArrayIterator([1, 2]), 1, 2, 1
+      ]
+      , 'natural interface callback' => [
+        P\Seq::of(1, 2), 1, 2, 1
+      ]
+    ];
+  }
+
+  public function scenarioProvider()
   {
     $add = function ($a, $b) {
       return $a + $b;
@@ -818,19 +928,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       ]
     ];
   }
+}
 
-  /**
-   * @dataProvider reduceScenarioProvider
-   */
-  public function test_reduce_scenario($arrayLike, $action, $expected)
-  {
-    $this->assertEquals(
-      $expected
-      , P\reduce($action, $arrayLike)
-    );
-  }
-
-  public function test_map($array = [1, 2, 3])
+class mapTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\map'
@@ -841,48 +943,12 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\map)
       , 'Ensure the constant points to an existing function.'
     );
-
-    $this->assertInstanceOf(
-      Closure
-      , P\map(P\I)
-      , 'map when partially applied should return a closure'
-    );
-    $result = P\map(P\I)->__invoke($array);
-    $this->assertEquals(
-      $array
-      , $result
-      , 'map applied with idiot should produce a functionally identical array'
-    );
-    $result[0] += 1;
-    $this->assertNotEquals(
-      $array
-      , $result
-      , 'map applied with idiot should not actually be the same instance of array'
-    );
-  }
-
-  public function mapCallbackProvider()
-  {
-    return [
-      '[1]' => [
-        [1], 1, 0
-      ]
-      , 'S[1]' => [
-        P\Seq::of(1), 1, 0
-      ]
-      , 'Some(1)' => [
-        P\Some::of(1), 1, 0
-      ]
-      , 'ArrayItterator[1]' => [
-        new \ArrayIterator([1]), 1, 0
-      ]
-    ];
   }
 
   /**
-   * @dataProvider mapCallbackProvider
+   * @dataProvider callbackProvider
    */
-  public function test_map_callback($arrayLike, $expVal, $expKey)
+  public function test_callback($arrayLike, $expVal, $expKey)
   {
     P\map(function () use ($arrayLike, $expVal, $expKey) {
       $this->assertTrue(
@@ -914,7 +980,58 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     }, $arrayLike);
   }
 
-  public function mapScenarioProvider()
+  public function test_return($array = [1, 2, 3])
+  {
+
+    $this->assertInstanceOf(
+      Closure
+      , P\map(P\I)
+      , 'map when partially applied should return a closure'
+    );
+    $result = P\map(P\I)->__invoke($array);
+    $this->assertEquals(
+      $array
+      , $result
+      , 'map applied with idiot should produce a functionally identical array'
+    );
+    $result[0] += 1;
+    $this->assertNotEquals(
+      $array
+      , $result
+      , 'map applied with idiot should not actually be the same instance of array'
+    );
+  }
+
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenario($arrayLike, $hof, $expected)
+  {
+    $this->assertEquals($expected
+      , P\map($hof, $arrayLike)
+      , 'map on array like should have the expected resultant'
+    );
+  }
+
+  public function callbackProvider()
+  {
+    return [
+      '[1]' => [
+        [1], 1, 0
+      ]
+      , 'S[1]' => [
+        P\Seq::of(1), 1, 0
+      ]
+      , 'Some(1)' => [
+        P\Some::of(1), 1, 0
+      ]
+      , 'ArrayItterator[1]' => [
+        new \ArrayIterator([1]), 1, 0
+      ]
+    ];
+  }
+
+  public function scenarioProvider()
   {
     $x2 = function ($value) {
       return $value * 2;
@@ -954,37 +1071,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       ]
     ];
   }
+}
 
-  /**
-   * @dataProvider mapScenarioProvider
-   */
-  public function test_map_scenario($arrayLike, $hof, $expected)
-  {
-    $this->assertEquals($expected
-      , P\map($hof, $arrayLike)
-      , 'map on array like should have the expected resultant'
-    );
-  }
-
-  public function callWithProvider()
-  {
-    return [
-      'Object' => [new TestClass()]
-      , 'Array' => [[
-        'getArgs' => function () {
-          return func_get_args();
-        }
-        , 'countArgs' => function () {
-          return func_num_args();
-        }
-      ]]
-    ];
-  }
-
-  /**
-   * @dataProvider callWithProvider
-   */
-  public function test_callWith($container)
+class callWithTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
   {
     $this->assertStringEndsWith(
       '\callWith'
@@ -995,7 +1086,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\callWith)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  /**
+   * @dataProvider returnProvider
+   */
+  public function test_return($container)
+  {
     $this->assertInstanceOf(
       Closure
       , P\callWith('')
@@ -1020,16 +1117,33 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @expectedException  \InvalidArgumentException
-   * @dataProvider callWithProvider
+   * @dataProvider returnProvider
    */
-  public function test_callWithNonFunction($container)
+  public function test_contract_broken($container)
   {
     P\callWith('404', $container)->__invoke(1, 2, 3, 4);
   }
 
-  public function test_puckObjectWith()
+  public function returnProvider()
   {
-    $object = new TestClass();
+    return [
+      'Object' => [new TestClass()]
+      , 'Array' => [[
+        'getArgs' => function () {
+          return func_get_args();
+        }
+        , 'countArgs' => function () {
+          return func_num_args();
+        }
+      ]]
+    ];
+  }
+}
+
+class pluckObjectWith extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\pluckObjectWith'
       , P\pluckObjectWith
@@ -1039,7 +1153,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\pluckObjectWith)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  /**
+   * @param $object
+   * @dataProvider returnProvider
+   */
+  public function test_return($object)
+  {
     $this->assertInstanceOf(
       Closure
       , P\pluckObjectWith('')
@@ -1051,9 +1172,16 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_puckArrayWith()
+  public function returnProvider()
   {
-    $array = [1, 2, 3];
+    return [[new TestClass()]];
+  }
+}
+
+class pluckWithArrayTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\pluckArrayWith'
       , P\pluckArrayWith
@@ -1063,7 +1191,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       function_exists(P\pluckArrayWith)
       , 'Ensure the constant points to an existing function.'
     );
+  }
 
+  /**
+   * @param $array
+   * @dataProvider returnProvider
+   */
+  public function test_return($array)
+  {
     $this->assertInstanceOf(
       Closure
       , P\pluckArrayWith('')
@@ -1074,6 +1209,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
       , P\pluckArrayWith(0)->__invoke($array)
       , 'pluckArrayWith\'s yielded closure should retrieve the value of the property on object when applied'
     );
+  }
+
+  public function returnProvider()
+  {
+    return [[[1, 2, 3]]];
   }
 }
 
