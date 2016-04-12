@@ -616,27 +616,33 @@ class beforeTest extends \PHPUnit_Framework_TestCase
 
   public function test_return($value = 5)
   {
-    $printArgs = P\before(function () {printf(json_encode(func_get_args()));});
+    $printArgs = P\before(function () {
+      printf(json_encode(func_get_args()));
+    });
     $expectingSideEffect = json_encode([$value]);
     $this->assertInstanceOf(
       Closure
       , $printArgs
       , 'The frist argument shal produce a Closure'
     );
-    $echoArgsIdiot = $printArgs(function($x) {return $x;});
+    $echoArgsIdiot = $printArgs(function ($x) {
+      return $x;
+    });
     $this->assertInstanceOf(
       Closure
       , $echoArgsIdiot
       , 'The secon argument shal produce a closure'
     );
 
-    $this->expectOutputString($expectingSideEffect.$expectingSideEffect);
+    $this->expectOutputString($expectingSideEffect . $expectingSideEffect);
     $this->assertTrue(
       $value === $echoArgsIdiot($value)
       , 'Before shalt not alter the output'
     );
     $this->assertTrue(
-      ($value + 1) === $printArgs(function($x) { return $x + 1;})->__invoke($value)
+      ($value + 1) === $printArgs(function ($x) {
+        return $x + 1;
+      })->__invoke($value)
       , 'Before shalt not alter the input'
     );
   }
@@ -657,10 +663,12 @@ class afterTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_return($value = [5,5])
+  public function test_return($value = [5, 5])
   {
     $printResult = P\after('printf');
-    $multiply = function($x, $y) {return $x * $y;};
+    $multiply = function ($x, $y) {
+      return $x * $y;
+    };
     $verboseMultiplication = $printResult($multiply);
     $output = call_user_func_array($multiply, $value);
 
@@ -675,7 +683,7 @@ class afterTest extends \PHPUnit_Framework_TestCase
       , 'The secon argument shal produce a closure'
     );
 
-    $this->expectOutputString((string) $output);
+    $this->expectOutputString((string)$output);
     $this->assertTrue(
       $output === call_user_func_array($verboseMultiplication, $value)
       , 'after shalt not alter the output'
@@ -683,8 +691,10 @@ class afterTest extends \PHPUnit_Framework_TestCase
   }
 }
 
-class providedTest extends \PHPUnit_Framework_TestCase {
-  public function test_constant() {
+class providedTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\provided'
       , P\provided
@@ -695,10 +705,18 @@ class providedTest extends \PHPUnit_Framework_TestCase {
       , 'Ensure the constant points to an existing function.'
     );
   }
-  public function test_return ($value = true) {
-    $truthy = function ($x) {return (boolean) $x;};
-    $compliment = function  ($x) use ($truthy){ return !$truthy($x); };
-    $fn = function ($x) {return $x; };
+
+  public function test_return($value = true)
+  {
+    $truthy = function ($x) {
+      return (boolean)$x;
+    };
+    $compliment = function ($x) use ($truthy) {
+      return !$truthy($x);
+    };
+    $fn = function ($x) {
+      return $x;
+    };
     $providedTruthy = P\provided($truthy);
     $falsyIsNull = $providedTruthy($fn);
     $this->assertInstanceOf(
@@ -721,8 +739,11 @@ class providedTest extends \PHPUnit_Framework_TestCase {
     );
   }
 }
-class exceptTest extends \PHPUnit_Framework_TestCase {
-  public function test_constant() {
+
+class exceptTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\except'
       , P\except
@@ -733,10 +754,18 @@ class exceptTest extends \PHPUnit_Framework_TestCase {
       , 'Ensure the constant points to an existing function.'
     );
   }
-  public function test_return ($value = true) {
-    $truthy = function ($x) {return (boolean) $x;};
-    $compliment = function  ($x) use ($truthy){ return !($truthy($x)); };
-    $fn = function ($x) {return $x; };
+
+  public function test_return($value = true)
+  {
+    $truthy = function ($x) {
+      return (boolean)$x;
+    };
+    $compliment = function ($x) use ($truthy) {
+      return !($truthy($x));
+    };
+    $fn = function ($x) {
+      return $x;
+    };
     $exceptTruthy = P\except($truthy);
     $truthyIsNull = $exceptTruthy($fn);
     $falselyIsNull = P\except($compliment, $fn);
