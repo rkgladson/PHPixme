@@ -150,7 +150,7 @@ function flip($hof)
 const combine = __NAMESPACE__ . '\combine';
 __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
   $combine = func_get_args();
-  foreach($combine as $hof) {
+  foreach ($combine as $hof) {
     __PRIVATE__::assertCallable($hof);
   }
   $combineHead = end($combine);
@@ -284,15 +284,61 @@ const tap = __NAMESPACE__ . '\tap';
  * @return \Closure (x->x)
  * @sig Callable -> \Closure (x->x)
  */
-function tap ($callable) {
+function tap($callable)
+{
   __PRIVATE__::assertCallable($callable);
   return function ($value) use ($callable) {
     call_user_func($callable, $value);
     return $value;
   };
 }
-// == Tap ==
 
+// == Tap ==
+// -- before --
+const before = __NAMESPACE__ . '\before';
+__PRIVATE__::$instance[before] = __PRIVATE__::curry(2, function ($decorator, $fn) {
+  __PRIVATE__::assertCallable($decorator);
+  __PRIVATE__::assertCallable($fn);
+  return function () use ($decorator, $fn) {
+    $args = func_get_args();
+    call_user_func_array($decorator, $args);
+    return call_user_func_array($fn, $args);
+  };
+});
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ * @sig Callable (*->) -> Callable (*->x) -> Closure (*->x)
+ */
+function before($decorator, $fn = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[before], func_get_args());
+}
+
+// == before ==
+// -- after --
+const after = __NAMESPACE__ . '\after';
+__PRIVATE__::$instance[after] = __PRIVATE__::curry(2, function ($decorator, $fn) {
+  __PRIVATE__::assertCallable($decorator);
+  __PRIVATE__::assertCallable($fn);
+  return function () use ($decorator, $fn) {
+    $value = call_user_func_array($fn, func_get_args());
+    call_user_func($decorator, $value);
+    return $value;
+  };
+});
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ * @sig Callable (x->) -> Callable (*->x) -> Closure (*->x)
+ */
+function after($decorator, $fn = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[after], func_get_args());
+}
+// == after ==
 // -- fold --
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
