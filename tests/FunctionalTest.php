@@ -543,6 +543,32 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     }, $startVal, $value);
   }
 
+  public function test_tap_constant() {
+    $this->assertStringEndsWith(
+      '\tap'
+      , P\tap
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\tap)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+  public function test_tap($value = 1)
+  {
+    $consoleLog = P\tap('printf');
+    $this->assertInstanceOf(
+      Closure
+      , $consoleLog
+      , 'Tap should return a closure'
+    );
+    $this->expectOutputString((string)$value);
+    $this->assertTrue(
+      $consoleLog($value) === $value
+      , 'Tap should not modify the value that passes through it.'
+    );
+  }
+
   public function test_fold($value = 1, $array = [1, 2, 3, 4])
   {
     $this->assertStringEndsWith(
