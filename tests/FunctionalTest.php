@@ -975,41 +975,41 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
     $startVal = 1;
     P\foldRight(
       function () use ($startVal, $arrayLike, $expVal, $expKey) {
-      $this->assertEquals(
-        4
-        , func_num_args()
-        , 'callback should receive four arguments'
-      );
-      $this->assertEquals(
-        $startVal
-        , func_get_arg(0)
-        , 'callback $prevVal should equal startValue'
-      );
-      $this->assertEquals(
-        $expVal
-        , func_get_arg(1)
-        , 'callback $value should equal to expected value'
-      );
-      $this->assertEquals(
-        $expKey
-        , func_get_arg(2)
-        , 'callback $key should equal to expected key'
-      );
-      if (is_object($arrayLike)) {
-        $this->assertTrue(
-          $arrayLike === func_get_arg(3)
-          , 'callback $container should be the same instance as the object'
-        );
-      } else {
         $this->assertEquals(
-          $arrayLike
-          , func_get_arg(3)
-          , 'callback $container should equal to the array'
+          4
+          , func_num_args()
+          , 'callback should receive four arguments'
         );
-      }
+        $this->assertEquals(
+          $startVal
+          , func_get_arg(0)
+          , 'callback $prevVal should equal startValue'
+        );
+        $this->assertEquals(
+          $expVal
+          , func_get_arg(1)
+          , 'callback $value should equal to expected value'
+        );
+        $this->assertEquals(
+          $expKey
+          , func_get_arg(2)
+          , 'callback $key should equal to expected key'
+        );
+        if (is_object($arrayLike)) {
+          $this->assertTrue(
+            $arrayLike === func_get_arg(3)
+            , 'callback $container should be the same instance as the object'
+          );
+        } else {
+          $this->assertEquals(
+            $arrayLike
+            , func_get_arg(3)
+            , 'callback $container should equal to the array'
+          );
+        }
 
-      return func_get_arg(0);
-    }
+        return func_get_arg(0);
+      }
       , $startVal
       , $arrayLike
     );
@@ -1039,7 +1039,9 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
    */
   public function test_order($source, $expected)
   {
-    $concat = function ($x, $y) {return $x . $y; };
+    $concat = function ($x, $y) {
+      return $x . $y;
+    };
     $this->assertEquals(
       $expected
       , P\foldRight($concat, '', $source)
@@ -1074,7 +1076,7 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
 
   public function orderProvider()
   {
-    $source = [1,2,3];
+    $source = [1, 2, 3];
     $expected = '321';
     return [
       '[1,2,3]' => [$source, $expected]
