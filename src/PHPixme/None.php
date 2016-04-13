@@ -159,6 +159,14 @@ class None extends Maybe
   {
     return $startVal;
   }
+  
+  /**
+   * @inheritdoc
+   */
+  public function foldRight(callable $hof, $startVal)
+  {
+    return $startVal;
+  }
 
   /**
    * @inheritdoc
@@ -198,7 +206,15 @@ class None extends Maybe
    */
   public function reduce(callable $hof)
   {
-    throw new \InvalidArgumentException('Cannot reduce on None. Behaviour is undefined');
+    throw new \LengthException('Cannot reduce on None. Behaviour is undefined');
+  }
+  
+  /**
+   * @inheritdoc
+   */
+  public function reduceRight(callable $hof)
+  {
+    throw new \LengthException('Cannot reduceRight on None. Behaviour is undefined');
   }
 
   /**

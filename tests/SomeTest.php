@@ -185,11 +185,60 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_foldRight_callback($value = true, $startValue = null) {
+    $some = P\Some($value);
+    $some->foldRight(function ($lastVal) use ($startValue, $value, $some) {
+      $this->assertTrue(
+        4 === func_num_args()
+        , 'Some->foldRight callback should receive four arguments'
+      );
+      $this->assertTrue(
+        func_get_arg(0) === $startValue
+        , 'Some->foldRight callback $prevVal should be the $startValue'
+      );
+      $this->assertTrue(
+        func_get_arg(1) === $value
+        , 'Some->foldRight callback $value should be its contents'
+      );
+      $this->assertNotFalse(
+        func_get_arg(2)
+        , 'Some->foldRight callback $key should be defined'
+      );
+      $this->assertTrue(
+        func_get_arg(3) === $some
+        , 'Some->foldRight callback $container should be itself'
+      );
+
+      return $lastVal;
+    }, $startValue);
+  }
+
+  public function test_foldRight_scenario_add($value = 1, $startVal = 1)
+  {
+    $add = function ($x, $y) {
+      return $x + $y;
+    };
+    $this->assertTrue(
+      ($value + $startVal) === (P\Some($value)->foldRight($add, $startVal))
+      , 'The fold should be able to preform a simple add on a single length item'
+    );
+  }
+
+
   public function test_reduce($value = true)
   {
     $this->assertTrue(
       $value === (P\Some($value)->reduce(function () {
         throw new \Exception('Some->reduce callback should never run!');
+      }))
+      , 'Some->reduce should produce its contents'
+    );
+  }
+  public function test_reduceRight($value = true)
+  {
+    $this->assertTrue(
+      $value === (P\Some($value)->reduceRight(function () {
+        throw new \Exception('Some->reduceRight callback should never run!');
       }))
       , 'Some->reduce should produce its contents'
     );

@@ -12,7 +12,8 @@ use PHPixme as P;
 
 class SeqTest extends \PHPUnit_Framework_TestCase
 {
-  public function test_Seq_constants() {
+  public function test_Seq_constants()
+  {
     $this->assertTrue(
       P\Seq::class === P\Seq
       , 'The constant for the Class and Function should be equal to the Class Path'
@@ -22,6 +23,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'The companion function exists for the class.'
     );
   }
+
   public function seqSourceProvider()
   {
     return [
@@ -438,7 +440,6 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider seqSourceProvider
-   * @requires test_magic_invoke
    */
   public function test_fold_callback($value)
   {
@@ -485,11 +486,72 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider foldAdditionProvider
    */
-  public function test_fold_scenario_addition($seq, $expected)
+  public function test_fold_scenario_addition(P\Seq $seq, $expected)
   {
     $this->assertEquals(
       $expected
       , $seq->fold(function ($a, $b) {
+      return $a + $b;
+    }, 0)
+      , 'Seq->fold applied to addition should produce the sum of the sequence'
+    );
+  }
+
+  /**
+   * @dataProvider seqSourceProvider
+   */
+  public function test_foldRight_callback($value)
+  {
+    $seq = P\Seq($value);
+    $seq->foldRight(function () use ($seq) {
+      $this->assertTrue(
+        4 === func_num_args()
+        , 'Seq->fold callback should receive four arguments'
+      );
+
+      $prevValue = func_get_arg(0);
+      $value = func_get_arg(1);
+      $key = func_get_arg(2);
+      $container = func_get_arg(3);
+
+      $this->assertTrue(
+        $prevValue === 0
+        , 'Seq->fold callback $prevValue should be its start value'
+      );
+      $this->assertTrue(
+        ($seq($key)) === $value
+        , 'Seq->fold callback $value should be equal to the value at $key'
+      );
+      $this->assertNotFalse(
+        $key
+        , 'Seq->fold callback $key should be defined'
+      );
+      $this->assertTrue(
+        $seq === $container
+        , 'Seq->fold callback $container should be itself'
+      );
+      return $prevValue;
+    }, 0);
+  }
+
+  public function test_foldRight_direction($value = ['e' => 1, 'd' => 2, 'c' => 3, 'b' => 4, 'a' => 5], $expected = 'abcde')
+  {
+    $this->assertTrue(
+      $expected === P\Seq($value)->foldRight(function ($acc, $value, $key) {
+        return $acc . $key;
+      }, '')
+      , 'The traversal of the Seq should be the reverse of the internal order'
+    );
+  }
+
+  /**
+   * @dataProvider foldAdditionProvider
+   */
+  public function test_foldRight_scenario_addition(P\Seq $seq, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , $seq->foldRight(function ($a, $b) {
       return $a + $b;
     }, 0)
       , 'Seq->fold applied to addition should produce the sum of the sequence'
@@ -510,7 +572,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    * @dataProvider forAllProvider
    * @requires test_magic_invoke
    */
-  public function test_forAll_callback($seq)
+  public function test_forAll_callback(P\Seq $seq)
   {
     $seq->forAll(function () use ($seq) {
       $this->assertTrue(
@@ -540,7 +602,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider forAllProvider
    */
-  public function test_forAll_scenario_positive($seq, $expected)
+  public function test_forAll_scenario_positive(P\Seq $seq, $expected)
   {
     $positive = function ($value) {
       return $value > 0;
@@ -707,7 +769,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure that the contract is maintained that reduce on none is undefined behavior
-   * @expectedException \Exception
+   * @expectedException \LengthException
    */
   public function test_reduce_contract_broken()
   {
@@ -719,7 +781,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider reduceAdditionProvider
    */
-  public function test_reduce_scenario_add($seq, $expected)
+  public function test_reduce_scenario_add(P\Seq $seq, $expected)
   {
     $this->assertEquals(
       $expected
@@ -727,6 +789,78 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       return $a + $b;
     })
       , 'Seq->reduce application of add should produced the expected result'
+    );
+  }
+
+  /**
+   * @dataProvider reduceAdditionProvider
+   */
+  public function test_reduceRight_callback(P\Seq $seq)
+  {
+    $head = $seq->reverse()->head();
+    $seq->reduceRight(function () use ($seq, $head) {
+      $this->assertTrue(
+        4 === func_num_args()
+        , 'Seq->reduceRight callback should receive four arguments'
+      );
+
+      $prevValue = func_get_arg(0);
+      $value = func_get_arg(1);
+      $key = func_get_arg(2);
+      $container = func_get_arg(3);
+
+      $this->assertTrue(
+        $prevValue === $head
+        , 'Seq->reduceRight callback $prevValue should be the first value in the Seq'
+      );
+      $this->assertTrue(
+        ($seq($key)) === $value
+        , 'Seq->reduceRight callback $value should be equal to the value at $key'
+      );
+      $this->assertNotFalse(
+        $key
+        , 'Seq->reduceRight callback $key should be defined'
+      );
+      $this->assertTrue(
+        $seq === $container
+        , 'Seq->reduceRight callback $container should be itself'
+      );
+      return $prevValue;
+    });
+  }
+
+  /**
+   * Ensure that the contract is maintained that reduce on none is undefined behavior
+   * @expectedException \LengthException
+   */
+  public function test_reduceRight_contract_broken()
+  {
+    P\Seq::of()->reduceRight(function () {
+      return true;
+    });
+  }
+
+  public function test_reduceRight_direction($value = ['e' => 1, 'd' => 2, 'c' => 3, 'b' => 4, 5], $expected = '5bcde')
+  {
+    $joinKeys = function ($acc, $value, $key) { return $acc . $key; };
+    $this->assertEquals(
+      $expected
+      , P\Seq($value)->reduceRight($joinKeys)
+      , 'The traversal of the Seq should be the reverse of the internal order'
+    );
+  }
+
+  /**
+   * @dataProvider reduceAdditionProvider
+   */
+  public function test_reduceRight_scenario_add(P\Seq $seq, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , $seq->reduceRight(function ($a, $b) {
+      return $a + $b;
+    })
+      , 'Seq->reduceRight application of add should produced the expected result'
     );
   }
 

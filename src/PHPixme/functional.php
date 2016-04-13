@@ -340,6 +340,7 @@ function after($decorator, $fn = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[after], func_get_args());
 }
+
 // == after ==
 
 // -- provided --
@@ -347,10 +348,10 @@ const provided = __NAMESPACE__ . '\provided';
 __PRIVATE__::$instance[provided] = __PRIVATE__::curry(2, function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
   __PRIVATE__::assertCallable($fn);
-  return function () use ($predicate, $fn){
+  return function () use ($predicate, $fn) {
     $args = func_get_args();
-    return call_user_func_array($predicate, $args) 
-      ? call_user_func_array($fn, $args) 
+    return call_user_func_array($predicate, $args)
+      ? call_user_func_array($fn, $args)
       : null;
   };
 });
@@ -359,20 +360,22 @@ __PRIVATE__::$instance[provided] = __PRIVATE__::curry(2, function ($predicate, $
  * @param Callable $fn
  * @return \Closure
  */
-function provided($decorator, $fn = null ) {
+function provided($decorator, $fn = null)
+{
   return call_user_func_array(__PRIVATE__::$instance[provided], func_get_args());
 }
+
 // == provided ==
 
 // -- except --
-const except = __NAMESPACE__ .  '\except';
+const except = __NAMESPACE__ . '\except';
 __PRIVATE__::$instance[except] = __PRIVATE__::curry(2, function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
   __PRIVATE__::assertCallable($fn);
-  return function () use ($predicate, $fn){
+  return function () use ($predicate, $fn) {
     $args = func_get_args();
-    return call_user_func_array($predicate, $args) 
-      ? null 
+    return call_user_func_array($predicate, $args)
+      ? null
       : call_user_func_array($fn, $args);
   };
 });
@@ -381,9 +384,11 @@ __PRIVATE__::$instance[except] = __PRIVATE__::curry(2, function ($predicate, $fn
  * @param Callable $fn
  * @return \Closure
  */
-function except($decorator, $fn = null ) {
+function except($decorator, $fn = null)
+{
   return call_user_func_array(__PRIVATE__::$instance[except], func_get_args());
 }
+
 // == except ==
 
 // -- fold --
@@ -413,6 +418,48 @@ function fold($hof, $startVal = null, $traversable = null)
 }
 
 // == fold ==
+// -- foldRight --
+const foldRight = __NAMESPACE__ . '\foldRight';
+__PRIVATE__::$instance[foldRight] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
+  __PRIVATE__::assertCallable($hof);
+  if ($arrayLike instanceof NaturalTransformationInterface) {
+    return $arrayLike->foldRight($hof, $startVal);
+  } elseif (is_array($arrayLike)) {
+    $output = $startVal;
+    // Make a new copy of the array to avoid contaminating the internal pointer
+    $array = $arrayLike;
+    end($array);
+    while (!is_null($key = key($array))) {
+      $output = call_user_func($hof, $output, current($array), $key, $arrayLike);
+      prev($array);
+    }
+    return $output;
+  }
+  __PRIVATE__::assertTraversable($arrayLike);
+  $pairs = [];
+  foreach ($arrayLike as $key => $value) {
+    array_unshift($pairs, [$key, $value]);
+  }
+  $output = $startVal;
+  foreach ($pairs as $kp) {
+    $output = call_user_func($hof, $output, $kp[1], $kp[0], $arrayLike);
+  }
+  return $output;
+});
+
+/**
+ * @param callable $hof
+ * @param mixed = $startVal
+ * @param \Traversable= $traversable
+ * @return \Closure|mixed
+ * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
+ */
+function foldRight($hof, $startVal = null, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[foldRight], func_get_args());
+}
+
+// == foldRight ==
 
 // -- reduce --
 const reduce = __NAMESPACE__ . '\reduce';
@@ -422,10 +469,12 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLik
     return $arrayLike->reduce($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);
+  if(is_array($arrayLike)) {
+
+  }
   $iter = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : $arrayLike;
-  $iter->rewind();
   if (!$iter->valid()) {
-    throw new \InvalidArgumentException('Cannot reduce on collection of less than one. Behaviour is undefined');
+    throw new \LengthException('Cannot reduce on emty collections. Behaviour is undefined');
   }
   $output = $iter->current();
   $iter->next();
@@ -447,6 +496,58 @@ function reduce($hof, $traversable = null)
 }
 
 // == reduce ==
+
+// -- reduceRight --
+const reduceRight = __NAMESPACE__ . '\reduceRight';
+__PRIVATE__::$instance[reduceRight] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
+  __PRIVATE__::assertCallable($hof);
+  if ($arrayLike instanceof NaturalTransformationInterface) {
+    return $arrayLike->reduceRight($hof);
+  }
+  __PRIVATE__::assertTraversable($arrayLike);
+  if (is_array($arrayLike)) {
+    if (empty($arrayLike)) {
+      throw new \LengthException('Cannot reduceRight on empty collections. Behaviour is undefined');
+    }
+    // Make a new copy of the array to avoid contaminating the internal pointer
+    $array = $arrayLike;
+    $output = end($array);
+    $value = prev($array);
+    // Traverse using the internal pointer to avoid creating additional work
+    while (!is_null($key = key($array))) {
+      $output = call_user_func($hof, $output, $value, $key, $arrayLike);
+      $value = prev($array);
+    }
+    return $output;
+  }
+  // Traversables can only go forward.
+  $pairs = [];
+  foreach ($arrayLike as $key => $value) {
+    array_unshift($pairs, [$key, $value]);
+  }
+  // This can only be known after iterating the Traversable
+  if (empty($pairs)) {
+    throw new \LengthException('Cannot reduceRight on empty collections. Behaviour is undefined');
+  }
+  $output = array_shift($pairs)[1]; // Get the first value
+  foreach ($pairs as $kp) {
+    $output = call_user_func($hof, $output, $kp[1], $kp[0], $arrayLike);
+  }
+  return $output;
+
+});
+/**
+ * @param callable $hof
+ * @param \Traversable= $traversable
+ * @return \Closure|mixed
+ * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
+ */
+function reduceRight($hof, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[reduceRight], func_get_args());
+}
+
+// == reduceRight ==
 
 // -- map --
 const map = __NAMESPACE__ . '\map';

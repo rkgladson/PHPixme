@@ -815,33 +815,33 @@ class foldTest extends \PHPUnit_Framework_TestCase
       $this->assertEquals(
         4
         , func_num_args()
-        , 'fold callback should receive four arguments'
+        , 'callback should receive four arguments'
       );
       $this->assertEquals(
         $startVal
         , func_get_arg(0)
-        , 'fold callback $prevVal should equal startValue'
+        , 'callback $prevVal should equal startValue'
       );
       $this->assertEquals(
         $expVal
         , func_get_arg(1)
-        , 'fold callback $value should equal to expected value'
+        , 'callback $value should equal to expected value'
       );
       $this->assertEquals(
         $expKey
         , func_get_arg(2)
-        , 'fold callback $key should equal to expected key'
+        , 'callback $key should equal to expected key'
       );
       if (is_object($value)) {
         $this->assertTrue(
           $value === func_get_arg(3)
-          , 'fold callback $container should be the same instance as the object'
+          , 'callback $container should be the same instance as the object'
         );
       } else {
         $this->assertEquals(
           $value
           , func_get_arg(3)
-          , 'fold callback $container should equal to the array'
+          , 'callback $container should equal to the array'
         );
       }
 
@@ -854,17 +854,17 @@ class foldTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       Closure
       , P\fold(P\I, $value)
-      , 'fold when partially applied should return a closure'
+      , 'when partially applied should return a closure'
     );
     $this->assertEquals(
       $value
       , P\fold(P\I, $value)->__invoke($array)
-      , 'An idiot applied to fold should always return the start value'
+      , 'An idiot applied should always return the start value'
     );
     $this->assertEquals(
       $array[count($array) - 1]
       , P\fold(P\flip(P\I), $value, $array)
-      , 'The flipped idiot applied to reduce should always return the last unless empty'
+      , 'The flipped idiot applied should always return the last unless empty'
     );
   }
 
@@ -952,6 +952,197 @@ class foldTest extends \PHPUnit_Framework_TestCase
   }
 }
 
+class foldRightTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\foldRight'
+      , P\foldRight
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\foldRight)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  /**
+   * @dataProvider callbackProvider
+   */
+  public function test_callback($arrayLike, $expVal, $expKey)
+  {
+    $startVal = 1;
+    P\foldRight(
+      function () use ($startVal, $arrayLike, $expVal, $expKey) {
+      $this->assertEquals(
+        4
+        , func_num_args()
+        , 'callback should receive four arguments'
+      );
+      $this->assertEquals(
+        $startVal
+        , func_get_arg(0)
+        , 'callback $prevVal should equal startValue'
+      );
+      $this->assertEquals(
+        $expVal
+        , func_get_arg(1)
+        , 'callback $value should equal to expected value'
+      );
+      $this->assertEquals(
+        $expKey
+        , func_get_arg(2)
+        , 'callback $key should equal to expected key'
+      );
+      if (is_object($arrayLike)) {
+        $this->assertTrue(
+          $arrayLike === func_get_arg(3)
+          , 'callback $container should be the same instance as the object'
+        );
+      } else {
+        $this->assertEquals(
+          $arrayLike
+          , func_get_arg(3)
+          , 'callback $container should equal to the array'
+        );
+      }
+
+      return func_get_arg(0);
+    }
+      , $startVal
+      , $arrayLike
+    );
+  }
+
+  public function test_return($value = 1, $array = ['a', 'b', 'c', 'd'])
+  {
+    $this->assertInstanceOf(
+      Closure
+      , P\foldRight(P\I, $value)
+      , 'when partially applied should return a closure'
+    );
+    $this->assertEquals(
+      $value
+      , P\foldRight(P\I, $value)->__invoke($array)
+      , 'An idiot applied should always return the end value'
+    );
+    $this->assertEquals(
+      $array[0]
+      , P\foldRight(P\flip(P\I), $value, $array)
+      , 'The flipped idiot applied should always return the first unless empty'
+    );
+  }
+
+  /**
+   * @dataProvider orderProvider
+   */
+  public function test_order($source, $expected)
+  {
+    $concat = function ($x, $y) {return $x . $y; };
+    $this->assertEquals(
+      $expected
+      , P\foldRight($concat, '', $source)
+    );
+  }
+
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenario($arrayLike, $startVal, $action, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , P\foldRight($action, $startVal, $arrayLike)
+    );
+  }
+
+  public function callbackProvider()
+  {
+    return [
+      'array callback' => [
+        [1], 1, 0
+      ]
+      , 'traversable callback' => [
+        new \ArrayIterator([1]), 1, 0
+      ]
+      , 'natural interface callback' => [
+        P\Seq([1]), 1, 0
+      ]
+    ];
+  }
+
+  public function orderProvider()
+  {
+    $source = [1,2,3];
+    $expected = '321';
+    return [
+      '[1,2,3]' => [$source, $expected]
+      , 'ArrayIterator([1,2,3])' => [new \ArrayIterator($source), $expected]
+      , 'Seq(1,2,3)' => [P\Seq($source), $expected]
+    ];
+  }
+
+  public function scenarioProvider()
+  {
+    $add = function ($a, $b) {
+      return $a + $b;
+    };
+    return [
+      'add simple empty array' => [
+        []
+        , 0
+        , $add
+        , 0
+      ]
+      , 'add simple S[]' => [
+        P\Seq::of()
+        , 0
+        , $add
+        , 0
+      ]
+      , 'add simple None' => [
+        P\None()
+        , 0
+        , $add
+        , 0
+      ]
+      , 'ArrayObject[]' => [
+        new \ArrayIterator([])
+        , 0
+        , $add
+        , 0
+      ]
+      , 'add 1+2+3' => [
+        [1, 2, 3]
+        , 0
+        , $add
+        , 6
+      ]
+      , 'add S[1,2,3]' => [
+        P\Seq::of(1, 2, 3)
+        , 0
+        , $add
+        , 6
+      ]
+      , 'Some(2)+2' => [
+        P\Some(2)
+        , 2
+        , $add
+        , 4
+      ]
+      , 'add ArrayObject[1,2,3]' => [
+        new \ArrayIterator([1, 2, 3])
+        , 0
+        , $add
+        , 6
+      ]
+    ];
+  }
+
+
+}
+
 class reduceTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constant()
@@ -969,7 +1160,7 @@ class reduceTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider undefinedBehaviorProvider
-   * @expectedException \Exception
+   * @expectedException \LengthException
    */
   public function test_contract_violation($arrayLike = [])
   {
@@ -985,33 +1176,33 @@ class reduceTest extends \PHPUnit_Framework_TestCase
       $this->assertEquals(
         4
         , func_num_args()
-        , 'reduce callback should receive four arguments'
+        , 'callback should receive four arguments'
       );
       $this->assertEquals(
         $firstVal
         , func_get_arg(0)
-        , 'reduce callback $prevVal should equal startValue'
+        , 'callback $prevVal should equal startValue'
       );
       $this->assertEquals(
         $expVal
         , func_get_arg(1)
-        , 'reduce callback should equal to expected value'
+        , 'callback should equal to expected value'
       );
       $this->assertEquals(
         $expKey
         , func_get_arg(2)
-        , 'reduce callback $key should equal to expected key'
+        , 'callback $key should equal to expected key'
       );
       if (is_object($arrayLike)) {
         $this->assertTrue(
           $arrayLike === func_get_arg(3)
-          , 'reduce callback $container should be the same instance as the source data'
+          , 'callback $container should be the same instance as the source data'
         );
       } else {
         $this->assertEquals(
           $arrayLike
           , func_get_arg(3)
-          , '$container should equal to the array being reduced'
+          , '$container should equal to the array like'
         );
       }
 
@@ -1024,17 +1215,17 @@ class reduceTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       Closure
       , P\reduce(P\I)
-      , 'reduce when partially applied should return a closure'
+      , 'when partially applied should return a closure'
     );
     $this->assertEquals(
       $array[0]
       , P\reduce(P\I)->__invoke($array)
-      , 'An idiot applied to fold should always return the start value'
+      , 'An idiot applied should always return the start value'
     );
     $this->assertEquals(
       $array[count($array) - 1]
       , P\reduce(P\flip(P\I), $array)
-      , 'The flipped idiot applied to reduce should always return the last'
+      , 'The flipped idiot applied should always return the last'
     );
   }
 
@@ -1117,6 +1308,204 @@ class reduceTest extends \PHPUnit_Framework_TestCase
         , $add
         , 6
       ]
+    ];
+  }
+}
+
+class reduceRightTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\reduceRight'
+      , P\reduceRight
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\reduceRight)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  /**
+   * @dataProvider undefinedBehaviorProvider
+   * @expectedException \LengthException
+   */
+  public function test_contract_violation($arrayLike = [])
+  {
+    P\reduceRight(P\I, $arrayLike);
+  }
+
+  /**
+   * @dataProvider callbackProvider
+   */
+  public function test_callback($arrayLike, $lastVal, $expVal, $expKey)
+  {
+    P\reduceRight(function () use ($lastVal, $expVal, $expKey, $arrayLike) {
+      $arity = func_num_args();
+      $args = func_get_args();
+      $this->assertEquals(
+        4
+        , $arity
+        , 'callback should receive four arguments'
+      );
+      $this->assertEquals(
+        $lastVal
+        , $args[0]
+        , 'callback $prevVal should equal startValue'
+      );
+      $this->assertEquals(
+        $expVal
+        , $args[1]
+        , 'callback should equal to expected value'
+      );
+      $this->assertEquals(
+        $expKey
+        , $args[2]
+        , 'callback $key should equal to expected key'
+      );
+      if (is_object($arrayLike)) {
+        $this->assertTrue(
+          $arrayLike === $args[3]
+          , 'callback $container should be the same instance as the source data'
+        );
+      } else {
+        $this->assertEquals(
+          $arrayLike
+          , $args[3]
+          , '$container should equal to the array like'
+        );
+      }
+
+      return func_get_arg(0);
+    }, $arrayLike);
+  }
+
+  public function test_return($array = [1, 2, 3, 4])
+  {
+    $this->assertInstanceOf(
+      Closure
+      , P\reduceRight(P\I)
+      , 'when partially applied should return a closure'
+    );
+    $this->assertEquals(
+      $array[count($array) - 1]
+      , P\reduceRight(P\I)->__invoke($array)
+      , 'An idiot applied should always return the last value'
+    );
+    $this->assertEquals(
+      $array[0]
+      , P\reduceRight(P\flip(P\I), $array)
+      , 'The flipped idiot applied should always return the first value'
+    );
+  }
+
+  /**
+   * @dataProvider orderProvider
+   */
+  public function test_order($arrayLike, $expected)
+  {
+    $concat = function ($acc, $value) {
+      return $acc . $value;
+    };
+    $this->assertEquals(
+      $expected
+      , P\reduceRight($concat, $arrayLike)
+      , 'should traverse the array like in a reverse order.'
+    );
+  }
+
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenario($arrayLike, $action, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , P\reduceRight($action, $arrayLike)
+    );
+  }
+
+  public function undefinedBehaviorProvider()
+  {
+    return [
+      '[]' => [[]]
+      , 'None' => [P\None()]
+      , 'S[]' => [P\Seq::of()]
+      , 'ArrayItterator[]' => [new \ArrayIterator([])]
+    ];
+  }
+
+  public function callbackProvider()
+  {
+    /*$arrayLike, $firstVal, $expVal, $expKey*/
+    return [
+      'array callback' => [
+        [1, 2], 2, 1, 0
+      ]
+      , 'traversable callback' => [
+        new \ArrayIterator([1, 2]), 2, 1, 0
+      ]
+      , 'natural interface callback' => [
+        P\Seq::of(1, 2), 2, 1, 0
+      ]
+    ];
+  }
+
+  public function scenarioProvider()
+  {
+    $add = function ($a, $b) {
+      return $a + $b;
+    };
+    return [
+      'add 1' => [
+        [1]
+        , $add
+        , 1
+      ]
+      , 'add S[1]' => [
+        P\Seq::of(1)
+        , $add
+        , 1
+      ]
+
+      , 'add ArrayObject[1]' => [
+        new \ArrayIterator([1])
+        , $add
+        , 1
+      ]
+      , 'add Some(2)' => [
+        P\Some(2)
+        , $add
+        , 2
+      ]
+      , 'add 1+2+3' => [
+        [1, 2, 3]
+        , $add
+        , 6
+      ]
+      , 'add S[1,2,3]' => [
+        P\Seq::of(1, 2, 3)
+        , $add
+        , 6
+      ]
+
+      , 'add ArrayObject[1,2,3]' => [
+        new \ArrayIterator([1, 2, 3])
+        , $add
+        , 6
+      ]
+    ];
+  }
+
+  public function orderProvider()
+  {
+    $source = [1, 2, 3];
+    $output = '321';
+    return [
+      '[1,2,3]' => [$source, $output]
+      , 'ArrayIterator(1,2,3)' => [new \ArrayIterator($source), $output]
+      , 'Seq(1,2,3)' => [P\Seq($source), $output]
     ];
   }
 }

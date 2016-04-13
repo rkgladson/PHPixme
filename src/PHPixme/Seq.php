@@ -13,6 +13,7 @@ class Seq implements NaturalTransformationInterface, \Countable
 {
   private $hash = [];
   private $keyR = [];
+  private $keyRBackwards = [];
   private $length = 0;
   // -- iterator state --
   private $pointer = 0;
@@ -27,6 +28,7 @@ class Seq implements NaturalTransformationInterface, \Countable
   {
     $this->hash = static::arrayLikeToArray($arrayLike);
     $this->keyR = array_keys($this->hash);
+    $this->keyRBackwards = array_reverse($this->keyR);
     $this->length = count($this->hash);
   }
 
@@ -124,6 +126,14 @@ class Seq implements NaturalTransformationInterface, \Countable
     return $output;
   }
 
+  public function foldRight(callable $hof, $startVal) {
+    $output = $startVal;
+    foreach ($this->keyRBackwards as $key) {
+      $output = $hof($output, $this->hash[$key], $key, $this);
+    }
+    return $output;
+  }
+
   public function forAll(callable $predicate)
   {
     foreach ($this->hash as $key => $value) {
@@ -157,10 +167,24 @@ class Seq implements NaturalTransformationInterface, \Countable
   public function reduce(callable $hof)
   {
     if ($this->length < 1) {
-      throw new \OutOfRangeException('Cannot reduce a set of 0, this behavior is undefined');
+      throw new \LengthException('Cannot reduce an empty Seq. Behavior is undefined.');
     }
     // Make a copy to shift the first value
     $keyR = $this->keyR;
+    $output = $this->hash[array_shift($keyR)];
+    foreach ($keyR as $key) {
+      $output = $hof($output, $this->hash[$key], $key, $this);
+    }
+    return $output;
+  }
+  
+  public function reduceRight(callable $hof)
+  {
+    if ($this->length < 1) {
+      throw new \LengthException('Cannot reduceRight an empty Seq. Behavior is undefined.');
+    }
+    // Make a copy to shift the first value
+    $keyR = $this->keyRBackwards;
     $output = $this->hash[array_shift($keyR)];
     foreach ($keyR as $key) {
       $output = $hof($output, $this->hash[$key], $key, $this);

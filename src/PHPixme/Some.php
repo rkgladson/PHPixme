@@ -91,7 +91,14 @@ class Some extends Maybe
    */
   public function fold(callable $hof, $startVal)
   {
-    return $hof($startVal, $this->get(), 0, $this);
+    return call_user_func($hof, $startVal, $this->get(), 0, $this);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function foldRight(callable $hof, $startVal) {
+    return call_user_func($hof, $startVal, $this->get(), 0, $this);
   }
 
   public function forAll(callable $predicate)

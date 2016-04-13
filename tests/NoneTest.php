@@ -212,11 +212,19 @@ class NoneTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @expectedException \Exception
+   * @expectedException \LengthException
    */
   public function test_reduce()
   {
     P\None()->reduce(function () {
+    });
+  }
+  /**
+   * @expectedException \LengthException
+   */
+  public function test_reduceRight()
+  {
+    P\None()->reduceRight(function () {
     });
   }
 
@@ -225,6 +233,16 @@ class NoneTest extends \PHPUnit_Framework_TestCase
     $startVal = true;
     $this->assertTrue(
       $startVal === (P\None()->fold(function () {
+        throw new \Exception('This should not run!');
+      }, $startVal))
+      , 'Folds on empty collections should return start values'
+    );
+  }  
+  public function test_foldRight()
+  {
+    $startVal = true;
+    $this->assertTrue(
+      $startVal === (P\None()->foldRight(function () {
         throw new \Exception('This should not run!');
       }, $startVal))
       , 'Folds on empty collections should return start values'
