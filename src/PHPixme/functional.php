@@ -663,4 +663,18 @@ function trampoline(callable $fn)
     return $result;
   };
 }
+
 // == trampoline ==
+
+// -- noop --
+const noop = __NAMESPACE__ . '\noop';
+/**
+ * It does nothing!
+ * return null
+ */
+function noop()
+{
+  // this space is intentionally left blank
+}
+
+// == noop ==

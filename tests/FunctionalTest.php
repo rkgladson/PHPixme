@@ -605,7 +605,7 @@ class YTest extends \PHPUnit_Framework_TestCase
     return [
       'factorial 10' => [
         function ($factorial) {
-          return function ($n) use ($factorial){
+          return function ($n) use ($factorial) {
             return ($n <= 1)
               ? 1
               : $factorial($n - 1) * $n;
@@ -619,7 +619,7 @@ class YTest extends \PHPUnit_Framework_TestCase
           return function ($n) use ($fibbinacci) {
             return ($n <= 1)
               ? $n
-              : ($fibbinacci($n-1) + $fibbinacci($n - 2));
+              : ($fibbinacci($n - 1) + $fibbinacci($n - 2));
           };
         }
         , [10]
@@ -1922,6 +1922,30 @@ class trampolineTest extends \PHPUnit_Framework_TestCase
       'Apprehensive kesterl' => [$thunking, 10, 10]
       , 'factorial 10' => [$factorial, 10, 3628800]
     ];
+  }
+}
+
+class noopTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\noop'
+      , P\noop
+      , 'Ensure the constant is assigned to the function name'
+    );
+    $this->assertTrue(
+      function_exists(P\noop)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  public function test_return($value = true)
+  {
+    $this->expectOutputString('');
+    /** @noinspection PhpVoidFunctionResultUsedInspection */
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    $this->assertNull(P\noop($value));
   }
 }
 
