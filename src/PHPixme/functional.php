@@ -604,10 +604,9 @@ function map(callable $hof, $traversable = null)
 // -- callWith --
 const callWith = __NAMESPACE__ . '\callWith';
 __PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $container) {
-  $callable = is_array($container) ?
-    (isset($container[$accessor]) ? $container[$accessor] : null)
-    : [$container, $accessor];
-  __PRIVATE__::assertCallable($callable);
+  $callable = __PRIVATE__::assertCallable(
+    is_array($container) ? (array_key_exists($accessor, $container) ? $container[$accessor] : null) : [$container, $accessor]
+  );
   return function () use ($callable) {
     return call_user_func_array($callable, func_get_args());
   };
@@ -617,7 +616,7 @@ __PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $c
  * @param string $accessor
  * @param object|array $container
  * @return \Closure ($container) -> ((args) -> $container{[$accessor]}(...args))
- * @sig String -> Object -> \Closure (*->x)
+ * @sig String -> Object|Array -> \Closure (*->x)
  */
 function callWith($accessor, $container = null)
 {
@@ -693,3 +692,25 @@ function noop()
 }
 
 // == noop ==
+
+// -- toClosure --
+const toClosure = __NAMESPACE__ . '\toClosure';
+/**
+ * takes an everyday callable and converts it to a Closure
+ * @param callable $fn (*->x)
+ * @return \Closure (*->x)
+ * @throws \InvalidArgumentException
+ * @sig callable (*->x) -> \Closure (*->x)
+ */
+function toClosure($fn)
+{
+  __PRIVATE__::assertCallable($fn);
+
+  return $fn instanceOf \Closure
+    ? $fn
+    : function () use ($fn) {
+      return call_user_func_array($fn, func_get_args());
+    };
+}
+
+// == toClosure ==
