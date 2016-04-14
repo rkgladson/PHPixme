@@ -270,12 +270,27 @@ __PRIVATE__::$instance[S] = __PRIVATE__::curry(3, function ($x, $y, $z) {
  * @return \Closure|mixed
  * @sig Callable x -> Callable y -> z -> a
  */
-function S($x, $y = null, $z = null)
+function S(callable $x, $y = null, $z = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[S], func_get_args());
 }
 
 // == Starling ==
+
+// -- Y Combinator --
+const Y = __NAMESPACE__ . '\Y';
+function Y(callable $callbackContainer)
+{
+  $g = function (\Closure $x) use ($callbackContainer) {
+    return $callbackContainer(function () use ($x) {
+      return call_user_func_array($x($x), func_get_args());
+    });
+  };
+
+  return $g($g);
+}
+
+// == Y Combinator ==
 
 // -- tap --
 const tap = __NAMESPACE__ . '\tap';
@@ -469,7 +484,7 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLik
     return $arrayLike->reduce($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);
-  if(is_array($arrayLike)) {
+  if (is_array($arrayLike)) {
 
   }
   $iter = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : $arrayLike;
@@ -635,3 +650,17 @@ function pluckArrayWith($accessor)
 }
 
 // == pluckArrayWith ==
+
+// -- trampoline --
+const trampoline = __NAMESPACE__ . '\trampoline';
+function trampoline(callable $fn)
+{
+  return function () use ($fn) {
+    $result = call_user_func_array($fn, func_get_args());
+    while ($result instanceof \Closure) {
+      $result = $result();
+    }
+    return $result;
+  };
+}
+// == trampoline ==

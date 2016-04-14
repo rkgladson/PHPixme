@@ -568,6 +568,67 @@ class S_tarlingTest extends \PHPUnit_Framework_TestCase
   }
 }
 
+class YTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\Y'
+      , P\Y
+      , 'Ensure the constant is assigned to the function name'
+    );
+    $this->assertTrue(
+      function_exists(P\Y)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  /**
+   * @dataProvider returnProvider
+   */
+  public function test_return(\Closure $containerFn, array $input, $output)
+  {
+    $recursive = P\Y($containerFn);
+    $this->assertInstanceOf(
+      Closure
+      , $recursive
+      , 'Should retrun a closure'
+    );
+    $this->assertEquals(
+      $output
+      , call_user_func_array($recursive, $input)
+    );
+  }
+
+  public function returnProvider()
+  {
+    return [
+      'factorial 10' => [
+        function ($factorial) {
+          return function ($n) use ($factorial){
+            return ($n <= 1)
+              ? 1
+              : $factorial($n - 1) * $n;
+          };
+        }
+        , [10]
+        , 3628800
+      ]
+      , 'fibonacci 10' => [
+        function ($fibbinacci) {
+          return function ($n) use ($fibbinacci) {
+            return ($n <= 1)
+              ? $n
+              : ($fibbinacci($n-1) + $fibbinacci($n - 2));
+          };
+        }
+        , [10]
+        , 55
+      ]
+    ];
+  }
+}
+
 class tapTest extends \PHPUnit_Framework_TestCase
 {
   public function test_tap_constant()
@@ -1796,6 +1857,71 @@ class pluckWithArrayTest extends \PHPUnit_Framework_TestCase
   public function returnProvider()
   {
     return [[[1, 2, 3]]];
+  }
+}
+
+class trampolineTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\trampoline'
+      , P\trampoline
+      , 'Ensure the constant is assigned to the function name'
+    );
+    $this->assertTrue(
+      function_exists(P\trampoline)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  public function test_return($value = 10)
+  {
+    $springyConstant = P\trampoline(P\K);
+    $this->assertInstanceOf(
+      Closure
+      , $springyConstant
+      , 'should return a decorated closure'
+    );
+    $this->assertTrue(
+      $value === $springyConstant($value)
+      , 'when applied to Kestrel, it should eventually return the value it was given initally'
+    );
+  }
+
+  /**
+   * @dataProvider scenarioProvider
+   */
+  public function test_scenaorio($function, $input, $expectedResult)
+  {
+    $application = P\trampoline($function);
+    $this->assertEquals(
+      $expectedResult
+      , $application($input)
+    );
+  }
+
+  public function scenarioProvider()
+  {
+    $factorial = function ($n, $acc = 1) use (&$factorial) {
+      return $n > 0
+        ? function () use ($n, $acc, $factorial) {
+          return $factorial($n - 1, $acc * $n);
+        }
+        : $acc;
+    };
+    $thunking = function ($n, $step = null) use (&$thunking) {
+      $step = !is_null($step) ? $step : $n;
+      return $step > 0
+        ? function () use ($thunking, $n, $step) {
+          return $thunking($n, $step - 1);
+        }
+        : $n;
+    };
+    return [
+      'Apprehensive kesterl' => [$thunking, 10, 10]
+      , 'factorial 10' => [$factorial, 10, 3628800]
+    ];
   }
 }
 
