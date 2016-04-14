@@ -279,12 +279,20 @@ function S(callable $x, $y = null, $z = null)
 
 // -- Y Combinator --
 const Y = __NAMESPACE__ . '\Y';
+/**
+ * This combinator provides recursion without having a name for the callable itself
+ * @param callable $callbackContainer ((\Closure self)->\Closure(*->x))
+ * @return mixed
+ * @sig callable ((\Closure self)->\Closure(*->x)) -> \Closure (*->x)
+ */
 function Y(callable $callbackContainer)
 {
   $g = function (\Closure $x) use ($callbackContainer) {
-    return $callbackContainer(function () use ($x) {
-      return call_user_func_array($x($x), func_get_args());
-    });
+    return call_user_func($callbackContainer
+      , function () use ($x) {
+        return call_user_func_array($x($x), func_get_args());
+      }
+    );
   };
 
   return $g($g);
@@ -653,6 +661,13 @@ function pluckArrayWith($accessor)
 
 // -- trampoline --
 const trampoline = __NAMESPACE__ . '\trampoline';
+/**
+ * Provides a platform for tail recursive optimizations for recustive functions.
+ * It will continue to execute the return value (a thunk) until the return result is not a \Closure.
+ * @param callable $fn (*->mixed|\Closure)
+ * @return \Closure (*->z)
+ * @sig \Closure (\Closure (*->mixed z|\Closure y) x) -> \Closure(*->z)
+ */
 function trampoline(callable $fn)
 {
   return function () use ($fn) {
