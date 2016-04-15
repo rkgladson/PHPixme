@@ -8,8 +8,9 @@
 
 namespace PHPixme;
 
-
-abstract class Maybe implements NaturalTransformationInterface, \Countable
+abstract class Maybe implements 
+  CompleteCollectionInterface
+  , \Countable
 {
 
   // -- Natural Transformation Interface Statics --

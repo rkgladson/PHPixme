@@ -2,6 +2,7 @@
 namespace PHPixme;
 
 // -- placeholder --
+
 /**
  * Returns the placeholder instance that is used for placing gaps in curry
  * @return \stdClass
@@ -418,7 +419,7 @@ function except($decorator, $fn = null)
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof NaturalTransformationInterface) {
+  if ($arrayLike instanceof CompleteCollectionInterface) {
     return $arrayLike->fold($hof, $startVal);
   }
   __PRIVATE__::assertTraversable($arrayLike);
@@ -445,7 +446,7 @@ function fold($hof, $startVal = null, $traversable = null)
 const foldRight = __NAMESPACE__ . '\foldRight';
 __PRIVATE__::$instance[foldRight] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof NaturalTransformationInterface) {
+  if ($arrayLike instanceof CompleteCollectionInterface) {
     return $arrayLike->foldRight($hof, $startVal);
   } elseif (is_array($arrayLike)) {
     $output = $startVal;
@@ -488,7 +489,7 @@ function foldRight($hof, $startVal = null, $traversable = null)
 const reduce = __NAMESPACE__ . '\reduce';
 __PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof NaturalTransformationInterface) {
+  if ($arrayLike instanceof ReduceableInterface) {
     return $arrayLike->reduce($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);
@@ -524,7 +525,7 @@ function reduce($hof, $traversable = null)
 const reduceRight = __NAMESPACE__ . '\reduceRight';
 __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof NaturalTransformationInterface) {
+  if ($arrayLike instanceof ReduceableInterface) {
     return $arrayLike->reduceRight($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);
@@ -577,7 +578,7 @@ const map = __NAMESPACE__ . '\map';
 __PRIVATE__::$instance[map] = __PRIVATE__::curry(2, function (callable $hof, $traversable) {
 
   // Reflect on natural transformations
-  if ($traversable instanceof NaturalTransformationInterface) {
+  if ($traversable instanceof CompleteCollectionInterface) {
     return $traversable->map($hof);
   }
   __PRIVATE__::assertTraversable($traversable);
@@ -589,7 +590,7 @@ __PRIVATE__::$instance[map] = __PRIVATE__::curry(2, function (callable $hof, $tr
 });
 /**
  * @param callable $hof
- * @param array|\Traversable|\PHPixme\NaturalTransformationInterface $traversable
+ * @param array|\Traversable|\PHPixme\CompleteCollectionInterface $traversable
  * @return \Closure|mixed
  * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
  *
@@ -714,3 +715,16 @@ function toClosure($fn)
 }
 
 // == toClosure ==
+
+// -- toss --
+const toss = __NAMESPACE__.'\toss';
+/**
+ * @param mixed $x
+ * @throws \Error
+ * @sig $x -!-> $x|Pot($x)
+ * An adapter to throw anything, not just exceptions. It is an identiy on \Throwables
+ */
+function toss ($x) {
+  throw !($x instanceof \Exception || $x instanceof \Error) ? Pot::of($x) : $x;
+}
+// == rethrow ==

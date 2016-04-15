@@ -73,10 +73,10 @@ class NoneTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_None_aspects_Natural_Transformation()
+  public function test_None_aspects_CompleteCollection()
   {
     $this->assertInstanceOf(
-      'PHPixme\NaturalTransformationInterface'
+      P\CompleteCollectionInterface::class
       , P\None()
       , 'It should have implemented natural transformations'
     );

@@ -10,7 +10,7 @@ namespace PHPixme;
 
 class Some extends Maybe
 {
-  private $done = true;
+  use SingleIteratorTrait;
   protected $x;
 
   // -- Magic Methods --
@@ -142,38 +142,19 @@ class Some extends Maybe
   }
 
   // == Natural Transformation Interface ==
-
-  // -- Iterator Interface --
-  public function current()
-  {
-    return $this->done ? null : $this->x;
-  }
-
-  public function key()
-  {
-    return $this->done ? null : 0;
-  }
-
-  public function next()
-  {
-    $this->done = true;
-  }
-
-  public function rewind()
-  {
-    $this->done = false;
-  }
-
-  public function valid()
-  {
-    return !$this->done;
-  }
-  // == Iterator Interface ==
   // -- Countable Interface--
   public function count()
   {
     return 1;
   }
   // == Countable Interface==
+
+
+  // -- Iterator Interface --
+  public function current()
+  {
+    return $this->done ? null : $this->x;
+  }
+  // == Iterator Interface ==
 
 }

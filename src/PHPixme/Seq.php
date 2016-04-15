@@ -8,8 +8,9 @@
 
 namespace PHPixme;
 
-
-class Seq implements NaturalTransformationInterface, \Countable
+class Seq implements 
+  CompleteCollectionInterface
+  , \Countable
 {
   private $hash = [];
   private $keyR = [];
@@ -22,7 +23,7 @@ class Seq implements NaturalTransformationInterface, \Countable
 
   /**
    * Seq constructor.
-   * @param \Traversable|array|\PHPixme\NaturalTransformationInterface $arrayLike
+   * @param \Traversable|array|\PHPixme\CompleteCollectionInterface $arrayLike
    */
   public function __construct($arrayLike)
   {
@@ -34,7 +35,7 @@ class Seq implements NaturalTransformationInterface, \Countable
 
   protected static function arrayLikeToArray($arrayLike)
   {
-    if ($arrayLike instanceof NaturalTransformationInterface) {
+    if ($arrayLike instanceof CompleteCollectionInterface) {
       return $arrayLike->toArray();
     }
     __PRIVATE__::assertTraversable($arrayLike);

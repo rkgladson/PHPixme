@@ -17,7 +17,8 @@
       "src/PHPixme/functional.php",
       "src/PHPixme/companionsAttempt.php",
       "src/PHPixme/companionsMaybe.php",
-      "src/PHPixme/companionsSeq.php"
+      "src/PHPixme/companionsSeq.php",
+      "src/PHPixme/companionsPot.php"
     ]
   },
   "require-dev": {
