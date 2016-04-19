@@ -18,11 +18,11 @@ namespace PHPixme;
 interface SingleCollectionInterface extends CollectionInterface
 {
   /**
-   * Create a new instance of with the $item as contents
-   * @param mixed $item
-   * @return static
+   * @param array ...$item Please not only the first item will be taken
+   * @return mixed
+   * @throws \LengthException on an empty set of arguments.
    */
-  static public function of($item);
+  static public function of($item, ...$items);
 
   /**
    * Create a new instance with the first item in the traversable as contents.

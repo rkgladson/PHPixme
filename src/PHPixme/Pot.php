@@ -18,33 +18,40 @@ namespace PHPixme;
 class Pot extends \Exception implements SingleCollectionInterface, \Countable
 {
   use SingleIteratorTrait;
-  private $contents;
+  protected $contents;
+
   public function __construct($data, $message = '')
   {
     $this->message = $message;
     $this->contents = $data;
   }
-  public function __invoke() {
-    return $this->contents;
-  }
-  public function get() {
+
+  public function __invoke()
+  {
     return $this->contents;
   }
 
-  public static function assertPotType ($pot) {
+  public function get()
+  {
+    return $this->contents;
+  }
+
+  public static function assertPotType($pot)
+  {
     if ($pot instanceof self) {
       return $pot;
     }
-    throw new \Exception('Expected value was not an instance of Pot');
+    throw new \UnexpectedValueException('Expected value was not an instance of Pot');
   }
 
   /**
-   * @param mixed $item
-   * @return mixed
+   * @param mixed $head
+   * @param array $items
+   * @return Pot
    */
-  static public function of($item)
+  static public function of($head, ...$items)
   {
-    return new self($item, '');
+    return new self($head, '');
   }
 
   /**
@@ -101,12 +108,12 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
    */
   public function flatMap(callable $hof)
   {
-   return static::assertPotType(call_user_func($hof, $this->contents, 0, $this));
+    return static::assertPotType(call_user_func($hof, $this->contents, 0, $this));
   }
 
   /**
    * @return self
-   * @throws \Exception if the data-set could not be flattened
+   * @throws \UnexpectedValueException if the data-set could not be flattened
    */
   public function flatten()
   {
@@ -120,7 +127,7 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
    */
   public function forAll(callable $predicate)
   {
-    return (boolean) call_user_func($predicate, $this->contents, 0, $this);
+    return (boolean)call_user_func($predicate, $this->contents, 0, $this);
   }
 
   /**
@@ -130,7 +137,7 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
    */
   public function forNone(callable $predicate)
   {
-    return !((boolean) call_user_func($predicate, $this->contents, 0, $this));
+    return !((boolean)call_user_func($predicate, $this->contents, 0, $this));
   }
 
   /**
@@ -140,7 +147,7 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
    */
   public function forSome(callable $predicate)
   {
-    return (boolean) call_user_func($predicate, $this->contents, 0, $this);
+    return (boolean)call_user_func($predicate, $this->contents, 0, $this);
   }
 
   /**

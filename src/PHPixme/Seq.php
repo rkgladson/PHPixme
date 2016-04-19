@@ -8,7 +8,7 @@
 
 namespace PHPixme;
 
-class Seq implements 
+class Seq implements
   CompleteCollectionInterface
   , \Countable
 {
@@ -60,16 +60,27 @@ class Seq implements
     return new static($arrayLike);
   }
 
-  public static function of(...$args)
+  /**
+   * @inheritdoc
+   */
+  public static function of($head = null, ...$tail)
   {
-    return new static($args);
+    return new static(func_get_args());
   }
 
+  /**
+   * @param $offeset
+   * @return mixed|null
+   */
   public function __invoke($offeset)
   {
     return isset($this->hash[$offeset]) ? $this->hash[$offeset] : null;
   }
 
+  /**
+   * @param callable $hof
+   * @return Seq
+   */
   public function map(callable $hof)
   {
     $output = [];
@@ -79,6 +90,10 @@ class Seq implements
     return static::from($output);
   }
 
+  /**
+   * @param callable $hof
+   * @return Seq
+   */
   public function filter(callable $hof)
   {
     $output = [];
@@ -90,6 +105,10 @@ class Seq implements
     return static::from($output);
   }
 
+  /**
+   * @param callable $hof
+   * @return Seq
+   */
   public function filterNot(callable $hof)
   {
     $output = [];
@@ -101,18 +120,42 @@ class Seq implements
     return static::from($output);
   }
 
+  /**
+   * Maps over a Seq who's $hof function returns a \PHPixme\CollectionInterface or array and flattens the result
+   * into a single sequence.
+   * @param callable $hof ($value, $key, $this) -> \PHPixme\CollectionInterface|array
+   * @return Seq
+   */
   public function flatMap(callable $hof)
   {
-    return static::from(call_user_func_array('array_merge', map(function ($value, $key) use ($hof) {
-      return static::arrayLikeToArray($hof($value, $key, $this));
-    }, $this->hash)));
+    return $this->map($hof)->flatten();
   }
 
+  /**
+   * Takes a Seq of nested Collection or array, and flattens it to a new Sequence
+   * Note: This is a slight devaition from the CollectionInterface spec, as flatten should always receive the
+   * the same type as itself. However this has been laxed in this case, as we know that Seq is
+   * can always hold more than one value. Therefor converting single collections into a sequance is
+   * safe. As arrays are simply unwrapped seq, we can also safely accept them for flattening.
+   * The outcome will always be the expected result, even with the laxening of the rules:
+   * A de-nested Seq.
+   * We do not, however, know if a traversable will ever terminate, so we will not attempt to flatten those.
+   * If you have a nested squence of traversables, iterate over them in ->flatMap and return an array.
+   * @return Seq
+   */
   public function flatten()
   {
-    return static::from(call_user_func_array('array_merge', map(function ($value) {
-      return static::arrayLikeToArray($value);
-    }, $this->hash)));
+    return new static(
+      call_user_func_array(
+      'array_merge'
+      ,array_map(
+          function ($value) {
+            return (is_array($value) ? $value : __PRIVATE__::assertCollection($value)->toArray());
+          }
+          , $this->hash
+        )
+      )
+    );
   }
 
   /**
@@ -127,7 +170,8 @@ class Seq implements
     return $output;
   }
 
-  public function foldRight(callable $hof, $startVal) {
+  public function foldRight(callable $hof, $startVal)
+  {
     $output = $startVal;
     foreach ($this->keyRBackwards as $key) {
       $output = $hof($output, $this->hash[$key], $key, $this);
@@ -178,7 +222,7 @@ class Seq implements
     }
     return $output;
   }
-  
+
   public function reduceRight(callable $hof)
   {
     if ($this->length < 1) {

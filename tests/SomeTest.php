@@ -310,7 +310,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure the contract is help for flatmap that the container returned will be what was contained
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_flatMap_contract_broken($value = true)
   {
@@ -343,7 +343,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_flatten_contract_broken()
   {

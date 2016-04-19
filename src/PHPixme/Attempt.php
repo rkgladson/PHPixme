@@ -159,7 +159,7 @@ abstract class Attempt
   protected function assertAttemptType($unknown)
   {
     if (!$unknown instanceof Attempt) {
-      throw new \Exception ('return value must be an instance of Attempt!');
+      throw new \UnexpectedValueException('return value must be an instance of Attempt!');
     }
     return $unknown;
   }

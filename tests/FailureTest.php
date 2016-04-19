@@ -120,7 +120,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Assure the contract of Failure->orElse is maintained
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_orElse_contract_broken()
   {
@@ -276,7 +276,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure the contract is maintained that if the type is broken, it throws an exception
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_recoverWith_contract_broken()
   {
@@ -369,6 +369,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     });
   }
 
+  /**
+   * @param string $value
+   */
   public function test_transform_scenario_to_success($value = 'test')
   {
     $fail = P\Failure(new \Exception($value));
@@ -376,7 +379,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
       $value === ($fail->transform(
         function () {
         },
-        function ($value) {
+        function (\Exception $value) {
           return P\Success($value->getMessage());
         }
       )->get())
@@ -401,7 +404,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_transform_contract_broken()
   {

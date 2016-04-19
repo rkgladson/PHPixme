@@ -391,7 +391,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure the function throws an exception when the contract of a non-traversable item is passed to it from the $hof
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_flatMap_contract_broken()
   {
@@ -431,7 +431,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure the function throws an exception when the contract of a non-traversable item is tried to be merged
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_flatten_contract_broken()
   {
@@ -626,7 +626,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider forNoneProvider
    */
-  public function test_forNone_callback($seq)
+  public function test_forNone_callback(P\Seq $seq)
   {
     $seq->forNone(function () use ($seq) {
       $this->assertTrue(
@@ -656,7 +656,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider forNoneProvider
    */
-  public function test_forNone_scenario_positive($seq, $expected)
+  public function test_forNone_scenario_positive(P\Seq $seq, $expected)
   {
     $positive = function ($value) {
       return $value > 0;
@@ -680,7 +680,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider forSomeProvider
    */
-  public function test_forSome_callback($seq)
+  public function test_forSome_callback(P\Seq $seq)
   {
     $seq->forSome(function () use ($seq) {
       $this->assertTrue(
@@ -710,7 +710,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider forSomeProvider
    */
-  public function test_forSome_scenario_positive($seq, $expected)
+  public function test_forSome_scenario_positive(P\Seq $seq, $expected)
   {
     $positive = function ($value) {
       return $value > 0;
@@ -733,7 +733,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider reduceAdditionProvider
    */
-  public function test_reduce_callback($seq)
+  public function test_reduce_callback(P\Seq $seq)
   {
     $head = $seq->head();
     $seq->reduce(function () use ($seq, $head) {
@@ -888,7 +888,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider unionDataProvider
    */
-  public function test_union($seq, $arrayLikeN, $expected)
+  public function test_union(P\Seq $seq, $arrayLikeN, $expected)
   {
     $this->assertEquals(
       $expected
@@ -916,7 +916,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider findProvider
    */
-  public function test_find_callback($seq)
+  public function test_find_callback(P\Seq $seq)
   {
     $seq->find(function () use ($seq) {
       $this->assertTrue(
@@ -946,7 +946,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider findProvider
    */
-  public function test_find($seq, $value, $expected)
+  public function test_find(P\Seq $seq, $value, $expected)
   {
     $this->assertEquals(
       $expected
@@ -973,7 +973,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    * @dataProvider walkProvider
    * @param $seq \PHPixme\Seq
    */
-  public function test_walk_callback($seq)
+  public function test_walk_callback(P\Seq $seq)
   {
     $seq->walk(function () use ($seq) {
       $this->assertTrue(
@@ -1004,7 +1004,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    * @param $seq \PHPixme\Seq
    * @param $length int
    */
-  public function test_walk($seq, $length)
+  public function test_walk(P\Seq $seq, $length)
   {
     $ran = 0;
     $this->assertTrue(
@@ -1045,7 +1045,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider headProvider
    */
-  public function test_head($seq, $expects)
+  public function test_head(P\Seq $seq, $expects)
   {
     $this->assertEquals(
       $expects
@@ -1083,7 +1083,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider tailProvider
    */
-  public function test_tail($seq, $expects)
+  public function test_tail(P\Seq $seq, $expects)
   {
     $this->assertEquals(
       $expects
@@ -1129,7 +1129,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider indexOfProvider
    */
-  public function test_indexOf($haystack, $needle, $expected)
+  public function test_indexOf(P\Seq $haystack, $needle, $expected)
   {
     $this->assertEquals(
       $expected
@@ -1157,7 +1157,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider partitionProvider
    */
-  public function test_partition_callback($seq)
+  public function test_partition_callback(P\Seq $seq)
   {
     $seq->partition(function () use ($seq) {
       $this->assertTrue(
@@ -1187,7 +1187,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider partitionProvider
    */
-  public function test_partition($seq, $hof, $expected)
+  public function test_partition(P\Seq $seq, $hof, $expected)
   {
     $this->assertEquals(
       $expected
@@ -1225,7 +1225,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider groupProvider
    */
-  public function test_group_callback($seq)
+  public function test_group_callback(P\Seq $seq)
   {
     $seq->group(function () use ($seq) {
       $this->assertTrue(
@@ -1255,7 +1255,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider groupProvider
    */
-  public function test_group($seq, $hof, $expected)
+  public function test_group(P\Seq $seq, $hof, $expected)
   {
     $this->assertEquals(
       $expected
@@ -1283,7 +1283,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider dropProvider
    */
-  public function test_drop($seq, $number, $expected)
+  public function test_drop(P\Seq $seq, $number, $expected)
   {
     $this->assertEquals(
       $expected
@@ -1359,7 +1359,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider takeRightProvider
    */
-  public function test_takeRight($seq, $amount, $expected)
+  public function test_takeRight(P\Seq $seq, $amount, $expected)
   {
     $this->assertEquals(
       $expected
@@ -1480,7 +1480,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider reverseProvider
    */
-  public function test_reverse($seq, $expected)
+  public function test_reverse(P\Seq $seq, $expected)
   {
     $this->assertEquals(
       $expected

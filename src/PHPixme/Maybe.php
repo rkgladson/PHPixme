@@ -14,9 +14,9 @@ abstract class Maybe implements
 {
 
   // -- Natural Transformation Interface Statics --
-  static function of(...$args)
+  static function of($head = null, ...$tail)
   {
-    return Maybe($args[0]);
+    return Maybe($head);
   }
 
   static function from($arg)
@@ -117,10 +117,15 @@ abstract class Maybe implements
   }
 
   // == NaturalTransformationInterface ==
+  /**
+   * @param $unknown
+   * @return mixed
+   * @throws \UnexpectedValueException
+   */
   protected function assertMaybeType($unknown)
   {
     if (!($unknown instanceof Maybe)) {
-      throw new \Exception ('return value must be an instance of Maybe!');
+      throw new \UnexpectedValueException('return value must be an instance of Maybe!');
     }
     return $unknown;
   }

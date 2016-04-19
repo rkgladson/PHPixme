@@ -17,14 +17,16 @@ interface CollectionInterface extends \Iterator
    * @return static - A new instance of the class
    */
   public static function from($traversable);
-  
+
   /**
    * A static function that accepts a list of items that will be contained by the class
    * Note: a implementing class will discard any excess if there is a container limit
-   * @param array ...$items - A list of items, defining like Array
+   * @param $head
+   * @param array $tail
    * @return static - A new instance of the class
+   * @internal param array ...$items - A list of items, defining like Array
    */
-  static function of($items);
+  static function of($head, ...$tail);
   /**
    * Map across the container
    * @param callable $hof ($value, $key, $container): mixed

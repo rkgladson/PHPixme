@@ -184,7 +184,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure that flatMap throws an exception if the callback does not honor it's callback
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   function test_flatMap_contract_broken()
   {
@@ -241,7 +241,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure flatten calls an exception if the object violate's it own contract
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   function test_flatten_contract_broken($value = true)
   {
@@ -433,7 +433,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   /**
    * Ensure that Transform throws an exception if the callbacks violate the contract
-   * @expectedException \Exception
+   * @expectedException \UnexpectedValueException
    */
   public function test_transform_broken_contract()
   {

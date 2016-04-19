@@ -19,9 +19,9 @@ class Some extends Maybe
     $this->x = $x;
   }
 
-  public static function of(...$value)
+  public static function of($head = null, ...$tail)
   {
-    return new static($value[0]);
+    return new static($head);
   }
 
   public static function from($arrayLike)

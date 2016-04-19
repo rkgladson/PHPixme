@@ -60,7 +60,7 @@ class None extends Maybe
   /**
    * @inheritdoc
    */
-  public static function of(...$args)
+  public static function of($head = null, ...$tail)
   {
     return static::getInstance();
   }

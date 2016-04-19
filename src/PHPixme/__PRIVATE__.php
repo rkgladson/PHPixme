@@ -65,6 +65,19 @@ class __PRIVATE__
   }
 
   /**
+   * @param $unknown
+   * @return CollectionInterface
+   * @throws \UnexpectedValueException
+   */
+  static function assertCollection($unknown)
+  {
+    if (!($unknown instanceof CollectionInterface)) {
+      throw new \UnexpectedValueException('Return value was not implimentor of Collection!');
+    }
+    return $unknown;
+  }
+
+  /**
    * Asserts the value is a number
    * @param $number
    * @return mixed
