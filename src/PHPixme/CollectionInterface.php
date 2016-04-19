@@ -27,6 +27,7 @@ interface CollectionInterface extends \Iterator
    * @internal param array ...$items - A list of items, defining like Array
    */
   static function of($head, ...$tail);
+
   /**
    * Map across the container
    * @param callable $hof ($value, $key, $container): mixed
@@ -41,6 +42,7 @@ interface CollectionInterface extends \Iterator
    * @return mixed - whatever the last cycle of $hof returns
    */
   public function fold(callable $hof, $startVal);
+
   /**
    * Fold Right across this class
    * @param callable $hof ($prevVal, $value, $key, $container): mixed
@@ -96,7 +98,7 @@ interface CollectionInterface extends \Iterator
    * @return array
    */
   public function toArray();
-  
+
   /**
    * Is the container empty?
    * @return bool
