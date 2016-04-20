@@ -2,7 +2,7 @@
   "name": "rkgladson/PHPixme",
   "description": "Proves a functional and aspect oriented helpers for php.",
   "minimum-stability": "alpha",
-  "license": "apache2",
+  "license": "mit",
   "authors": [
     {
       "name": "Gladson",

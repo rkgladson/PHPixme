@@ -17,15 +17,21 @@ function _()
 // -- curry --
 
 const curry = __NAMESPACE__ . '\curry';
-__PRIVATE__::$instance[curry] = __PRIVATE__::curry(2, __NAMESPACE__ . '\__PRIVATE__::curry');
+__PRIVATE__::$instance[curry] = __PRIVATE__::curryExactly2(function ($arity, callable $callable) {
+  __PRIVATE__::assertPositiveOrZero($arity);
+  __PRIVATE__::assertCallable($callable);
+  // The function is static so that is easier to recurse,
+  // as it shares no state with itself outside its arguments.
+  return __PRIVATE__::curryGiven([], $arity, $callable);
+});
 /**
  * Take a callable and produce a curried \Closure
  * @param int $arity
  * @param callable = $hof
  * @return \Closure
- * @sig Integer -> Calllable (*-> x) -> \Closure (* -> x)
+ * @sig Integer -> Callable (*-> x) -> \Closure (* -> x)
  */
-function curry($arity, $hof = null)
+function curry($arity, callable $hof = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[curry], func_get_args());
 }
@@ -34,7 +40,7 @@ function curry($arity, $hof = null)
 
 // -- nAry --
 const nAry = __NAMESPACE__ . '\nAry';
-__PRIVATE__::$instance[nAry] = __PRIVATE__::curry(2, function ($number = 0, $hof = null) {
+__PRIVATE__::$instance[nAry] = __PRIVATE__::curryExactly2(function ($number = 0, $hof = null) {
   __PRIVATE__::assertPositiveOrZero($number);
   __PRIVATE__::assertCallable($hof);
   return function () use ($number, $hof) {
@@ -49,7 +55,7 @@ __PRIVATE__::$instance[nAry] = __PRIVATE__::curry(2, function ($number = 0, $hof
  * @return \Closure
  * @sig Integer -> Callable (* -> x) -> \Closure (* -> x)
  */
-function nAry($arity, $hof = null)
+function nAry($arity, callable $hof = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[nAry], func_get_args());
 }
@@ -64,12 +70,9 @@ const unary = __NAMESPACE__ . '\unary';
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (a -> x)
  */
-function unary($hof)
+function unary(callable $hof)
 {
-  __PRIVATE__::assertCallable($hof);
-  return function ($arg) use ($hof) {
-    return $hof($arg);
-  };
+  return __PRIVATE__::curryExactly1(toClosure($hof));
 }
 
 // == unary ==
@@ -82,12 +85,9 @@ const binary = __NAMESPACE__ . '\binary';
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (a, b -> x)
  */
-function binary($hof)
+function binary(callable $hof)
 {
-  __PRIVATE__::assertCallable($hof);
-  return __PRIVATE__::curry(2, function ($x, $y) use ($hof) {
-    return $hof($x, $y);
-  });
+  return __PRIVATE__::curryExactly2(toClosure($hof));
 }
 
 // == binary ==
@@ -99,12 +99,9 @@ const ternary = __NAMESPACE__ . '\ternary';
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (a, b, c -> x)
  */
-function ternary($hof)
+function ternary(callable $hof)
 {
-  __PRIVATE__::assertCallable($hof);
-  return __PRIVATE__::curry(3, function ($x, $y, $z) use ($hof) {
-    return $hof($x, $y, $z);
-  });
+  return __PRIVATE__::curryExactly3(toClosure($hof));
 }
 
 // == ternary ==
@@ -116,11 +113,11 @@ const nullary = __NAMESPACE__ . '\nullary';
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (->x)
  */
-function nullary($hof)
+function nullary(callable $hof)
 {
   __PRIVATE__::assertCallable($hof);
   return function () use ($hof) {
-    return $hof();
+    return call_user_func($hof);
   };
 }
 
@@ -133,10 +130,10 @@ const flip = __NAMESPACE__ . '\flip';
  * @param callable
  * @return \Closure f(a, b, ....z) -> f(b,a, ... z)
  */
-function flip($hof)
+function flip(callable $hof)
 {
-  __PRIVATE__::assertCallable($hof);
-  return __PRIVATE__::curry(2, function (...$args) use ($hof) {
+  // Use the variadic internal static form of curry. We don't want to eat the rest of the args.
+  return __PRIVATE__::curryGiven([], 2, function (...$args) use ($hof) {
     $temp = $args[0];
     $args[0] = $args[1];
     $args[1] = $temp;
@@ -149,7 +146,7 @@ function flip($hof)
 
 // -- combine --
 const combine = __NAMESPACE__ . '\combine';
-__PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
+__PRIVATE__::$instance[combine] = __PRIVATE__::curryGiven([], 2, function () {
   $combine = func_get_args();
   foreach ($combine as $hof) {
     __PRIVATE__::assertCallable($hof);
@@ -172,7 +169,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curry(2, function ($x) {
  * @return \Closure
  * @sig (Unary Callable(y -> z), ..., Unary Callable(a -> b), Callable (*->a)) -> \Closure (* -> a)
  */
-function combine($hofSecond, $hofFirst = null)
+function combine(callable $hofSecond, callable $hofFirst = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[combine], func_get_args());
 }
@@ -181,7 +178,7 @@ function combine($hofSecond, $hofFirst = null)
 
 // -- pipe --
 const pipe = __NAMESPACE__ . '\pipe';
-__PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x) {
+__PRIVATE__::$instance[pipe] = __PRIVATE__::curryGiven([], 2, function ($x) {
   $pipe = func_get_args();
   foreach ($pipe as $value) {
     __PRIVATE__::assertCallable($value);
@@ -189,7 +186,8 @@ __PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x) {
   $pipeTail = array_splice($pipe, 1);
   return function () use ($x, $pipeTail) {
     $acc = call_user_func_array($x, func_get_args());
-    foreach ($pipeTail as $hof) {
+    $_pipeTail = $pipeTail;
+    foreach ($_pipeTail as $hof) {
       $acc = call_user_func($hof, $acc);
     }
     return $acc;
@@ -197,11 +195,11 @@ __PRIVATE__::$instance[pipe] = __PRIVATE__::curry(2, function ($x) {
 });
 /**
  * @param $hofFirst
- * @param null $hofSecond
+ * @param callable $hofSecond
  * @return mixed
  * @sig (Callable (* -> a) -> Unary Callable ( a -> b ), ..., Unary Callable (y -> z)) -> \Closure (*->z)
  */
-function pipe($hofFirst, $hofSecond = null)
+function pipe(callable $hofFirst, callable $hofSecond = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[pipe], func_get_args());
 }
@@ -257,7 +255,7 @@ function I($x)
 
 // -- Starling --
 const S = __NAMESPACE__ . '\S';
-__PRIVATE__::$instance[S] = __PRIVATE__::curry(3, function ($x, $y, $z) {
+__PRIVATE__::$instance[S] = __PRIVATE__::curryExactly3(function ($x, $y, $z) {
   __PRIVATE__::assertCallable($x);
   __PRIVATE__::assertCallable($y);
   $x_z = call_user_func($x, $z);
@@ -321,7 +319,7 @@ function tap($callable)
 
 // -- before --
 const before = __NAMESPACE__ . '\before';
-__PRIVATE__::$instance[before] = __PRIVATE__::curry(2, function ($decorator, $fn) {
+__PRIVATE__::$instance[before] = __PRIVATE__::curryExactly2(function ($decorator, $fn) {
   __PRIVATE__::assertCallable($decorator);
   __PRIVATE__::assertCallable($fn);
   return function () use ($decorator, $fn) {
@@ -345,7 +343,7 @@ function before($decorator, $fn = null)
 
 // -- after --
 const after = __NAMESPACE__ . '\after';
-__PRIVATE__::$instance[after] = __PRIVATE__::curry(2, function ($decorator, $fn) {
+__PRIVATE__::$instance[after] = __PRIVATE__::curryExactly2(function ($decorator, $fn) {
   __PRIVATE__::assertCallable($decorator);
   __PRIVATE__::assertCallable($fn);
   return function () use ($decorator, $fn) {
@@ -369,7 +367,7 @@ function after($decorator, $fn = null)
 
 // -- provided --
 const provided = __NAMESPACE__ . '\provided';
-__PRIVATE__::$instance[provided] = __PRIVATE__::curry(2, function ($predicate, $fn) {
+__PRIVATE__::$instance[provided] = __PRIVATE__::curryExactly2(function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
   __PRIVATE__::assertCallable($fn);
   return function () use ($predicate, $fn) {
@@ -393,7 +391,7 @@ function provided($decorator, $fn = null)
 
 // -- except --
 const except = __NAMESPACE__ . '\except';
-__PRIVATE__::$instance[except] = __PRIVATE__::curry(2, function ($predicate, $fn) {
+__PRIVATE__::$instance[except] = __PRIVATE__::curryExactly2(function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
   __PRIVATE__::assertCallable($fn);
   return function () use ($predicate, $fn) {
@@ -417,14 +415,16 @@ function except($decorator, $fn = null)
 
 // -- fold --
 const fold = __NAMESPACE__ . '\fold';
-__PRIVATE__::$instance[fold] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
+__PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
   if ($arrayLike instanceof CompleteCollectionInterface) {
     return $arrayLike->fold($hof, $startVal);
   }
   __PRIVATE__::assertTraversable($arrayLike);
   $output = $startVal;
-  foreach ($arrayLike as $key => $value) {
+  // Make a copy, just in case, to prevent the internal side effect. PHP5 problem
+  $iterator = $arrayLike;
+  foreach ($iterator as $key => $value) {
     $output = call_user_func($hof, $output, $value, $key, $arrayLike);
   }
   return $output;
@@ -444,7 +444,7 @@ function fold($hof, $startVal = null, $traversable = null)
 // == fold ==
 // -- foldRight --
 const foldRight = __NAMESPACE__ . '\foldRight';
-__PRIVATE__::$instance[foldRight] = __PRIVATE__::curry(3, function ($hof, $startVal, $arrayLike) {
+__PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callable $hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
   if ($arrayLike instanceof CompleteCollectionInterface) {
     return $arrayLike->foldRight($hof, $startVal);
@@ -461,7 +461,8 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curry(3, function ($hof, $start
   }
   __PRIVATE__::assertTraversable($arrayLike);
   $pairs = [];
-  foreach ($arrayLike as $key => $value) {
+  $iterate = $arrayLike; // No side effects!
+  foreach ($iterate as $key => $value) {
     array_unshift($pairs, [$key, $value]);
   }
   $output = $startVal;
@@ -478,7 +479,7 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curry(3, function ($hof, $start
  * @return \Closure|mixed
  * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
  */
-function foldRight($hof, $startVal = null, $traversable = null)
+function foldRight(callable $hof, $startVal = null, $traversable = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[foldRight], func_get_args());
 }
@@ -487,7 +488,7 @@ function foldRight($hof, $startVal = null, $traversable = null)
 
 // -- reduce --
 const reduce = __NAMESPACE__ . '\reduce';
-__PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
+__PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
   if ($arrayLike instanceof ReduceableInterface) {
     return $arrayLike->reduce($hof);
@@ -514,7 +515,7 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curry(2, function ($hof, $arrayLik
  * @return \Closure|mixed
  * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
  */
-function reduce($hof, $traversable = null)
+function reduce(callable $hof, $traversable = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[reduce], func_get_args());
 }
@@ -523,8 +524,7 @@ function reduce($hof, $traversable = null)
 
 // -- reduceRight --
 const reduceRight = __NAMESPACE__ . '\reduceRight';
-__PRIVATE__::$instance[reduceRight] = __PRIVATE__::curry(2, function ($hof, $arrayLike) {
-  __PRIVATE__::assertCallable($hof);
+__PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (callable $hof, $arrayLike) {
   if ($arrayLike instanceof ReduceableInterface) {
     return $arrayLike->reduceRight($hof);
   }
@@ -566,7 +566,7 @@ __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curry(2, function ($hof, $arr
  * @return \Closure|mixed
  * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
  */
-function reduceRight($hof, $traversable = null)
+function reduceRight(callable $hof, $traversable = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[reduceRight], func_get_args());
 }
@@ -575,8 +575,7 @@ function reduceRight($hof, $traversable = null)
 
 // -- map --
 const map = __NAMESPACE__ . '\map';
-__PRIVATE__::$instance[map] = __PRIVATE__::curry(2, function (callable $hof, $traversable) {
-
+__PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function (callable $hof, $traversable) {
   // Reflect on natural transformations
   if ($traversable instanceof CompleteCollectionInterface) {
     return $traversable->map($hof);
@@ -604,7 +603,7 @@ function map(callable $hof, $traversable = null)
 
 // -- callWith --
 const callWith = __NAMESPACE__ . '\callWith';
-__PRIVATE__::$instance[callWith] = __PRIVATE__::curry(2, function ($accessor, $container) {
+__PRIVATE__::$instance[callWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
   $callable = __PRIVATE__::assertCallable(
     is_array($container) ? (array_key_exists($accessor, $container) ? $container[$accessor] : null) : [$container, $accessor]
   );
@@ -628,33 +627,37 @@ function callWith($accessor, $container = null)
 
 // -- pluckObjectWith --
 const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
+__PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($accessor, $container)  {
+  return $container->{$accessor};
+});
 /**
  * Creates a function to access the property of an object
  * @param string $accessor
+ * @param Object $container
  * @return \Closure ($object) -> object->accessor
  * @sig String -> Object -> \Closure (->x)
  */
-function pluckObjectWith($accessor)
+function pluckObjectWith($accessor, $container = null)
 {
-  return function ($container) use ($accessor) {
-    return $container->{$accessor};
-  };
+  return call_user_func_array(__PRIVATE__::$instance[pluckObjectWith], func_get_args());
 }
 
 // == pluckObjectWith ==
 // -- pluckArrayWith --
 const pluckArrayWith = __NAMESPACE__ . '\pluckArrayWith';
+__PRIVATE__::$instance[pluckArrayWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
+  return $container[$accessor];
+});
 /**
  * Creates a function to access the property of an object
  * @param string $accessor
+ * @param array $container
  * @return \Closure ($object) -> object->accessor
  * @sig String -> Array -> \Closure (->x)
  */
-function pluckArrayWith($accessor)
+function pluckArrayWith($accessor, $container = null)
 {
-  return function ($container) use ($accessor) {
-    return $container[$accessor];
-  };
+  return call_user_func_array(__PRIVATE__::$instance[pluckArrayWith],func_get_args());
 }
 
 // == pluckArrayWith ==
@@ -717,14 +720,15 @@ function toClosure($fn)
 // == toClosure ==
 
 // -- toss --
-const toss = __NAMESPACE__.'\toss';
+const toss = __NAMESPACE__ . '\toss';
 /**
  * @param mixed $x
- * @throws \Error
+ * @throws \Error|\Exception|Pot
  * @sig $x -!-> $x|Pot($x)
  * An adapter to throw anything, not just exceptions. It is an identiy on \Throwables
  */
-function toss ($x) {
+function toss($x)
+{
   throw !($x instanceof \Exception || $x instanceof \Error) ? Pot::of($x) : $x;
 }
 // == rethrow ==

@@ -32,7 +32,8 @@ class __PRIVATE__
    * Define internal static values.
    * @codeCoverageIgnore
    */
-  public static function initialize() {
+  public static function initialize()
+  {
     if (!static::$initialized) {
       static::$initialized = true;
       static::$placeholder = new \stdClass();
@@ -43,7 +44,8 @@ class __PRIVATE__
    *
    * @return \stdClass
    */
-  public static function placeholder () {
+  public static function placeholder()
+  {
     return static::$placeholder;
   }
 
@@ -54,7 +56,6 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x->x
-   * @codeCoverageIgnore
    */
   static function assertCallable($callable)
   {
@@ -83,7 +84,6 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
-   * @codeCoverageIgnore
    */
   static function assertPositiveOrZero($number)
   {
@@ -99,7 +99,6 @@ class __PRIVATE__
    * @return mixed
    * @throws \InvalidArgumentException
    * @sig x -> x
-   * @codeCoverageIgnore
    */
   public static function assertTraversable($arrayLike)
   {
@@ -107,6 +106,127 @@ class __PRIVATE__
       throw new \InvalidArgumentException('argument must be a Traversable or array');
     }
     return $arrayLike;
+  }
+
+  /**
+   * Produces a thunk until a value passed to the callback.
+   * @param \Closure $fn (x)->a
+   * @return \Closure (x) -> a
+   */
+  public static function curryExactly1(\Closure $fn)
+  {
+    $givenOne = function ($v1 = null) use (&$givenOne, $fn) {
+      return func_num_args() !== 0 && $v1 !== static::$placeholder ? $fn($v1) : $givenOne;
+    };
+    return $givenOne;
+  }
+
+  /**
+   * Curries exactly 2 arguments
+   * @param \Closure $fn (x, y) -> a
+   * @return \Closure (x)->(y)->a
+   * @sig ((x,y)->a) -> (x)-> (y) -> a
+   */
+  public static function curryExactly2(\Closure $fn)
+  {
+    $given_1_2 = function ($v1 = null, $v2 = null) use (&$given_1_2, $fn) {
+      $arity = func_num_args();
+      $X1 = $arity >= 1 && $v1 !== static::$placeholder;
+      $_2 = $arity < 2 || $v2 === static::$placeholder;
+      if ($X1 && !$_2) { // Both defined
+        // Common, and a valuable elimination.
+        return $fn($v1, $v2);
+      }
+      if (!$X1 && $_2) { // All undefined
+        // Rare, but a valuable elimination later.
+        return $given_1_2;
+      }
+      // Common, the user is giving just the first param.
+      if ($X1) {
+        // $v1 must be defined because $v2 is undefined
+        $givenX1_2 = function ($v2 = null) use ($fn, $v1, &$givenX1_2) {
+          return func_num_args() !== 0 && $v2 !== static::$placeholder ? $fn($v1, $v2) : $givenX1_2;
+        };
+        return $givenX1_2;
+      }
+      // The user is likely giving data first.
+      // $v2 must be defined, and $v1 must be undefined
+      $given_1X2 = function ($v1 = null) use ($fn, $v2, &$given_1X2) {
+        return func_num_args() !== 0 && $v1 !== static::$placeholder ? $fn($v1, $v2) : $given_1X2;
+      };
+      return $given_1X2;
+    };
+    return $given_1_2;
+  }
+
+  /**
+   * This function curries only 3 arguments, passing it off to lower levels of curry when appropriate.
+   * @param \Closure $fn (x, y, z) -> a
+   * @return \Closure (x) -> (y) -> (z) -> a
+   * @sig ((x, y, z) -> a) -> (x) -> (y) -> (z) -> a
+   */
+  public static function curryExactly3(\Closure $fn)
+  {
+    $given_1_2_3 = function ($v1 = null, $v2 = null, $v3 = null) use ($fn, &$given_1_2_3) {
+      $arity = func_num_args();
+      // !$_1 is such a common case when using FP, that it has been pre-optimized to assume it is not undefined
+      $X1 = $arity >= 1 && $v1 !== static::$placeholder;
+      /// The rest are about as common as each other.
+      $_2 = $arity < 2 || $v2 === static::$placeholder;
+      $_3 = $arity < 3 || $v3 === static::$placeholder;
+      if ($X1 && !$_2 && !$_3) { // Eliminate all defined
+        return $fn($v1, $v2, $v3);
+      }
+      if (!$X1 && $_2 && $_3) { // Eliminate all undefined
+        // Rare, but its a valuable elimination later
+        return $given_1_2_3;
+      }
+      if ($X1) {
+        // $v1 is known to be defined
+        if ($_2 && $_3) { // $v2 and $v3 are undefined, a common case.
+          return static::curryExactly2(function ($v2, $v3) use ($fn, $v1) {
+            return $fn($v1, $v2, $v3);
+          });
+        }
+        // We now know either $v2 or $v3 is undefined.
+        if ($_3) {
+          // More often than not, two arguments are given. So check if the last is empty.
+          // $v2 must be defined because both are not undefined.
+          $givenX1X2_3 = function ($v3 = null) use ($fn, $v1, $v2, &$givenX1X2_3) {
+            return func_num_args() !== 0 && $v3 !== static::$placeholder ? $fn($v1, $v2, $v3) : $givenX1X2_3;
+          };
+          return $givenX1X2_3;
+        }
+        //$v3 is defined, therefore $v2 must be undefined.
+        $givenX1_2X3 = function ($v2 = null) use ($fn, $v1, $v3, &$givenX1_2X3) {
+          return func_num_args() !== 0 && $v2 !== static::$placeholder ? $fn($v1, $v2, $v3) : $givenX1_2X3;
+        };
+        return $givenX1_2X3;
+
+      }
+      // $v1 is known to be undefined. User is going down the unhappy path.
+      // Maybe they are trying to give the data first? Some habits are hard to break.
+      if ($_2) {
+        // We know that $v1 and $v2 are undefined, and they cannot all be undefined, therefor $v3 is defined.
+        return static::curryExactly2(function ($v1, $v2) use ($fn, $v3) {
+          return $fn($v1, $v2, $v3);
+        });
+      }
+      // The user has made some... interesting choices. Both very rare cases.
+      // We knew $v1 is undefined, and now $v2 must be defined
+      if ($_3) { // $v3 is a known undefined
+        return static::curryExactly2(function ($v1, $v3) use ($fn, $v2) {
+          return $fn($v1, $v2, $v3);
+        });
+      }
+      // $v2 and $v3 are defined
+      $given_1X2X3 = function ($v1 = null) use ($fn, $v2, $v3, &$given_1X2X3) {
+        return func_num_args() !== 0 && $v1 !== static::$placeholder ? $fn($v1, $v2, $v3) : $given_1X2X3;
+      };
+      return $given_1X2X3;
+
+    };
+    return $given_1_2_3;
   }
 
   /**
@@ -169,20 +289,6 @@ class __PRIVATE__
     };
   }
 
-  /**
-   * Starts off the currying process for a giveni function
-   * @param int $arity
-   * @param callable $callable
-   * @return \Closure
-   * @throws \InvalidArgumentException when $callable is not a callable
-   */
-  static function curry($arity = 0, callable $callable)
-  {
-    self::assertPositiveOrZero($arity);
-    self::assertCallable($callable);
-
-    return self::curryGiven([], $arity, $callable);
-  }
 
   // -- Magic Methods --
   /**
