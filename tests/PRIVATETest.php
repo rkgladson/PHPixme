@@ -119,6 +119,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      * (x)->a is a function.
      * X1 means that the first argument is set
      *  _1 means it is explicitly void in a call
+     * -> ... -> between argument states means any number of identity operations caused by no arguments
      * ≅ means 'is essentially the same as' or more formally the categorically congruent to.
      * ∴ means 'therefore'
      * ∎ means end of a proof or Q.E.D.
@@ -294,12 +295,12 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     // ≅ (_1 X2 _3) ->  ... ->(X1) -> ... -> (X3)
     // ≅ (_1 X2) -> ... -> (X1 _3) -> ... -> (X3)
     // ≅ (_1 X2 _3) -> ... -> (X1 _3) -> ... -> (X3)
-    $this->assertEquals($expectedOutput, $step1_1X2(1,3,7));
-    $this->assertEquals($expectedOutput, $step1_1X2_3(1,3,7));
-    $this->assertEquals($expectedOutput, $step2_1X2__X1(3,7));
-    $this->assertEquals($expectedOutput, $step2_1X2_3__X1(3,7));
-    $this->assertEquals($expectedOutput, $step2_1X2__X1_3(3,7));
-    $this->assertEquals($expectedOutput, $step2_1X2_3__X1_3(3,7));
+    $this->assertEquals($expectedOutput, $step1_1X2(1, 3, 7));
+    $this->assertEquals($expectedOutput, $step1_1X2_3(1, 3, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2__X1(3, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2_3__X1(3, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2__X1_3(3, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2_3__X1_3(3, 7));
 
     unset($step1_1X2, $step1_1X2_3, $step2_1X2__X1, $step2_1X2_3__X1, $step2_1X2__X1_3, $step2_1X2_3__X1_3);
     /** ∴  (X1 X2 X3)
@@ -312,15 +313,90 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      **/
 
 
-    // (X1) -> (_2 X3) -> (X2)
-    // (X1 _2 X3) -> (X2)
+    /** Show that (X1 X2 X3)
+     * ≅ (X1) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2 _3) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2 X3) -> (X2)
+     */
+    // Previously proven: (X1) === (X1 _2) === (X1 _2 _3) Skipping step.
+    $step2X1___2X3 = $arity3(1)->__invoke(_(), 3);
+    $this->assertInstanceOf(closure, $step2X1___2X3);
+    $this->assertTrue($step2X1___2X3 === $step2X1___2X3());
+    $this->assertTrue($step2X1___2X3 === $step2X1___2X3(_()));
+    // (X1) -> (_2 X3) is a thunk
 
-    // (_1 X2 X3) -> (X1)
-    // (_1 X2)->(_1 X3) -> (X1)
-    // (_1 X2 _3) -> (_1 X3) -> (X1)
+    $step1X1_2X3 = $arity3(1, _(), 3);
+    $this->assertInstanceOf(closure, $step1X1_2X3);
+    $this->assertTrue($step1X1_2X3 === $step1X1_2X3());
+    $this->assertTrue($step1X1_2X3 === $step1X1_2X3(_()));
+    // (X1 _2 X3) is a thunk
+
+    // => (X1)-> ... -> (_2 X3) -> ... -> (X2)
+    // ≅ (X1 _2 X3) -> ... -> (X2)
+    $this->assertEquals($expectedOutput, $step2X1___2X3(2, 7));
+    $this->assertEquals($expectedOutput, $step1X1_2X3(2, 7));
+    unset ($step2X1___2X3, $step1X1_2X3);
+    /** ∴ (X1 X2 X3)
+     * ≅ (X1) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2 _3) -> (_2 X3) -> (X2)
+     * ≅ (X1 _2 X3) -> (X2) ∎
+     */
+
+    /** Show that (X1 X2 X3)
+     * ≅ (_1 X2 X3) -> (X1)
+     * ≅ (_1 X2)->(_1 X3) -> (X1)
+     * ≅ (_1 X2 _3) -> (_1 X3) -> (X1)
+     **/
+    $step1_1X2X3 = $arity3(_(), 2, 3);
+    $this->assertInstanceOf(closure, $step1_1X2X3);
+    $this->assertTrue($step1_1X2X3 === $step1_1X2X3());
+    $this->assertTrue($step1_1X2X3 === $step1_1X2X3(_()));
+    // (_1 X2 X3) is a thunk
+
+    // Previously we showed that (_1 X2) === (_1 X2 _3) and showed they were a thunk.
+    // Skipping proofs for both of these steps
+
+    $step2_1X2___1X3 = $arity3(_(), 2)->__invoke(_(), 3);
+    $this->assertInstanceOf(closure, $step2_1X2___1X3);
+    $this->assertTrue($step2_1X2___1X3 === $step2_1X2___1X3());
+    $this->assertTrue($step2_1X2___1X3 === $step2_1X2___1X3(_()));
+    // (_1 X2) -> (_1 X3) is a thunk
+
+    $step2_1X2_3___1X3 = $arity3(_(), 2)->__invoke(_(), 3);
+    $this->assertInstanceOf(closure, $step2_1X2_3___1X3);
+    $this->assertTrue($step2_1X2_3___1X3 === $step2_1X2_3___1X3());
+    $this->assertTrue($step2_1X2_3___1X3 === $step2_1X2_3___1X3(_()));
+    // (_1 X2 _3) -> (_1 X3) is a thunk
+
+    // => (_1 X2 X3) -> ... -> (X1)
+    // ≅ (_1 X2)-> ... -> (_1 X3) -> ... -> (X1)
+    // ≅ (_1 X2 _3) -> ... -> (_1 X3) -> ... ->(X1)
+    $this->assertEquals($expectedOutput, $step1_1X2X3(1, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2___1X3(1, 7));
+    $this->assertEquals($expectedOutput, $step2_1X2_3___1X3(1, 7));
+    unset($step1_1X2X3, $step2_1X2___1X3, $step2_1X2_3___1X3);
+    /** ∴ (X1 X2 X3)
+     * ≅ (_1 X2 X3) -> (X1)
+     * ≅ (_1 X2)->(_1 X3) -> (X1)
+     * ≅ (_1 X2 _3) -> (_1 X3) -> (X1) ∎
+     **/
 
 
-    // (_1 _2 X3) -> (_1 X2) -> (X1)
+    /** Show that (X1 X2 X3) ≅ (_1 _2 X3) -> (_1 X2) -> (X1) **/
+    // Previously we proved that (_1 _2 X3) is a thunk.
+    // Skipping proof for this step
+    $step2_1_2X3___1X2 = $arity3(_(),_(), 3)->__invoke(_(), 2);
+    $this->assertInstanceOf(closure, $step2_1_2X3___1X2);
+    $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2());
+    $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2(_()));
+    // (_1 _2 X3) -> (_1 X2) is a thunk
+
+    // => (_1 _2 X3) -> (_1 X2) -> (X1)
+    $this->assertEquals($expectedOutput, $step2_1_2X3___1X2(1,7));
+    unset ($step2_1_2X3___1X2);
+    /** ∴ (X1 X2 X3) ≅ (_1 _2 X3) -> (_1 X2) -> (X1) ∎ **/
 
 
     // Praise the sun! \o/
@@ -397,7 +473,10 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
    */
   public function test_assertTraversable($arrayLike)
   {
-
+    $this->assertTrue(
+      $arrayLike === internal::assertTraversable($arrayLike)
+      , 'the function should return the identity when the contract is met.'
+    );
   }
 
   /**
@@ -406,7 +485,8 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
    */
   public function test_assertTraversable_exception($notTransversable)
   {
-
+    $this->expectException(\InvalidArgumentException::class);
+    internal::assertTraversable($notTransversable);
   }
 
   public function callableProvider()
