@@ -106,43 +106,36 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
 
   public function test_curryExactly3()
   {
+    // "The flow of time itself is convoluted; with heroes centuries old phasing in and out." -- Solaire of Astora
     $arity3 = internal::curryExactly3(function (...$args) {
       return $args;
     });
-    $expectedOutput = [1,2,3];
-    $this->assertInstanceOf(
-      closure
-      , $arity3
-      , 'it should wrap into a closure'
-    );
-    // Testing thunks
-    $this->assertInstanceOf(
-      closure
-      , $arity3()
-      , 'thunks should return a closure'
-    );
-    $this->assertTrue(
-      $arity3 === $arity3()
-      , 'at zero arguments, that closure should be itself'
-    );
-    $this->assertTrue(
-      $arity3 === $arity3(_())
-      , 'thunks should have no effect'
-    );
-    $this->assertTrue(
-      $arity3() === $arity3(_(), _())
-      , 'thunks should have no effect'
-    );
-    $this->assertTrue(
-      $arity3() === $arity3(_(), _(), _())
-      , 'thunks should have no effect'
-    );
-    // (X1 X2 X3) Group
-    $this->assertEquals(
-      $expectedOutput
-      , $arity3(1,2,3,4,5)
-    );
-    // (X1)->(X2)->(X3) Sequence
+    $expectedOutput = [1, 2, 3];
+    // Establishing some basic qualities of curryExactly3
+    $this->assertInstanceOf(closure, $arity3);
+    /*
+     * A note about the notation.
+     * => means imply.
+     * (x)->a is a function.
+     * X1 means that the first argument is set
+     *  _1 means it is explicitly void in a call
+     * ≅ means 'is essentially the same as' or more formally the categorically congruent to.
+     * ∴ means 'therefore'
+     * ∎ means end of a proof or Q.E.D.
+     * In variable naming __ means a step in the sequence
+     */
+
+    /** Show that curryExactly3((x y z) -> a) ≅ (x y z) -> a **/
+    $this->assertInstanceOf(closure, $arity3());
+    $this->assertTrue($arity3 === $arity3());
+    $this->assertTrue($arity3 === $arity3(_()));
+    $this->assertTrue($arity3 === $arity3(_(), _()));
+    $this->assertTrue($arity3 === $arity3(_(), _(), _()));
+    // => curryExactly3((x y z)->a) -> ... -> a
+    $this->assertEquals($expectedOutput, $arity3(1, 2, 3, 4, 5));
+    /** ∴ curryExactly3((x y z) -> a) ≅ (x y z) -> a ∎ **/
+
+    /** show that  (X1)->(X2)->(X3)  ≅ (X1 X2 X3) **/
     $step1 = $arity3(1);
     // Prove that step 1 is a thunk
     $this->assertInstanceOf(closure, $step1);
@@ -155,63 +148,183 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($step2 === $step2());
     $this->assertTrue($step2 === $step2(_()));
     $this->assertTrue($step2 === $step2(_(), _()));
-    // Show that 3rd does an application
-    $this->assertEquals($expectedOutput, $step2(3,4,5));
+
+    $this->assertEquals($expectedOutput, $step2(3, 4, 5));
+    // => (X1)->...-> (X2) -> ...-> (X3) -> a
     unset($step1, $step2);
-    // (X1)->(X2 X3) Sequence
-    // (X1 X2) -> (X3) Sequence
-
-    // (X1 X2 _3) Group
-    $intermediate = $arity3(1,2);
-    $pIntermediate = $arity3(1,2,_());
-    $this->assertInstanceOf(closure, $intermediate);
-    $this->assertInstanceOf(closure, $pIntermediate);
-    $this->assertEquals($expectedOutput, $intermediate(3,4,5));
-    $this->assertEquals($intermediate(3,7), $pIntermediate(3,2));
-    $this->assertTrue($intermediate === $intermediate());
-    $this->assertTrue($intermediate === $intermediate(_()));
-    $this->assertTrue($pIntermediate === $pIntermediate());
-    $this->assertTrue($pIntermediate === $pIntermediate(_()));
-    unset($pIntermediate, $intermediate);
-
-    // (_1 X2 X3) Group
-    $intermediate = $arity3(_(),2,3);
-    $this->assertInstanceOf(closure, $intermediate);
-    $this->assertTrue($intermediate === $intermediate());
-    $this->assertTrue($intermediate === $intermediate(_()));
-    $this->assertEquals($expectedOutput, $intermediate(1,7,9,4,5,6));
-    unset($intermediate);
-
-    // (X1 _2 X3) group
-    $intermediate = $arity3(1,_(),3);
-    $this->assertInstanceOf(closure, $intermediate);
-    $this->assertTrue($intermediate === $intermediate());
-    $this->assertTrue($intermediate === $intermediate(_()));
-    $this->assertEquals($expectedOutput, $intermediate(2,7,9,5,6));
-    unset($intermediate);
-
-    // (X1 _2 _3) Group
-    $intermediate = $arity3(1);
-    $p1Intermediate = $arity3(1, _());
-    $p2Intermediate = $arity3(1,_(),_());
-    $this->assertInstanceOf(closure, $intermediate);
-    $this->assertInstanceOf(closure, $p1Intermediate);
-    $this->assertInstanceOf(closure, $p2Intermediate);
-    $this->assertTrue($intermediate === $intermediate());
-    $this->assertTrue($intermediate === $intermediate(_()));
-    $this->assertTrue($p1Intermediate === $p1Intermediate());
-    $this->assertTrue($p1Intermediate === $p1Intermediate(_()));
-    $this->assertTrue($p2Intermediate === $p2Intermediate());
-    $this->assertTrue($p2Intermediate === $p2Intermediate(_()));
-    $this->assertEquals($expectedOutput, $intermediate(2,3,7));
-    $this->assertEquals($expectedOutput, $p1Intermediate(2,3,7));
-    $this->assertEquals($expectedOutput, $p2Intermediate(2,3,7));
-
-    unset($intermediate, $p1Intermediate, $p2Intermediate, $temp);
-    // (_1 X2 _3)
-    // (_1 _2 X3)
+    /** ∴ (X1)->(X2)->(X3) ≅ (X1 X2 X3) ∎ **/
 
 
+    /** Show that (X1 X2 X3)
+     * ≅ (X1) -> (X2 X3)
+     * ≅ (X1 _2)-> (X2 X3)
+     * ≅ (X1 _2 _3) -> (X2 X3)
+     **/
+    // The step above proves that (X1) is a thunk.
+    $step1X1_2 = $arity3(1, _());
+    $step1X1_2_3 = $arity3(1, _(), _());
+    // (X1) properties were proven previously as a thunk and a closure
+    $this->assertInstanceOf(closure, $step1X1_2);
+    $this->assertInstanceOf(closure, $step1X1_2_3);
+    // (X1 _2) is a thunk
+    $this->assertTrue($step1X1_2 === $step1X1_2());
+    $this->assertTrue($step1X1_2 === $step1X1_2(_()));
+    $this->assertTrue($step1X1_2 === $step1X1_2(_(), _()));
+    // (X1 _2 _3) is a thunk
+    $this->assertTrue($step1X1_2_3 === $step1X1_2_3());
+    $this->assertTrue($step1X1_2_3 === $step1X1_2_3(_()));
+    $this->assertTrue($step1X1_2_3 === $step1X1_2_3(_(), _()));
+    // => (X1)-> ... -> (X2 X3) ≅ (X1 _2)-> ... -> (X2 X3) ≅ (X1 _2 _3)-> ... -> (X2 X3)
+    $this->assertEquals($expectedOutput, $arity3(1)->__invoke(2, 3, 7));
+    $this->assertEquals($expectedOutput, $step1X1_2(2, 3, 7));
+    $this->assertEquals($expectedOutput, $step1X1_2_3(2, 3, 7));
+    unset($step1X1, $step1X1_2, $step1X1_2_3);
+    /** ∴ (X1)->(X2 X3) ≅ (X1 _2)-> (X2 X3) ≅  (X1 _2 _3) -> (X2 X3) ≅ (X1 X2 X3) ∎ **/
+
+    /** Show that (X1 X2 X3)
+     * ≅ (X1 X2) -> (X3)
+     * ≅ (X1 X2 _3)-> (X3)
+     **/
+    $step1X1X2 = $arity3(1, 2);
+    $step1X1X2_3 = $arity3(1, 2, _());
+    $this->assertInstanceOf(closure, $step1X1X2);
+    $this->assertTrue($step1X1X2 === $step1X1X2());
+    $this->assertTrue($step1X1X2 === $step1X1X2(_()));
+    // (X1 X2) is a thunk
+    $this->assertInstanceOf(closure, $step1X1X2_3);
+    $this->assertTrue($step1X1X2_3 === $step1X1X2_3());
+    $this->assertTrue($step1X1X2_3 === $step1X1X2_3(_()));
+    // (X1 X2 _3) is a thunk
+    // => (X1 X2 _3) -> ... -> (X3) ≅ (X1 X2) -> ... -> (X3)
+    $this->assertEquals($expectedOutput, $step1X1X2(3, 4, 5));
+    $this->assertEquals($expectedOutput, $step1X1X2_3(3, 2));
+    unset ($step1X1X2, $step1X1X2_3);
+    /** ∴ (X1 X2 X3)
+     * ≅ (X1 X2) -> (X3)
+     * ≅ (X1 X2 _3) -> (X3) ∎
+     **/
+
+    /** Show that (X1 X2 X3)
+     * ≅ (_1 _2 X3) -> (X1 X2)
+     * ≅ (_1 _2 X3) -> (X1) -> (X2)
+     * ≅ (_1 _2 X3) -> (X1 _2) -> (X2)
+     **/
+    $step1_1_2X3 = $arity3(_(), _(), 3);
+    $this->assertInstanceOf(closure, $step1_1_2X3);
+    $this->assertTrue($step1_1_2X3 === $step1_1_2X3());
+    $this->assertTrue($step1_1_2X3 === $step1_1_2X3(_()));
+    $this->assertTrue($step1_1_2X3 === $step1_1_2X3(_(), _()));
+    // (_1 _2 X3) is a thunk
+    $step2_1_2X3__X1 = $step1_1_2X3(1);
+    $step2_1_2X3__X1_3 = $step1_1_2X3(1, _());
+
+    $this->assertInstanceOf(closure, $step2_1_2X3__X1);
+    $this->assertTrue($step2_1_2X3__X1 === $step2_1_2X3__X1());
+    $this->assertTrue($step2_1_2X3__X1 === $step2_1_2X3__X1(_()));
+    // (_1 _2 X3) -> (X1) is a thunk
+
+    $this->assertInstanceOf(closure, $step2_1_2X3__X1_3);
+    $this->assertTrue($step2_1_2X3__X1_3 === $step2_1_2X3__X1_3());
+    $this->assertTrue($step2_1_2X3__X1_3 === $step2_1_2X3__X1_3(_()));
+    // (_1 _2 X3) -> (X1 _2) is a thunk
+
+    // => (_1 _2 X3) -> ... -> (X1 X2)
+    // ≅ (_1 _2 X3) -> ... -> (X1) -> ... -> (X2)
+    // ≅ (_1 _2 X3) -> ... -> (X1 _2) -> ... -> (X2)
+    $this->assertEquals($expectedOutput, $step1_1_2X3(1, 2, 4));
+    $this->assertEquals($expectedOutput, $step2_1_2X3__X1(2, 4));
+    $this->assertEquals($expectedOutput, $step2_1_2X3__X1_3(2, 4));
+    unset($step1_1_2X3, $step2_1_2X3__X1, $step2_1_2X3__X1_3);
+    /** ∴ (X1 X2 X3)
+     * ≅ (_1 _2 X3) -> (X1 X2)
+     * ≅ (_1 _2 X3) -> (X1) -> (X2)
+     * ≅ (_1 _2 X3) -> (X1 _2) -> (X2) ∎
+     **/
+
+
+    /** Show (X1 X2 X3)
+     * ≅ (_1 X2) -> (X1 X3)
+     * ≅ (_1 X2) -> (X1) -> (X3)
+     * ≅ (_1 X2) -> (X1 _3) -> (X3)
+     * ≅ (_1 X2 _3) -> (X1 X3)
+     * ≅ (_1 X2 _3) -> (X1) -> (X3)
+     * ≅ (_1 X2 _3) -> (X1 _3) -> (X3)
+     **/
+    $step1_1X2 = $arity3(_(), 2);
+    $this->assertInstanceOf(closure, $step1_1X2);
+    $this->assertTrue($step1_1X2 === $step1_1X2());
+    $this->assertTrue($step1_1X2 === $step1_1X2(_()));
+    $this->assertTrue($step1_1X2 === $step1_1X2(_(), _()));
+    // (_1 X2) is a thunk
+
+    $step1_1X2_3 = $arity3(_(), 2, _());
+    $this->assertInstanceOf(closure, $step1_1X2_3);
+    $this->assertTrue($step1_1X2_3 === $step1_1X2_3());
+    $this->assertTrue($step1_1X2_3 === $step1_1X2_3(_()));
+    $this->assertTrue($step1_1X2_3 === $step1_1X2_3(_(), _()));
+    // (_1 X2 _3) is a thunk
+
+    $step2_1X2__X1 = $step1_1X2(1);
+    $this->assertInstanceOf(closure, $step2_1X2__X1);
+    $this->assertTrue($step2_1X2__X1 === $step2_1X2__X1());
+    $this->assertTrue($step2_1X2__X1 === $step2_1X2__X1(_()));
+    // (_1 X2) -> (X1) is a thunk
+
+    $step2_1X2_3__X1 = $step1_1X2_3(1);
+    $this->assertInstanceOf(closure, $step2_1X2_3__X1);
+    $this->assertTrue($step2_1X2_3__X1 === $step2_1X2_3__X1());
+    $this->assertTrue($step2_1X2_3__X1 === $step2_1X2_3__X1(_()));
+    // (_1 X2 _3) -> (X1) is a thunk
+
+    $step2_1X2__X1_3 = $step1_1X2(1, _());
+    $this->assertInstanceOf(closure, $step2_1X2__X1_3);
+    $this->assertTrue($step2_1X2__X1_3 === $step2_1X2__X1_3());
+    $this->assertTrue($step2_1X2__X1_3 === $step2_1X2__X1_3(_()));
+    // (_1 X2) -> (X1 _3) is a thunk
+
+    $step2_1X2_3__X1_3 = $step1_1X2_3(1, _());
+    $this->assertInstanceOf(closure, $step2_1X2_3__X1_3);
+    $this->assertTrue($step2_1X2_3__X1_3 === $step2_1X2_3__X1_3());
+    $this->assertTrue($step2_1X2_3__X1_3 === $step2_1X2_3__X1_3(_()));
+    // (_1 X2 _3) -> (X1 _3) is a thunk
+
+    // => (_1 X2) -> ... -> (X1 X3)
+    // ≅ (_1 X2 _3) -> ... -> (X1 X3)
+    // ≅ (_1 X2) -> ... -> (X1) -> ... -> (X3)
+    // ≅ (_1 X2 _3) ->  ... ->(X1) -> ... -> (X3)
+    // ≅ (_1 X2) -> ... -> (X1 _3) -> ... -> (X3)
+    // ≅ (_1 X2 _3) -> ... -> (X1 _3) -> ... -> (X3)
+    $this->assertEquals($expectedOutput, $step1_1X2(1,3,7));
+    $this->assertEquals($expectedOutput, $step1_1X2_3(1,3,7));
+    $this->assertEquals($expectedOutput, $step2_1X2__X1(3,7));
+    $this->assertEquals($expectedOutput, $step2_1X2_3__X1(3,7));
+    $this->assertEquals($expectedOutput, $step2_1X2__X1_3(3,7));
+    $this->assertEquals($expectedOutput, $step2_1X2_3__X1_3(3,7));
+
+    unset($step1_1X2, $step1_1X2_3, $step2_1X2__X1, $step2_1X2_3__X1, $step2_1X2__X1_3, $step2_1X2_3__X1_3);
+    /** ∴  (X1 X2 X3)
+     * ≅ (_1 X2) -> (X1 X3)
+     * ≅ (_1 X2) -> (X1) -> (X3)
+     * ≅ (_1 X2) -> (X1 _3) -> (X3)
+     * ≅ (_1 X2 _3) -> (X1 X3)
+     * ≅ (_1 X2 _3) -> (X1) -> (X3)
+     * ≅ (_1 X2 _3) -> (X1 _3) -> (X3) ∎
+     **/
+
+
+    // (X1) -> (_2 X3) -> (X2)
+    // (X1 _2 X3) -> (X2)
+
+    // (_1 X2 X3) -> (X1)
+    // (_1 X2)->(_1 X3) -> (X1)
+    // (_1 X2 _3) -> (_1 X3) -> (X1)
+
+
+    // (_1 _2 X3) -> (_1 X2) -> (X1)
+
+
+    // Praise the sun! \o/
+    // Let us now go forth and engage in jolly cooperation!
   }
 
   /**

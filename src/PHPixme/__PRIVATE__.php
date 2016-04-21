@@ -226,6 +226,7 @@ class __PRIVATE__
       return $given_1X2X3;
 
     };
+
     return $given_1_2_3;
   }
 
