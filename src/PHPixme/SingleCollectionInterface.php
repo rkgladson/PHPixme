@@ -15,10 +15,12 @@ namespace PHPixme;
  * @description
  * A class of items that may not contain nothing, and only can contain one item.
  */
-interface SingleCollectionInterface extends CollectionInterface
+interface SingleCollectionInterface extends 
+  CollectionInterface
 {
   /**
    * @param array ...$item Please not only the first item will be taken
+   * @param array $items
    * @return mixed
    * @throws \LengthException on an empty set of arguments.
    */

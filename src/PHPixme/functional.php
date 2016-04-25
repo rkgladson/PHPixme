@@ -490,7 +490,7 @@ function foldRight(callable $hof, $startVal = null, $traversable = null)
 const reduce = __NAMESPACE__ . '\reduce';
 __PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof ReduceableInterface) {
+  if ($arrayLike instanceof ReducibleInterface) {
     return $arrayLike->reduce($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);
@@ -525,7 +525,7 @@ function reduce(callable $hof, $traversable = null)
 // -- reduceRight --
 const reduceRight = __NAMESPACE__ . '\reduceRight';
 __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (callable $hof, $arrayLike) {
-  if ($arrayLike instanceof ReduceableInterface) {
+  if ($arrayLike instanceof ReducibleInterface) {
     return $arrayLike->reduceRight($hof);
   }
   __PRIVATE__::assertTraversable($arrayLike);

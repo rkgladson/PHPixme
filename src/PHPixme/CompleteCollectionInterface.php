@@ -10,16 +10,14 @@ namespace PHPixme;
 
 /**
  * Interface CompleteCollectionInterface
+ * A grouping containers that may hold of 0->N values. The 0 group may be an instance of its more generalized case.
  * @package PHPixme
- * @description CompleteCollectionInterface is a class of collections with 
- * a empty object patern (which may be its own object). 
- * Complete Collections must be able to safely handle operation on the entier domain,
  * including the empty set.
  */
 interface CompleteCollectionInterface extends
   CollectionInterface
   , FilterableInterface
-  , ReduceableInterface
+  , ReducibleInterface
 {
 
   /**
@@ -33,7 +31,5 @@ interface CompleteCollectionInterface extends
    * @param \Traversable[]|array[]|\PHPixme\CompleteCollectionInterface[] ...$traversableR
    * @return static
    */
-  // Fixme: doesn't apply to single item collections
-//    public function union(...$traversableR);
-
+  //public function union(...$traversableR);
 }
