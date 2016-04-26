@@ -8,30 +8,24 @@
 
 namespace PHPixme;
 
-
-interface CollectionInterface extends \Iterator
+/**
+ * Interface CollectionInterface
+ * Classes which implement the collection interface are sets of finite values.
+ * @package PHPixme
+ */
+interface CollectionInterface extends
+  // We make no assumption about the kind of static creation it will have, rather that it will have it
+  StaticCreation
+  // Collections should not store their own iteration state, but rather delegate it to another object
+  , \IteratorAggregate
 {
-  /**
-   * Transfer the data from one container to another
-   * @param \Traversable|array $traversable
-   * @return static - A new instance of the class
-   */
-  public static function from($traversable);
 
-  /**
-   * A static function that accepts a list of items that will be contained by the class
-   * Note: a implementing class will discard any excess if there is a container limit
-   * @param $head
-   * @param array $tail
-   * @return static - A new instance of the class
-   * @internal param array ...$items - A list of items, defining like Array
-   */
-  static function of($head, ...$tail);
-
+  // -- application --
   /**
    * Map across the container
    * @param callable $hof ($value, $key, $container): mixed
    * @return static
+   * @sig (($value, $key, $container) -> x) -> static(x)
    */
   public function map(callable $hof);
 
@@ -40,6 +34,7 @@ interface CollectionInterface extends \Iterator
    * @param callable $hof ($prevVal, $value, $key, $container): mixed
    * @param mixed $startVal
    * @return mixed - whatever the last cycle of $hof returns
+   * @sig ((callable (a, b)-> a , a) -> a
    */
   public function fold(callable $hof, $startVal);
 
@@ -55,49 +50,21 @@ interface CollectionInterface extends \Iterator
    * @param callable $hof ($value, $key, $container):static
    * @return static
    * @throws \Exception - if the data type returned by callback wasn't its kind
+   * @sig (($value, $key, $container) -> static ) -> static
    */
   public function flatMap(callable $hof);
+
 
   /**
    * @return self
    * @throws \Exception if the data-set could not be flattened
+   * @sig () -> self
    */
   public function flatten();
 
-  /**
-   * Checks to see if the $predicate applies true to all within a container
-   * @param callable $predicate ($value, $key, $container): boolean
-   * @return boolean
-   */
-  public function forAll(callable $predicate);
+  // == application ==
 
-  /**
-   * Checks to see if the $predicate applies true to none within a container
-   * @param callable $predicate ($value, $key, $container): boolean
-   * @return boolean
-   */
-  public function forNone(callable $predicate);
-
-  /**
-   * Checks to see if the $predicate applies true to at least one within a container
-   * @param callable $predicate ($value, key, $container): boolean
-   * @return boolean
-   */
-  public function forSome(callable $predicate);
-
-
-  /**
-   * Preform $hof over the container
-   * @param callable $hof ($value, $key, $container) : null
-   * @return $this
-   */
-  public function walk(callable $hof);
-
-  /**
-   * Converts the container to an array, in any structure that is appropriate within that array
-   * @return array
-   */
-  public function toArray();
+  // -- Query --
 
   /**
    * Is the container empty?
@@ -108,7 +75,58 @@ interface CollectionInterface extends \Iterator
   /**
    * Search the container
    * @param callable $hof ($value, $key, $container):boolean
-   * @return \PHPixme\Some|\PHPixme\None
+   * @return Maybe
    */
   public function find(callable $hof);
+
+  /**
+   * Checks to see if the $predicate applies true to all within a container
+   * on empty collections, forAll will return true (a vacuous truth)
+   * Eg:"I ate all my vegetables." on a plate that had no vegetables to begin with is as such.
+   * @param callable $predicate ($value, $key, $container): boolean
+   * @return boolean
+   * @sig (($value key $container)->boolean) -> boolean
+   */
+  public function forAll(callable $predicate);
+
+  /**
+   * Checks to see if the $predicate applies true to none within a container
+   * On empty collections, forNone will return true
+   * Eg:"There are not any vegetables on my plate." is true on a plate that began empty.
+   * @param callable $predicate ($value, $key, $container): boolean
+   * @return boolean
+   * @sig (($value $key $container)-> boolean) -> boolean
+   */
+  public function forNone(callable $predicate);
+
+  /**
+   * Checks to see if the $predicate applies true to at least one within a container
+   * on empty collections, forSome will return false.
+   * Eg: "There is a vegetable on my plate" On a empty plate is blatantly false.
+   * @param callable $predicate ($value, key, $container): boolean
+   * @return boolean
+   * @sig (($value $key $container)-> boolean) -> boolean
+   */
+  public function forSome(callable $predicate);
+
+  // == Query ==
+
+  // -- Iteration --
+  /**
+   * Preform $hof over the container
+   * @param callable $hof ($value, $key, $container) : null
+   * @return $this
+   * @sig (($value $key $container) -> null) -> $this
+   */
+  public function walk(callable $hof);
+  // -- Iteration --
+
+  // -- Conversion --
+  /**
+   * Converts the container to an array, in any structure that is appropriate within that array
+   * @return array
+   * @sig () -> array
+   */
+  public function toArray();
+  // == Conversion ==
 }

@@ -10,7 +10,6 @@ namespace PHPixme;
 
 class Some extends Maybe
 {
-  use SingleIteratorTrait;
   protected $x;
 
   // -- Magic Methods --
@@ -19,19 +18,9 @@ class Some extends Maybe
     $this->x = $x;
   }
 
-  public static function of($head = null, ...$tail)
+  public static function of($head)
   {
     return new static($head);
-  }
-
-  public static function from($arrayLike)
-  {
-    $x = null;
-    foreach ($arrayLike as $value) {
-      $x = $value;
-      break;
-    }
-    return new static($x);
   }
 
   // == Magic Methods ==
@@ -43,10 +32,12 @@ class Some extends Maybe
 
   public function exists(callable $hof)
   {
-    return (boolean)$hof($this->x);
+    return (boolean)call_user_func($hof, $this->x);
   }
-
-
+  
+  /**
+   * @inheritdoc
+   */
   public function get()
   {
     return $this->x;
@@ -55,30 +46,30 @@ class Some extends Maybe
   // -- Natural Transformation Interface --
   /**
    * @param callable $hof
-   * @return \PHPixme\Some|\PHPixme\None
+   * @return Some|None
    */
   public function find(callable $hof)
   {
-    return $hof($this->x, 0, $this) ? $this : None();
+    return call_user_func($hof, $this->x, 0, $this) ? $this : None();
   }
 
   public function filter(callable $hof)
   {
-    return $hof($this->x, 0, $this) ?
+    return call_user_func($hof, $this->x, 0, $this) ?
       $this
       : None::getInstance();
   }
 
   public function filterNot(callable $hof)
   {
-    return !$hof($this->x, 0, $this) ?
+    return !call_user_func($hof, $this->x, 0, $this) ?
       $this
       : None::getInstance();
   }
 
   public function flatMap(callable $hof)
   {
-    return static::assertMaybeType($hof($this->x, 0, $this));
+    return static::assertMaybeType(call_user_func($hof, $this->x, 0, $this));
   }
 
   public function flatten()
@@ -97,23 +88,24 @@ class Some extends Maybe
   /**
    * @inheritdoc
    */
-  public function foldRight(callable $hof, $startVal) {
+  public function foldRight(callable $hof, $startVal)
+  {
     return call_user_func($hof, $startVal, $this->get(), 0, $this);
   }
 
   public function forAll(callable $predicate)
   {
-    return (boolean)$predicate($this->x, 0, $this);
+    return (boolean)call_user_func($predicate, $this->x, 0, $this);
   }
 
   public function forNone(callable $predicate)
   {
-    return !((boolean)$predicate($this->x, 0, $this));
+    return !((boolean)call_user_func($predicate, $this->x, 0, $this));
   }
 
   public function forSome(callable $predicate)
   {
-    return (boolean)$predicate($this->x, 0, $this);
+    return (boolean)call_user_func($predicate, $this->x, 0, $this);
   }
 
   public function isEmpty()
@@ -127,7 +119,7 @@ class Some extends Maybe
    */
   public function map(callable $hof)
   {
-    return Some($hof($this->x, 0, $this));
+    return static::of(call_user_func($hof, $this->x, 0, $this));
   }
 
   public function toArray()
@@ -147,14 +139,12 @@ class Some extends Maybe
   {
     return 1;
   }
+
   // == Countable Interface==
 
 
-  // -- Iterator Interface --
-  public function current()
+  public function getIterator()
   {
-    return $this->done ? null : $this->x;
+    return new \ArrayIterator([$this->x]);
   }
-  // == Iterator Interface ==
-
 }

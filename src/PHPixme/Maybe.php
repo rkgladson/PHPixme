@@ -9,26 +9,24 @@
 namespace PHPixme;
 
 abstract class Maybe implements 
-  CompleteCollectionInterface
+  CollectionInterface
+  , SingleStaticCreation
+  , FilterableInterface
+  , ReducibleInterface
   , \Countable
 {
 
   // -- Natural Transformation Interface Statics --
-  static function of($head = null, ...$tail)
+  static function of($head = null)
   {
     return Maybe($head);
   }
-
-  static function from($arg)
-  {
-    return Maybe($arg);
-  }
-
+  
   // == Natural Transformation Interface Statics ==
 
   /**
    * @param mixed $x - The value being checked inside
-   * @return boolean - wether or not this contains it
+   * @return boolean - whether or not this contains it
    */
   abstract public function contains($x);
 

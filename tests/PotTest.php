@@ -57,25 +57,8 @@ class PotTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  /**
-   * @dataProvider filledCollectionProvider
-   */
-  public function test_from($collection = [1])
-  {
-    $this->assertInstanceOf(
-      P\Pot::class
-      , P\Pot::from($collection)
-    );
-  }
 
-  /**
-   * @expectedException \LengthException
-   * @dataProvider emptyCollectionProvider
-   */
-  public function test_from_empty($collection = [])
-  {
-    P\Pot::from($collection);
-  }
+
 
   /**
    * @dataProvider valueProvider
@@ -89,10 +72,6 @@ class PotTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue(
       $value === P\Pot::of($value)->__invoke()
       , 'should return the contents from ::of($value)'
-    );
-    $this->assertTrue(
-      $value === P\Pot::from([$value])->__invoke()
-      , 'should return the contents from ::from([$value])'
     );
   }
 
@@ -108,10 +87,6 @@ class PotTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue(
       $value === P\Pot::of($value)->get()
       , 'should return the contents from ::of($value)'
-    );
-    $this->assertTrue(
-      $value === P\Pot::from([$value])->get()
-      , 'should return the contents from ::from([$value])'
     );
   }
 
@@ -626,10 +601,10 @@ class PotTest extends \PHPUnit_Framework_TestCase
   public function aspectProvider()
   {
     return [
-      [P\SingleCollectionInterface::class]
-      , [P\CollectionInterface::class]
+      [P\CollectionInterface::class]
+      , [P\SingleStaticCreation::class]
       , [\Countable::class]
-      , [\Iterator::class]
+      , [\IteratorAggregate::class]
     ];
   }
 

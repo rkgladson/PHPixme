@@ -77,7 +77,6 @@ class __PRIVATE__
     }
     return $unknown;
   }
-
   /**
    * Asserts the value is a number
    * @param $number
@@ -106,6 +105,17 @@ class __PRIVATE__
       throw new \InvalidArgumentException('argument must be a Traversable or array');
     }
     return $arrayLike;
+  }
+
+  static function copyTransversable($traversable) {
+    static::assertTraversable($traversable);
+    return is_array($traversable)
+      ? $traversable
+      : (
+      $traversable instanceof \IteratorAggregate
+        ? $traversable->getIterator()
+        :  clone ($traversable)
+      );
   }
 
   /**

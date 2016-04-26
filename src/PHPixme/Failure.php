@@ -89,7 +89,7 @@ class Failure extends Attempt
   public function recover(callable $rescueException)
   {
     return Attempt(function () use ($rescueException) {
-      return $rescueException($this->err, $this);
+      return call_user_func($rescueException, $this->err, $this);
     });
   }
 
@@ -99,7 +99,7 @@ class Failure extends Attempt
   public function recoverWith(callable $hof)
   {
     try {
-      $result = $hof($this->err, $this);
+      $result = call_user_func($hof, $this->err, $this);
     } catch (\Exception $e) {
       return Failure($e);
     }
@@ -112,7 +112,7 @@ class Failure extends Attempt
   public function transform(callable $success, callable $failure)
   {
     try {
-      $result = $failure($this->err, $this);
+      $result = call_user_func($failure, $this->err, $this);
     } catch (\Exception $e) {
       return Failure($e);
     }
@@ -124,7 +124,7 @@ class Failure extends Attempt
    */
   public function walk(callable $hof)
   {
-    // This space is intentionally left blank.
+    return $this;
   }
 
   /**
@@ -135,4 +135,76 @@ class Failure extends Attempt
     $this->err = $exception;
   }
 
+  /**
+   * @inheritdoc
+   */
+  public function getIterator()
+  {
+    return new \EmptyIterator();
+  }
+
+
+  /**
+   * @inheritdoc
+   */
+  public function fold(callable $hof, $startVal)
+  {
+    return $startVal;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function foldRight(callable $hof, $startVal)
+  {
+    return $startVal;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function isEmpty()
+  {
+    return true;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function find(callable $hof)
+  {
+    return None();
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forAll(callable $predicate)
+  {
+    return true;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forNone(callable $predicate)
+  {
+    return true;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forSome(callable $predicate)
+  {
+    return false;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function count()
+  {
+    return 0;
+  }
 }

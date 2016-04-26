@@ -19,8 +19,21 @@ namespace PHPixme;
  * Note: Some of these methods will throw Exceptions if their contract
  * with a callback function is not met. They will not catch these kinds of errors.
  */
-abstract class Attempt
+abstract class Attempt implements
+  CollectionInterface
+  , SingleStaticCreation
+  , \Countable
 {
+
+  /**
+   * @param callable $value
+   * @return Failure|Success
+   * @throws \InvalidArgumentException if $value is not a callable
+   */
+  public static function of($value)
+  {
+    return Attempt(__PRIVATE__::assertCallable($value));
+  }
 
   /**
    * @return boolean
@@ -65,27 +78,6 @@ abstract class Attempt
     return static::assertAttemptType($result);
   }
 
-  /**
-   * Tests a success with $hof return value, transforming a success on test failure
-   * @param callable $hof ($value, $key, $container) -> boolean
-   * @return Attempt
-   */
-  abstract public function filter(callable $hof);
-
-  /**
-   * applies a high order function across a nested success value, $hof flattening the results.
-   * @param callable $hof ($value, $key, Success $container): Attempt
-   * @return Attempt - Returns Success($hof($value)) or the same failure
-   * @throws \Exception when the return value is not an Attempt
-   */
-  abstract public function flatMap(callable $hof);
-
-  /**
-   * Attempt to Flatten a Attempt(Attempt(value)) to Attempt(value)
-   * @return Attempt - A de-nested Attempt
-   * @throws \Exception when the return value is not an Attempt
-   */
-  abstract public function flatten();
 
   /**
    * Changes a Failure to a success.
@@ -119,7 +111,7 @@ abstract class Attempt
 
 
   /**
-   * Converts the value of success or failure to a keyed array with the instance type pointing to value
+   * Converts the value of success or failure to an indexed array with the instance type pointing to value
    * @return array
    */
   public function toArray()
@@ -153,6 +145,7 @@ abstract class Attempt
   /**
    * Pass the Success value into $hof
    * @param callable $hof ($value, $key, Attempt $container): null
+   * @return $this
    */
   abstract public function walk(callable $hof);
 

@@ -50,6 +50,10 @@ class FailureTest extends \PHPUnit_Framework_TestCase
       $failure->isSuccess()
       , 'Failure->isSuccess should be false'
     );
+    $this->assertTrue(
+      $failure->isEmpty()
+      , 'Failure->isEmpty should be true'
+    );
   }
 
   /**
@@ -186,6 +190,32 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_fold($value = true)
+  {
+    $this->assertEquals(
+      $value
+      , P\Failure(new \Exception('test'))
+      ->fold(
+        function () {
+          throw new \Exception('Should never run.');
+        }
+        , $value
+      )
+    );
+  }
+  public function test_foldRight($value = true)
+  {
+    $this->assertEquals(
+      $value
+      , P\Failure(new \Exception('test'))
+      ->foldRight(
+        function () {
+          throw new \Exception('Should never run.');
+        }
+        , $value
+      )
+    );
+  }
 
   public function test_recover_callback()
   {
@@ -346,6 +376,37 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_find()
+  {
+    $this->assertInstanceOf(
+      P\None::class
+      , P\Failure(new \Exception('test'))->find(function () {
+      throw new \Exception('should never run');
+    })
+      , 'Failure->find should return the instance of None'
+    );
+  }
+
+  public function test_for_all_none_some()
+  {
+    $doNotRun = function () {
+      throw new \Exception('should never run');
+    };
+    $failure = P\Failure(new \Exception('test'));
+    $this->assertTrue(
+      $failure->forAll($doNotRun)
+      , '->forAll should return true on empty'
+    );
+    $this->assertTrue(
+      $failure->forNone($doNotRun)
+      , '->forNone should return true on empty'
+    );
+    $this->assertFalse(
+      $failure->forSome($doNotRun)
+      , '->forSome should return false on empty'
+    );
+  }
+
   public function test_transform_callback($value = 'test')
   {
     $exc = new \Exception($value);
@@ -419,5 +480,36 @@ class FailureTest extends \PHPUnit_Framework_TestCase
       throw new \Exception('Failure->walk callback should not be run!');
     };
     P\Failure(new \Exception())->walk($notRun);
+  }
+
+  public function test_count()
+  {
+    $failure = P\Failure(new \Exception('test'));
+    $this->assertInstanceOf(
+      \Countable::class
+      , $failure
+    );
+    $this->assertTrue(
+      0 === count($failure)
+      , 'count(Failure) should return 0'
+    );
+    $this->assertTrue(
+      0 === $failure->count()
+      , 'failure->count() should return 0'
+    );
+  }
+
+  public function test_transversable() {
+    $failure = P\Failure(new \Exception('test'));
+    $this->assertInstanceOf(
+      \IteratorAggregate::class
+      , $failure
+      , 'It should implement a Iterator Aggregate'
+    );
+    $count = 0;
+    foreach($failure as $value){
+      $count +=1;
+    }
+    $this->assertEquals(0, $count);
   }
 }

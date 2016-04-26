@@ -417,22 +417,20 @@ function except($decorator, $fn = null)
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof CompleteCollectionInterface) {
+  if ($arrayLike instanceof CollectionInterface) {
     return $arrayLike->fold($hof, $startVal);
   }
-  __PRIVATE__::assertTraversable($arrayLike);
+
   $output = $startVal;
-  // Make a copy, just in case, to prevent the internal side effect. PHP5 problem
-  $iterator = $arrayLike;
-  foreach ($iterator as $key => $value) {
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
     $output = call_user_func($hof, $output, $value, $key, $arrayLike);
   }
   return $output;
 });
 /**
  * @param callable $hof
- * @param mixed = $startVal
- * @param \Traversable= $traversable
+ * @param mixed $startVal
+ * @param \Traversable $traversable
  * @return \Closure|mixed
  * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
  */
@@ -446,7 +444,7 @@ function fold($hof, $startVal = null, $traversable = null)
 const foldRight = __NAMESPACE__ . '\foldRight';
 __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callable $hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
-  if ($arrayLike instanceof CompleteCollectionInterface) {
+  if ($arrayLike instanceof CollectionInterface) {
     return $arrayLike->foldRight($hof, $startVal);
   } elseif (is_array($arrayLike)) {
     $output = $startVal;
@@ -459,10 +457,8 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callabl
     }
     return $output;
   }
-  __PRIVATE__::assertTraversable($arrayLike);
   $pairs = [];
-  $iterate = $arrayLike; // No side effects!
-  foreach ($iterate as $key => $value) {
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
     array_unshift($pairs, [$key, $value]);
   }
   $output = $startVal;
@@ -497,15 +493,15 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arr
   if (is_array($arrayLike)) {
 
   }
-  $iter = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : $arrayLike;
-  if (!$iter->valid()) {
-    throw new \LengthException('Cannot reduce on emty collections. Behaviour is undefined');
+  $iterator = is_array($arrayLike) ? new \ArrayIterator($arrayLike) : __PRIVATE__::copyTransversable($arrayLike);
+  if (!$iterator->valid()) {
+    throw new \LengthException('Cannot reduce on empty collections. Behaviour is undefined');
   }
-  $output = $iter->current();
-  $iter->next();
-  while ($iter->valid()) {
-    $output = call_user_func($hof, $output, $iter->current(), $iter->key(), $arrayLike);
-    $iter->next();
+  $output = $iterator->current();
+  $iterator->next();
+  while ($iterator->valid()) {
+    $output = call_user_func($hof, $output, $iterator->current(), $iterator->key(), $arrayLike);
+    $iterator->next();
   }
   return $output;
 });
@@ -528,7 +524,6 @@ __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (calla
   if ($arrayLike instanceof ReducibleInterface) {
     return $arrayLike->reduceRight($hof);
   }
-  __PRIVATE__::assertTraversable($arrayLike);
   if (is_array($arrayLike)) {
     if (empty($arrayLike)) {
       throw new \LengthException('Cannot reduceRight on empty collections. Behaviour is undefined');
@@ -546,7 +541,7 @@ __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (calla
   }
   // Traversables can only go forward.
   $pairs = [];
-  foreach ($arrayLike as $key => $value) {
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
     array_unshift($pairs, [$key, $value]);
   }
   // This can only be known after iterating the Traversable
@@ -577,19 +572,18 @@ function reduceRight(callable $hof, $traversable = null)
 const map = __NAMESPACE__ . '\map';
 __PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function (callable $hof, $traversable) {
   // Reflect on natural transformations
-  if ($traversable instanceof CompleteCollectionInterface) {
+  if ($traversable instanceof CollectionInterface) {
     return $traversable->map($hof);
   }
-  __PRIVATE__::assertTraversable($traversable);
   $output = [];
-  foreach ($traversable as $key => $value) {
+  foreach (__PRIVATE__::copyTransversable($traversable) as $key => $value) {
     $output[$key] = call_user_func($hof, $value, $key, $traversable);
   }
   return $output;
 });
 /**
  * @param callable $hof
- * @param array|\Traversable|\PHPixme\CompleteCollectionInterface $traversable
+ * @param array|\Traversable|CollectionInterface $traversable
  * @return \Closure|mixed
  * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
  *

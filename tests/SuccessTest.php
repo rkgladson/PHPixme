@@ -40,7 +40,6 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   public function test_is_status()
   {
-
     $success = P\Success(true);
     $this->assertTrue(
       $success->isSuccess()
@@ -49,6 +48,10 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     $this->assertFalse(
       $success->isFailure()
       , 'it should not be a failure'
+    );
+    $this->assertFalse(
+      $success->isEmpty()
+      , 'it should not be empty'
     );
   }
 
@@ -282,9 +285,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     });
   }
 
-  /**
-   * @depends test_get
-   */
+
   function test_map($value = true)
   {
     $success = P\Success($value);
@@ -327,6 +328,214 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_fold_callback($value = true, $startVal = false)
+  {
+    $success = P\Success($value);
+    $ran = 0;
+    $success->fold(function () use ($startVal, $value, $success, &$ran) {
+      $this->assertEquals(
+        4
+        , func_num_args()
+        , 'there should be four arguments passed to the function'
+      );
+      $this->assertTrue(
+        $startVal === func_get_arg(0)
+        , 'the first value should be the start value on a one length collection'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(1)
+        , 'the second param should be the only value in the one length collection'
+      );
+      $this->assertNotFalse(
+        func_get_arg(2)
+        , 'the key should be defined'
+      );
+      $this->assertTrue($success === func_get_arg(3));
+      $ran = 1;
+      return $startVal;
+    }, $startVal);
+    $this->assertEquals(1, $ran, 'the callback should of ran!');
+  }
+
+  public function test_fold_return($value = 1, $startVal = 2)
+  {
+    $success = P\Success($value);
+    $this->assertEquals(
+      $value + $startVal
+      , $success
+      ->fold(
+        function ($x, $y) {
+          return $x + $y;
+        }
+        , $startVal
+      )
+      , 'Adding the values with fold should be a sum of two numbers'
+    );
+  }
+
+  public function test_foldRight_callback($value = true, $startVal = false)
+  {
+    $success = P\Success($value);
+    $ran = 0;
+    $success->foldRight(function () use ($startVal, $value, $success, &$ran) {
+      $this->assertEquals(
+        4
+        , func_num_args()
+        , 'there should be four arguments passed to the function'
+      );
+      $this->assertTrue(
+        $startVal === func_get_arg(0)
+        , 'the first value should be the start value on a one length collection'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(1)
+        , 'the second param should be the only value in the one length collection'
+      );
+      $this->assertNotFalse(
+        func_get_arg(2)
+        , 'the key should be defined'
+      );
+      $this->assertTrue($success === func_get_arg(3));
+      $ran = 1;
+      return $startVal;
+    }, $startVal);
+    $this->assertEquals(1, $ran, 'the callback should of ran!');
+  }
+
+  public function test_foldRight_return($value = 1, $startVal = 2)
+  {
+    $success = P\Success($value);
+    $this->assertEquals(
+      $value + $startVal
+      , $success
+      ->foldRight(
+        function ($x, $y) {
+          return $x + $y;
+        }
+        , $startVal
+      )
+      , 'Adding the values with fold should be a sum of two numbers'
+    );
+  }
+
+
+  function test_forAll_callback($value = true)
+  {
+    $ran = 0;
+    $success = P\Success($value);
+    $success->forAll(function () use ($value, $success, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive 3 arguments'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(0)
+        , 'callback $value should be equal to what is contained'
+      );
+      $this->assertNotFalse(
+        func_get_arg(1)
+        , 'callback $key should be defined, even if its not so useful'
+      );
+      $this->assertTrue(
+        $success === func_get_arg(2)
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals($ran, 1);
+  }
+
+
+  function test_forAll_return($value = 'once', $notValue = 'and for ALL!')
+  {
+    $success = P\Success($value);
+    $this->assertTrue($success->forAll(function ($x) use ($value) {
+      return $x === $value;
+    }));
+    $this->assertFalse($success->forAll(function ($x) use ($notValue) {
+      return $x === $notValue;
+    }));
+  }
+
+  function test_forNone_callback($value = true)
+  {
+    $ran = 0;
+    $success = P\Success($value);
+    $success->forNone(function () use ($value, $success, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive 3 arguments'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(0)
+        , 'callback $value should be equal to what is contained'
+      );
+      $this->assertNotFalse(
+        func_get_arg(1)
+        , 'callback $key should be defined, even if its not so useful'
+      );
+      $this->assertTrue(
+        $success === func_get_arg(2)
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals($ran, 1);
+  }
+
+
+  function test_forNone_return($value = 'once', $notValue = 'and for ALL!')
+  {
+    $success = P\Success($value);
+    $this->assertFalse($success->forNone(function ($x) use ($value) {
+      return $x === $value;
+    }));
+    $this->assertTrue($success->forNone(function ($x) use ($notValue) {
+      return $x === $notValue;
+    }));
+  }
+
+  function test_forSome_callback($value = true)
+  {
+    $ran = 0;
+    $success = P\Success($value);
+    $success->forSome(function () use ($value, $success, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive 3 arguments'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(0)
+        , 'callback $value should be equal to what is contained'
+      );
+      $this->assertNotFalse(
+        func_get_arg(1)
+        , 'callback $key should be defined, even if its not so useful'
+      );
+      $this->assertTrue(
+        $success === func_get_arg(2)
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals($ran, 1);
+  }
+
+
+  function test_forSome_return($value = 'once', $notValue = 'and for ALL!')
+  {
+    $success = P\Success($value);
+    $this->assertTrue($success->forSome(function ($x) use ($value) {
+      return $x === $value;
+    }));
+    $this->assertFalse($success->forSome(function ($x) use ($notValue) {
+      return $x === $notValue;
+    }));
+  }
+
   public function test_toArray($value = true)
   {
 
@@ -355,6 +564,53 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+
+  function test_find_callback($value = true)
+  {
+    $ran = 0;
+    $success = P\Success($value);
+    $success->find(function () use ($value, $success, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive 3 arguments'
+      );
+      $this->assertTrue(
+        $value === func_get_arg(0)
+        , 'callback $value should be equal to what is contained'
+      );
+      $this->assertNotFalse(
+        func_get_arg(1)
+        , 'callback $key should be defined, even if its not so useful'
+      );
+      $this->assertTrue(
+        $success === func_get_arg(2)
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals($ran, 1);
+  }
+
+
+  function test_find_return($value = 'once', $notValue = 'and for ALL!')
+  {
+    $success = P\Success($value);
+    $found = $success->find(function ($x) use ($value) {
+      return $x === $value;
+    });
+    $this->assertInstanceOf(P\Some::class, $found);
+    $this->assertTrue($found->getOrElse($notValue) === $value);
+    $this->assertInstanceOf(
+      P\None::class
+      , $success
+      ->find(
+        function ($x) use ($notValue) {
+          return $x === $notValue;
+        }
+      )
+    );
+  }
 
   public function test_transform_callback($value = true)
   {
@@ -407,7 +663,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     };
     $this->assertTrue(
       $failure === P\Success($value)->transform($makeFailure, $noop)
-      , 'Success->transform Success callback type should be able to be a Failure'
+      , '->transform Success callback type should be able to be a Failure'
     );
   }
 
@@ -422,11 +678,11 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       P\Failure
       , $result
-      , 'Success->transform should return Failure on thrown'
+      , '->transform should return Failure on thrown'
     );
     $this->assertTrue(
       $result->failed()->get() === $exception
-      , 'Succes->transformation should return the Exception within the failure of what was thrown.'
+      , '->transformation should return the Exception within the failure of what was thrown.'
     );
   }
 
@@ -479,5 +735,25 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_count($value = [])
+  {
+    $success = P\Success($value);
+    $this->assertInstanceOf(\Countable::class, $success);
+    $this->assertEquals(1, count($success));
+    $this->assertEquals(1, $success->count());
+  }
+
+  public function test_traversable($value = [])
+  {
+    $success = P\Success($value);
+    $ran = 0;
+    $this->assertInstanceOf(\IteratorAggregate::class, $success);
+    foreach ($success as $k => $v) {
+      $this->assertTrue($value === $v);
+      $this->assertNotNull($k);
+      $ran += 1;
+    }
+    $this->assertTrue(1 === $ran);
+  }
 
 }

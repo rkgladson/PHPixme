@@ -4,21 +4,17 @@ const Maybe = __NAMESPACE__ . '\Maybe';
 /**
  * Takes a value and wraps it in a Maybe family object
  * @param $x - the maybe existing value
- * @return \PHPixme\None|\PHPixme\Some
+ * @return None|Some
  */
-function Maybe($x = null)
-{
-  return (
-    !isset($x) || is_null($x) ||
-    (is_array($x) && count($x) === 0)
-  ) ? None()
-    : Some($x);
+function Maybe($x = null) {
+  return func_num_args() < 1 || is_null($x)
+  ? None::getInstance()
+  : new Some ($x);
 }
-
 
 const None = __NAMESPACE__ . '\None';
 /**
- * @return \PHPixme\None
+ * @return None
  */
 function None()
 {
@@ -28,7 +24,7 @@ function None()
 const Some = __NAMESPACE__ . '\Some';
 /**
  * @param $x - a non- null value
- * @return \PHPixme\Some
+ * @return Some
  */
 function Some($x)
 {

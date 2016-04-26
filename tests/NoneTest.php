@@ -76,7 +76,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
   public function test_None_aspects_CompleteCollection()
   {
     $this->assertInstanceOf(
-      P\CompleteCollectionInterface::class
+      P\CollectionInterface::class
       , P\None()
       , 'It should have implemented natural transformations'
     );
@@ -89,15 +89,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       , 'Of on None is its singleton'
     );
   }
-
-  public function test_static_from()
-  {
-    $this->assertTrue(
-      P\None() === (P\None::from([$this]))
-      , 'From on None is its singleton'
-    );
-
-  }
+  
 
   public function test_contains()
   {

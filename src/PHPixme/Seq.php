@@ -9,7 +9,10 @@
 namespace PHPixme;
 
 class Seq implements
-  CompleteCollectionInterface
+  CollectionInterface
+  , MultipleStaticCreation
+  , FilterableInterface
+  , ReducibleInterface
   , \Countable
 {
   private $hash = [];
@@ -23,7 +26,7 @@ class Seq implements
 
   /**
    * Seq constructor.
-   * @param \Traversable|array|\PHPixme\CompleteCollectionInterface $arrayLike
+   * @param \Traversable|array|CollectionInterface $arrayLike
    */
   public function __construct($arrayLike)
   {
@@ -33,9 +36,16 @@ class Seq implements
     $this->length = count($this->hash);
   }
 
+  /**
+   * A helper function to assist conversion of Collection and Traversable to arrays.
+   * It also is the identity function on an array
+   * @internal
+   * @param $arrayLike
+   * @return array
+   */
   protected static function arrayLikeToArray($arrayLike)
   {
-    if ($arrayLike instanceof CompleteCollectionInterface) {
+    if ($arrayLike instanceof CollectionInterface) {
       return $arrayLike->toArray();
     }
     __PRIVATE__::assertTraversable($arrayLike);
@@ -44,16 +54,14 @@ class Seq implements
     }
 
     $output = [];
-    foreach ($arrayLike as $key => $value) {
+    foreach ((clone $arrayLike) as $key => $value) {
       $output[$key] = $value;
     }
     return $output;
   }
 
   /**
-   * Calls the constructor with the array like parameter
-   * @param $arrayLike
-   * @return static
+   * @inheritdoc
    */
   public static function from($arrayLike)
   {
@@ -69,36 +77,34 @@ class Seq implements
   }
 
   /**
-   * @param $offeset
-   * @return mixed|null
+   * @inheritdoc
    */
-  public function __invoke($offeset)
+  public function __invoke($offset)
   {
-    return isset($this->hash[$offeset]) ? $this->hash[$offeset] : null;
+    return isset($this->hash[$offset]) ? $this->hash[$offset] : null;
   }
 
   /**
-   * @param callable $hof
+   * @inheritdoc
    * @return Seq
    */
   public function map(callable $hof)
   {
     $output = [];
-    foreach ($this->hash as $key => $value) {
-      $output[$key] = $hof($value, $key, $this);
+    foreach (I($this->hash) as $key => $value) {
+      $output[$key] = call_user_func($hof, $value, $key, $this);
     }
     return static::from($output);
   }
 
   /**
-   * @param callable $hof
-   * @return Seq
+   * @inheritdoc
    */
   public function filter(callable $hof)
   {
     $output = [];
-    foreach ($this->hash as $key => $value) {
-      if ($hof($value, $key, $this)) {
+    foreach (I($this->hash) as $key => $value) {
+      if (call_user_func($hof, $value, $key, $this)) {
         $output[$key] = $value;
       }
     }
@@ -106,14 +112,13 @@ class Seq implements
   }
 
   /**
-   * @param callable $hof
-   * @return Seq
+   * @inheritdoc
    */
   public function filterNot(callable $hof)
   {
     $output = [];
-    foreach ($this->hash as $key => $value) {
-      if (!($hof($value, $key, $this))) {
+    foreach (I($this->hash) as $key => $value) {
+      if (!(call_user_func($hof, $value, $key, $this))) {
         $output[$key] = $value;
       }
     }
@@ -121,9 +126,9 @@ class Seq implements
   }
 
   /**
-   * Maps over a Seq who's $hof function returns a \PHPixme\CollectionInterface or array and flattens the result
+   * Maps over a Seq who's $hof function returns a CollectionInterface or array and flattens the result
    * into a single sequence.
-   * @param callable $hof ($value, $key, $this) -> \PHPixme\CollectionInterface|array
+   * @param callable $hof ($value, $key, $this) -> CollectionInterface|array
    * @return Seq
    */
   public function flatMap(callable $hof)
@@ -133,22 +138,22 @@ class Seq implements
 
   /**
    * Takes a Seq of nested Collection or array, and flattens it to a new Sequence
-   * Note: This is a slight devaition from the CollectionInterface spec, as flatten should always receive the
-   * the same type as itself. However this has been laxed in this case, as we know that Seq is
-   * can always hold more than one value. Therefor converting single collections into a sequance is
+   * Note: This is a slight deviation from the CollectionInterface spec, as flatten should always receive the
+   * the same type as itself. However this has been relaxed in this case, as we know that Seq is
+   * can always hold more than one value. Therefor converting single collections into a sequence is
    * safe. As arrays are simply unwrapped seq, we can also safely accept them for flattening.
-   * The outcome will always be the expected result, even with the laxening of the rules:
+   * The outcome will always be the expected result, even with the relaxation of the rules:
    * A de-nested Seq.
    * We do not, however, know if a traversable will ever terminate, so we will not attempt to flatten those.
-   * If you have a nested squence of traversables, iterate over them in ->flatMap and return an array.
+   * If you have a nested sequence of transversable, iterate over them in ->flatMap and return an array.
    * @return Seq
    */
   public function flatten()
   {
     return new static(
       call_user_func_array(
-      'array_merge'
-      ,array_map(
+        'array_merge'
+        , array_map(
           function ($value) {
             return (is_array($value) ? $value : __PRIVATE__::assertCollection($value)->toArray());
           }
@@ -164,51 +169,71 @@ class Seq implements
   public function fold(callable $hof, $startVal)
   {
     $output = $startVal;
-    foreach ($this->hash as $key => $value) {
-      $output = $hof($output, $value, $key, $this);
+    // No side effects for PHP 5.x
+    foreach (I($this->hash) as $key => $value) {
+      $output = call_user_func($hof, $output, $value, $key, $this);
     }
     return $output;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function foldRight(callable $hof, $startVal)
   {
     $output = $startVal;
-    foreach ($this->keyRBackwards as $key) {
-      $output = $hof($output, $this->hash[$key], $key, $this);
+    // No side effects for PHP 5.x
+    foreach (I($this->keyRBackwards) as $key) {
+      $output = call_user_func($hof, $output, $this->hash[$key], $key, $this);
     }
     return $output;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function forAll(callable $predicate)
   {
-    foreach ($this->hash as $key => $value) {
-      if (!($predicate($value, $key, $this))) {
+    // No side effects for PHP 5.x
+    foreach (I($this->hash) as $key => $value) {
+      if (!(call_user_func($predicate, $value, $key, $this))) {
         return false;
       }
     }
     return true;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function forSome(callable $predicate)
   {
-    foreach ($this->hash as $key => $value) {
-      if ($predicate($value, $key, $this)) {
+    // No side effects for PHP 5.x
+    foreach (I($this->hash) as $key => $value) {
+      if (call_user_func($predicate, $value, $key, $this)) {
         return true;
       }
     }
     return false;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function forNone(callable $predicate)
   {
-    foreach ($this->hash as $key => $value) {
-      if ($predicate($value, $key, $this)) {
+    // No side effects for PHP 5.x
+    foreach (I($this->hash) as $key => $value) {
+      if (call_user_func($predicate, $value, $key, $this)) {
         return false;
       }
     }
     return true;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function reduce(callable $hof)
   {
     if ($this->length < 1) {
@@ -218,11 +243,14 @@ class Seq implements
     $keyR = $this->keyR;
     $output = $this->hash[array_shift($keyR)];
     foreach ($keyR as $key) {
-      $output = $hof($output, $this->hash[$key], $key, $this);
+      $output = call_user_func($hof, $output, $this->hash[$key], $key, $this);
     }
     return $output;
   }
 
+  /**
+   * @inheritdoc
+   */
   public function reduceRight(callable $hof)
   {
     if ($this->length < 1) {
@@ -232,7 +260,7 @@ class Seq implements
     $keyR = $this->keyRBackwards;
     $output = $this->hash[array_shift($keyR)];
     foreach ($keyR as $key) {
-      $output = $hof($output, $this->hash[$key], $key, $this);
+      $output = call_user_func($hof, $output, $this->hash[$key], $key, $this);
     }
     return $output;
   }
@@ -246,17 +274,18 @@ class Seq implements
   }
 
 
+  /**
+   * @inheritdoc
+   */
   public function find(callable $hof)
   {
-    $found = null;
-    foreach ($this->keyR as $key) {
-
-      if ($hof($this->hash[$key], $key, $this)) {
-        $found = $this->hash[$key];
-        break;
+    // No side effects for PHP 5.x
+    foreach (I($this->keyR) as $key) {
+      if (call_user_func($hof, $this->hash[$key], $key, $this)) {
+        return Some($this->hash[$key]);
       }
     }
-    return Maybe($found);
+    return None();
   }
 
   /**
@@ -264,8 +293,9 @@ class Seq implements
    */
   public function walk(callable $hof)
   {
-    foreach ($this->keyR as $key) {
-      $hof($this->hash[$key], $key, $this);
+    // No side effects for PHP 5.x
+    foreach (I($this->keyR) as $key) {
+      call_user_func($hof, $this->hash[$key], $key, $this);
     }
     return $this;
   }
@@ -291,13 +321,13 @@ class Seq implements
     return $key === false ? -1 : $key;
   }
 
-  public function partition($hof)
+  public function partition(callable $hof)
   {
-    __PRIVATE__::assertCallable($hof);
     $true = [];
     $false = [];
-    foreach ($this->hash as $key => $value) {
-      if ($hof($value, $key, $this)) {
+    // No side effects for PHP 5.x
+    foreach (I($this->hash) as $key => $value) {
+      if (call_user_func($hof, $value, $key, $this)) {
         $true[$key] = $value;
       } else {
         $false[$key] = $value;
@@ -309,25 +339,20 @@ class Seq implements
   public function group($hof)
   {
     __PRIVATE__::assertCallable($hof);
-    return static::from(
-      map(
-        function ($value) {
-          return static::from($value);
-        }
-        , fold(
-          function ($output, $value, $key) use ($hof) {
-            $groupKey = (string)$hof($value, $key, $this);
-            if (!isset($output[$groupKey])) {
-              $output[$groupKey] = [];
-            }
-            $output[$groupKey][$key] = $value;
-            return $output;
+    return static::from(array_map(
+      static::class . '::from'
+      , $this->fold(
+        function ($output, $value, $key) use ($hof) {
+          $groupKey = (string)call_user_func($hof, $value, $key, $this);
+          if (!isset($output[$groupKey])) {
+            $output[$groupKey] = [];
           }
-          , []
-          , $this->hash
-        )
+          $output[$groupKey][$key] = $value;
+          return $output;
+        }
+        , []
       )
-    );
+    ));
   }
 
   public function drop($number = 0)
@@ -396,63 +421,8 @@ class Seq implements
   }
 
 
-  // -- iterator interface --
-  /**
-   * Return the current element
-   * @link http://php.net/manual/en/iterator.current.php
-   * @return mixed Can return any type.
-   * @since 5.0.0
-   */
-  public function current()
+  public function getIterator()
   {
-    return $this->valid() ? $this->hash[$this->keyR[$this->pointer]] : null;
+    return new \ArrayIterator($this->hash);
   }
-
-  /**
-   * Move forward to next element
-   * @link http://php.net/manual/en/iterator.next.php
-   * @return void Any returned value is ignored.
-   * @since 5.0.0
-   */
-  public function next()
-  {
-    $this->pointer += 1;
-  }
-
-  /**
-   * Return the key of the current element
-   * @link http://php.net/manual/en/iterator.key.php
-   * @return mixed scalar on success, or null on failure.
-   * @since 5.0.0
-   */
-  public function key()
-  {
-    return $this->valid() ? $this->keyR[$this->pointer] : null;
-  }
-
-  /**
-   * Checks if current position is valid
-   * @link http://php.net/manual/en/iterator.valid.php
-   * @return boolean The return value will be casted to boolean and then evaluated.
-   * Returns true on success or false on failure.
-   * @since 5.0.0
-   */
-  public function valid()
-  {
-    return $this->length > $this->pointer;
-  }
-
-  /**
-   * Rewind the Iterator to the first element
-   * @link http://php.net/manual/en/iterator.rewind.php
-   * @return void Any returned value is ignored.
-   * @since 5.0.0
-   */
-  public function rewind()
-  {
-    if ($this->length > 0) {
-      $this->pointer = 0;
-    }
-  }
-  // == iterator interface ==
 }

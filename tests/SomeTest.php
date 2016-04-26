@@ -44,14 +44,6 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_Some_static_from($value = [true])
-  {
-    $this->assertInstanceOf(
-      P\Some,
-      P\Some::from($value)
-    );
-  }
-
   public function test_contains($value = true, $notValue = false)
   {
     $some = P\Some($value);

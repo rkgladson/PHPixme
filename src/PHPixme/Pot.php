@@ -7,6 +7,7 @@
  */
 
 namespace PHPixme;
+use Traversable;
 
 /**
  * Class Pot
@@ -15,9 +16,11 @@ namespace PHPixme;
  * Pot is an exception class that may contain any data you wish, designed to pass more than just a message.
  * Please note there is no EmptyPot. It must always have a value.
  */
-class Pot extends \Exception implements SingleCollectionInterface, \Countable
+class Pot extends \Exception implements
+  CollectionInterface
+  , SingleStaticCreation
+  , \Countable
 {
-  use SingleIteratorTrait;
   protected $contents;
 
   public function __construct($data, $message = '')
@@ -46,27 +49,11 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
 
   /**
    * @param mixed $head
-   * @param array $items
    * @return Pot
    */
-  static public function of($head, ...$items)
+  static public function of($head)
   {
     return new self($head, '');
-  }
-
-  /**
-   * Transfer the data from one container to another
-   * @param \Traversable|array $traversable
-   * @return static - A new instance of the class
-   * @throws \LengthException - When the input is an empty collection
-   */
-  public static function from($traversable)
-  {
-    __PRIVATE__::assertTraversable($traversable);
-    foreach ($traversable as $value) {
-      return new static($value, '');
-    }
-    throw new \LengthException('Traversable|array must not be empty!');
   }
 
   /**
@@ -189,15 +176,7 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
     return call_user_func($hof, $this->contents, 0, $this) ? Some($this->contents) : None();
   }
 
-  // -- Iterator Interface --
-  /**
-   * @inheritdoc
-   */
-  public function current()
-  {
-    return $this->done ? null : $this->contents;
-  }
-  // == Iterator Interface ==
+  
   // -- Count Interface --
   /**
    * @inheritdoc
@@ -207,4 +186,10 @@ class Pot extends \Exception implements SingleCollectionInterface, \Countable
     return 1;
   }
   // == Count Interface ==
+  
+  
+  public function getIterator()
+  {
+    return new \ArrayIterator([$this->contents]);
+  }
 }

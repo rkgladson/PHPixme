@@ -40,7 +40,7 @@ class Success extends Attempt
   public function filter(callable $hof)
   {
     try {
-      return ($hof($this->value, 0, $this)) ?
+      return call_user_func($hof, $this->value, 0, $this) ?
         $this
         : Failure(new \Exception('$value did not meet criteria.'));
     } catch (\Exception $e) {
@@ -95,7 +95,7 @@ class Success extends Attempt
    */
   public function map(callable $hof)
   {
-    return new static($hof($this->value, 0, $this));
+    return new static(call_user_func($hof, $this->value, 0, $this));
   }
 
   /**
@@ -120,7 +120,7 @@ class Success extends Attempt
   public function transform(callable $success, callable $failure)
   {
     try {
-      $result = $success($this->value, $this);
+      $result = call_user_func($success, $this->value, $this);
     } catch (\Exception $e) {
       return Failure($e);
     }
@@ -133,6 +133,89 @@ class Success extends Attempt
    */
   public function walk(callable $hof)
   {
-    $hof($this->value, 0, $this);
+    call_user_func($hof, $this->value, 0, $this);
+    return $this;
+  }
+
+  /**
+   * Fold across this class
+   * @param callable $hof ($prevVal, $value, $key, $container): mixed
+   * @param mixed $startVal
+   * @return mixed - whatever the last cycle of $hof returns
+   * @sig ((callable (a, b)-> a , a) -> a
+   */
+  public function fold(callable $hof, $startVal)
+  {
+    return call_user_func($hof, $startVal, $this->value, 0, $this);
+  }
+
+  /**
+   * Fold Right across this class
+   * @param callable $hof ($prevVal, $value, $key, $container): mixed
+   * @param mixed $startVal
+   * @return mixed - whatever the last cycle of $hof returns
+   */
+  public function foldRight(callable $hof, $startVal)
+  {
+    return call_user_func($hof, $startVal, $this->value, 0, $this);
+  }
+
+  /**
+   * Is the container empty?
+   * @return bool
+   */
+  public function isEmpty()
+  {
+    return false;
+  }
+
+  /**
+   * Search the container
+   * @param callable $hof ($value, $key, $container):boolean
+   * @return Maybe
+   */
+  public function find(callable $hof)
+  {
+    return call_user_func($hof, $this->value, 0, $this) ? Some($this->value) : None();
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forAll(callable $predicate)
+  {
+    return (boolean)call_user_func($predicate, $this->value, 0, $this);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forNone(callable $predicate)
+  {
+    return !((boolean)call_user_func($predicate, $this->value, 0, $this));
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function forSome(callable $predicate)
+  {
+    return (boolean)call_user_func($predicate, $this->value, 0, $this);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function getIterator()
+  {
+    return new \ArrayIterator([$this->value]);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function count()
+  {
+    return 1;
   }
 }

@@ -38,8 +38,7 @@ class MaybeTest extends \PHPUnit_Framework_TestCase
   public function maybeEmptyProvider()
   {
     return [
-      [[]]
-      , [null]
+      [null]
     ];
   }
 
@@ -47,6 +46,7 @@ class MaybeTest extends \PHPUnit_Framework_TestCase
   {
     return [
       [0]
+      , [[]]
       , ['']
       , [P\None()]
       , [false]
@@ -107,32 +107,6 @@ class MaybeTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       P\Some
       , P\Maybe::of($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type Some'
-    );
-  }
-
-  /**
-   * @dataProvider maybeEmptyProvider
-   */
-  public function test_static_from_nothing($value)
-  {
-
-    $this->assertInstanceOf(
-      P\None
-      , P\Maybe::from($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type Null'
-    );
-
-  }
-
-  /**
-   * @dataProvider maybeSomethingProvider
-   */
-  public function test_static_from_something($value)
-  {
-    $this->assertInstanceOf(
-      P\Some
-      , P\Maybe::from($value)
       , 'Value ' . json_encode($value, true) . ' should be of type Some'
     );
   }

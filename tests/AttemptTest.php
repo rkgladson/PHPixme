@@ -26,21 +26,32 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
 
   public function test_Attempt_companion_returns_children()
   {
-    $this->assertStringEndsWith(
-      '\Attempt'
-      , P\Attempt
-      , 'Ensure constant ends with the function name'
-    );
-
     $this->assertInstanceOf(
-      P\Success
+      P\Success::class
       , P\Attempt(function () {
       })
       , "No thrown values produce a Success"
     );
     $this->assertInstanceOf(
-      P\Failure
+      P\Failure::class
       , P\Attempt(function () {
+        throw new \Exception();
+      })
+      , 'Throwing an exception produces a Failure'
+    );
+  }
+
+  public function test_Attempt_of_returns_children()
+  {
+    $this->assertInstanceOf(
+      P\Success::class
+      , P\Attempt::of(function () {
+      })
+      , "No thrown values produce a Success"
+    );
+    $this->assertInstanceOf(
+      P\Failure::class
+      , P\Attempt::of(function () {
         throw new \Exception();
       })
       , 'Throwing an exception produces a Failure'

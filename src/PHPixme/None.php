@@ -60,18 +60,11 @@ class None extends Maybe
   /**
    * @inheritdoc
    */
-  public static function of($head = null, ...$tail)
+  public static function of($head = null)
   {
     return static::getInstance();
   }
-
-  /**
-   * @inheritdoc
-   */
-  public static function from($args)
-  {
-    return static::getInstance();
-  }
+  
   // == Natural transformation Static ==
 
   // -- Magic Methods --
@@ -235,47 +228,6 @@ class None extends Maybe
 
   // == Natural Transformation interface methods ==
 
-  // -- Iterator interface methods--
-  /**
-   * @return null
-   * @codeCoverageIgnore - Transversable interface will never run this
-   */
-  public function key()
-  {
-    return null;
-  }
-
-  /**
-   * None is always at it's end
-   * @return false
-   */
-  public function valid()
-  {
-    return false;
-  }
-
-  /**
-   * @codeCoverageIgnore Transversable interface will never exectue this
-   */
-  public function next()
-  {
-    // This space is intentionally left blank
-  }
-
-  public function rewind()
-  {
-    // This space is intentionally left blank
-  }
-
-  /**
-   * @codeCoverageIgnore Interface will never execute this
-   * @return null
-   */
-  public function current()
-  {
-    return null;
-  }
-  // == Iterator interface methods==
 
   // -- Countable Interface --
   public function count()
@@ -283,4 +235,8 @@ class None extends Maybe
     return 0;
   }
   // == Countable Interface ==
+  public function getIterator()
+  {
+    return new \EmptyIterator();
+  }
 }

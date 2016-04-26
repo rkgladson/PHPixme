@@ -9,7 +9,7 @@ const Attempt = __NAMESPACE__.'\Attempt';
 function Attempt(callable $hof)
 {
     try {
-        return Success($hof());
+        return Success(call_user_func($hof));
     } catch (\Exception $e) {
         return Failure($e);
     }
