@@ -15,3 +15,4 @@ if (!file_exists($autoloader)) {
 }
 require $autoloader;
 require __DIR__ . '/phpunit/TestClass.php';
+require __DIR__ . '/phpunit/AssertTypeStub.php';

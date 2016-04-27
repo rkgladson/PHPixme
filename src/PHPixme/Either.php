@@ -3,7 +3,7 @@ namespace PHPixme;
 
 abstract class Either implements SingleStaticCreation
 {
-  use AssertIs;
+  use AssertType;
   /**
    * Get the value regardless of whether the class is a Left or a Right
    * @return mixed

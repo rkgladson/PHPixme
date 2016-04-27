@@ -24,6 +24,7 @@ abstract class Attempt implements
   , SingleStaticCreation
   , \Countable
 {
+  use AssertType;
 
   /**
    * @param callable $value
@@ -75,7 +76,7 @@ abstract class Attempt implements
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return static::assertAttemptType($result);
+    return Attempt::assertType($result);
   }
 
 
@@ -148,13 +149,6 @@ abstract class Attempt implements
    * @return $this
    */
   abstract public function walk(callable $hof);
-
-  protected function assertAttemptType($unknown)
-  {
-    if (!$unknown instanceof Attempt) {
-      throw new \UnexpectedValueException('return value must be an instance of Attempt!');
-    }
-    return $unknown;
-  }
+  
 }
 

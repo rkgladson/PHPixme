@@ -49,6 +49,16 @@ class __PRIVATE__
     return static::$placeholder;
   }
 
+  public static function getDescriptor($value)
+  {
+    return is_object($value)
+      ? get_class($value)
+      : (
+      is_resource($value)
+        ? get_resource_type($value)
+        : gettype($value)
+      );
+  }
 
   /**
    * Asserts that the input can be used in some way by user_call_function_array
@@ -72,11 +82,14 @@ class __PRIVATE__
    */
   static function assertCollection($unknown)
   {
-    if (!($unknown instanceof CollectionInterface)) {
-      throw new \UnexpectedValueException('Return value was not implimentor of Collection!');
+    if ($unknown instanceof CollectionInterface) {
+      return $unknown;
     }
-    return $unknown;
+    throw new \UnexpectedValueException(
+      __PRIVATE__::getDescriptor($unknown) . ' is not a kind of ' . CollectionInterface::class
+    );
   }
+
   /**
    * Asserts the value is a number
    * @param $number
@@ -107,14 +120,15 @@ class __PRIVATE__
     return $arrayLike;
   }
 
-  static function copyTransversable($traversable) {
+  static function copyTransversable($traversable)
+  {
     static::assertTraversable($traversable);
     return is_array($traversable)
       ? $traversable
       : (
       $traversable instanceof \IteratorAggregate
         ? $traversable->getIterator()
-        :  clone ($traversable)
+        : clone ($traversable)
       );
   }
 

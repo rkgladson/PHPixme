@@ -3,24 +3,21 @@
 namespace PHPixme;
 
 
-trait AssertIs
+trait AssertType
 {
   /**
+   * Helper for return value checking.
    * @param mixed $unknown
    * @return static
    * @throws \UnexpectedValueException when it is not a kind of self
    */
-  static public function assertIs($unknown)
+  static public function assertType($unknown)
   {
     if ($unknown instanceof static) {
       return $unknown;
     }
     throw new \UnexpectedValueException(
-      (
-      is_object($unknown)
-        ? get_class($unknown)
-        : gettype($unknown)
-      ) . ' is not a kind of ' . static::class
+      __PRIVATE__::getDescriptor($unknown) . ' is not a kind of ' . static::class
     );
   }
 }

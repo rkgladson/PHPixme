@@ -15,6 +15,7 @@ class Seq implements
   , ReducibleInterface
   , \Countable
 {
+  use AssertType;
   private $hash = [];
   private $keyR = [];
   private $keyRBackwards = [];

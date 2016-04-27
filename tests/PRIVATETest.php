@@ -9,6 +9,7 @@
 namespace tests\PHPixme;
 
 use PHPixme\__PRIVATE__ as internal;
+use PHPixme\__PRIVATE__;
 use PHPixme\CollectionInterface;
 use function PHPixme\_ as _;
 const closure = \Closure::class;
@@ -403,6 +404,19 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     // Let us now go forth and engage in jolly cooperation!
   }
 
+
+  public function test_getDescriptor (){
+    $this->assertEquals(\stdClass::class, __PRIVATE__::getDescriptor(new \stdClass()));
+    $handle = curl_init('http://www.wikipedia.com/');
+    $this->assertEquals('curl', __PRIVATE__::getDescriptor($handle));
+    curl_close($handle);
+    $other = [
+      [], [1], 0, 1, -0.0, +0.0, 1.0, NAN, INF, '', '^_^', null, true, false
+    ];
+    array_walk($other, function ($value) {
+      $this->assertEquals(gettype($value), __PRIVATE__::getDescriptor($value));
+    });
+  }
   /**
    * @param callable $callable
    * @dataProvider callableProvider

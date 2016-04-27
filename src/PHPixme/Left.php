@@ -41,7 +41,7 @@ class Left extends Either
    */
   public function flattenLeft()
   {
-    return Either::assertIs($this->value);
+    return Either::assertType($this->value);
   }
 
   /**

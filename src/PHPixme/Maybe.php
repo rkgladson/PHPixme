@@ -15,7 +15,7 @@ abstract class Maybe implements
   , ReducibleInterface
   , \Countable
 {
-
+  use AssertType;
   // -- Natural Transformation Interface Statics --
   static function of($head = null)
   {
@@ -77,7 +77,7 @@ abstract class Maybe implements
   public function orElse(callable $hof)
   {
     if ($this->isEmpty()) {
-      return static::assertMaybeType($hof());
+      return Maybe::assertType(call_user_func($hof));
     }
     return $this;
   }
@@ -115,17 +115,6 @@ abstract class Maybe implements
   }
 
   // == NaturalTransformationInterface ==
-  /**
-   * @param $unknown
-   * @return mixed
-   * @throws \UnexpectedValueException
-   */
-  protected function assertMaybeType($unknown)
-  {
-    if (!($unknown instanceof Maybe)) {
-      throw new \UnexpectedValueException('return value must be an instance of Maybe!');
-    }
-    return $unknown;
-  }
+  
 }
 

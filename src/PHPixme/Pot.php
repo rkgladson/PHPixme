@@ -7,12 +7,11 @@
  */
 
 namespace PHPixme;
-use Traversable;
 
 /**
  * Class Pot
  * @package PHPixme
- * @decription
+ * @description
  * Pot is an exception class that may contain any data you wish, designed to pass more than just a message.
  * Please note there is no EmptyPot. It must always have a value.
  */
@@ -21,6 +20,7 @@ class Pot extends \Exception implements
   , SingleStaticCreation
   , \Countable
 {
+  use AssertType;
   protected $contents;
 
   public function __construct($data, $message = '')
@@ -37,14 +37,6 @@ class Pot extends \Exception implements
   public function get()
   {
     return $this->contents;
-  }
-
-  public static function assertPotType($pot)
-  {
-    if ($pot instanceof self) {
-      return $pot;
-    }
-    throw new \UnexpectedValueException('Expected value was not an instance of Pot');
   }
 
   /**
@@ -95,7 +87,7 @@ class Pot extends \Exception implements
    */
   public function flatMap(callable $hof)
   {
-    return static::assertPotType(call_user_func($hof, $this->contents, 0, $this));
+    return Pot::assertType(call_user_func($hof, $this->contents, 0, $this));
   }
 
   /**
@@ -104,7 +96,7 @@ class Pot extends \Exception implements
    */
   public function flatten()
   {
-    return static::assertPotType($this->contents);
+    return Pot::assertType($this->contents);
   }
 
   /**

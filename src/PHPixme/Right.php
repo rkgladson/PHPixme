@@ -56,7 +56,7 @@ class Right extends Either
 
   public function flattenRight()
   {
-    return Either::assertIs($this->value);
+    return Either::assertType($this->value);
   }
 
   /**

@@ -58,12 +58,12 @@ class Success extends Attempt
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return static::assertAttemptType($result);
+    return Attempt::assertType($result);
   }
 
   public function flatten()
   {
-    return static::assertAttemptType($this->value);
+    return Attempt::assertType($this->value);
   }
 
   /**
@@ -124,7 +124,7 @@ class Success extends Attempt
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return static::assertAttemptType($result);
+    return Attempt::assertType($result);
   }
 
 
