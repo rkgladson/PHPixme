@@ -32,6 +32,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'Some(1)' => [P\Some(1)]
       , 'None' => [P\None()]
       , 'Array({one:1, two: 2})' => [['one' => 1, 'two' => 2]]
+      , 'ArrayObject({one:1, two: 2})' => [new \ArrayObject(['one' => 1, 'two' => 2])]
       , 'ArrayIterator({one:1, two: 2})' => [new \ArrayIterator(['one' => 1, 'two' => 2])]
       , 'S[]' => [P\Seq([])]
       , 'S[1,2,3]' => [P\Seq([1, 2, 3])]
@@ -83,6 +84,17 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_constructor_iterator_immutability() {
+    $testIter = new \ArrayIterator([1,2,3,4,5]);
+    $testIter->next();
+    $prevKey = $testIter->key();
+    new P\Seq($testIter);
+    $this->assertTrue(
+      $prevKey === $testIter->key()
+      , 'the constructor aught not to ever change the state of an iterator'
+    );
+
+  }
 
   public function arrayOfThingsProvider()
   {
@@ -92,6 +104,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , [['one' => 1, 'two' => 2]]
       , [[P\Some(1), P\None()]]
       , [[P\Seq::of(1, 2, 3), P\Seq::of(4, 5, 6)]]
+      , [new \ArrayObject(['one' => 1, 'two' => 2]), 'getArrayCopy']
       , [new \ArrayIterator(['one' => 1, 'two' => 2]), 'getArrayCopy']
     ];
   }
@@ -1148,7 +1161,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
         }
         , P\Seq::of(
           P\Seq::from([1 => 2, 3 => 4, 5 => 6, 7 => 8])
-          , P\Seq::From([0 => 1, 2 => 3, 4 => 5, 6 => 7, 8 => 9])
+          , P\Seq::from([0 => 1, 2 => 3, 4 => 5, 6 => 7, 8 => 9])
         )
       ]
     ];
@@ -1515,7 +1528,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    */
   public function test_forEach($seq, $keyR, $valueR)
   {
-    $idx = 0;
+    $idx = 0; $count = 0;
     foreach ($seq as $key => $value) {
       $this->assertEquals(
         $keyR[$idx]
@@ -1528,11 +1541,20 @@ class SeqTest extends \PHPUnit_Framework_TestCase
         , 'The value at this step should equal the expected value'
       );
       $idx += 1;
+
+      foreach ($seq as $k => $v) {
+        $count +=1;
+      }
     }
     $this->assertEquals(
-      $seq->count()
+      count($seq)
       , $idx
-      , 'The for each should of ran the length of the contained array'
+      , 'The foreach should of ran the length of the contained array'
+    );
+    $this->assertEquals(
+      count($seq) ** 2
+      , $count
+      , 'The foreach should not cause a mutation on iteration when nested'
     );
   }
 }
