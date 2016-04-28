@@ -388,14 +388,14 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     /** Show that (X1 X2 X3) ≅ (_1 _2 X3) -> (_1 X2) -> (X1) **/
     // Previously we proved that (_1 _2 X3) is a thunk.
     // Skipping proof for this step
-    $step2_1_2X3___1X2 = $arity3(_(),_(), 3)->__invoke(_(), 2);
+    $step2_1_2X3___1X2 = $arity3(_(), _(), 3)->__invoke(_(), 2);
     $this->assertInstanceOf(closure, $step2_1_2X3___1X2);
     $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2());
     $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2(_()));
     // (_1 _2 X3) -> (_1 X2) is a thunk
 
     // => (_1 _2 X3) -> (_1 X2) -> (X1)
-    $this->assertEquals($expectedOutput, $step2_1_2X3___1X2(1,7));
+    $this->assertEquals($expectedOutput, $step2_1_2X3___1X2(1, 7));
     unset ($step2_1_2X3___1X2);
     /** ∴ (X1 X2 X3) ≅ (_1 _2 X3) -> (_1 X2) -> (X1) ∎ **/
 
@@ -405,7 +405,8 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
   }
 
 
-  public function test_getDescriptor (){
+  public function test_getDescriptor()
+  {
     $this->assertEquals(\stdClass::class, __PRIVATE__::getDescriptor(new \stdClass()));
     $handle = curl_init('http://www.wikipedia.com/');
     $this->assertEquals('curl', __PRIVATE__::getDescriptor($handle));
@@ -417,6 +418,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       $this->assertEquals(gettype($value), __PRIVATE__::getDescriptor($value));
     });
   }
+
   /**
    * @param callable $callable
    * @dataProvider callableProvider
@@ -501,6 +503,40 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
   {
     $this->expectException(\InvalidArgumentException::class);
     internal::assertTraversable($notTransversable);
+  }
+
+
+  public function test_copyTransversable()
+  {
+    $arr = [1,2,3];
+    $result = internal::copyTransversable($arr);
+    $arr[0] = 0;
+    $this->assertTrue(is_array($result), 'Should return an array on an array input');
+    $this->assertNotEquals($arr, $result, 'If php is working, this should automatically work.');
+    $iter = new \ArrayIterator($arr);
+
+    $result = internal::copyTransversable($iter);
+    $this->assertInstanceOf(\Iterator::class, $result);
+    $this->assertInstanceOf(\ArrayIterator::class, $result);
+    $this->assertInstanceOf(get_class($result), $result);
+    $this->assertTrue($iter == $result);
+    $this->assertFalse($iter === $result);
+
+    $iterAggr = new \ArrayObject($arr);
+    $result = internal::copyTransversable($iterAggr);
+    $this->assertInstanceOf(\Iterator::class, $result);
+    $this->assertInstanceOf(
+      get_class($iterAggr->getIterator())
+      , $result
+      , 'it should not clone iterator aggregates, rather just get an instance of a iterator.'
+    );
+
+  }
+
+  public function test_copyTransversable_broken_contract()
+  {
+    $this->expectException(\InvalidArgumentException::class);
+    internal::copyTransversable(null);
   }
 
   public function callableProvider()
