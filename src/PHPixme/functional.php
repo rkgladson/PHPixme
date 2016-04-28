@@ -72,7 +72,9 @@ const unary = __NAMESPACE__ . '\unary';
  */
 function unary(callable $hof)
 {
-  return __PRIVATE__::curryExactly1(toClosure($hof));
+  return function ($_0) use ($hof) {
+    return call_user_func($hof, $_0);
+  };
 }
 
 // == unary ==
@@ -87,7 +89,9 @@ const binary = __NAMESPACE__ . '\binary';
  */
 function binary(callable $hof)
 {
-  return __PRIVATE__::curryExactly2(toClosure($hof));
+  return function ($_0, $_1) use ($hof) {
+    return call_user_func($hof, $_0, $_1);
+  };
 }
 
 // == binary ==
@@ -101,7 +105,9 @@ const ternary = __NAMESPACE__ . '\ternary';
  */
 function ternary(callable $hof)
 {
-  return __PRIVATE__::curryExactly3(toClosure($hof));
+  return function () use ($hof) {
+    return call_user_func_array($hof, array_slice(func_get_args(), 0, 3));
+  };
 }
 
 // == ternary ==
@@ -621,7 +627,7 @@ function callWith($accessor, $container = null)
 
 // -- pluckObjectWith --
 const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
-__PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($accessor, $container)  {
+__PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
   return $container->{$accessor};
 });
 /**
@@ -651,7 +657,7 @@ __PRIVATE__::$instance[pluckArrayWith] = __PRIVATE__::curryExactly2(function ($a
  */
 function pluckArrayWith($accessor, $container = null)
 {
-  return call_user_func_array(__PRIVATE__::$instance[pluckArrayWith],func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[pluckArrayWith], func_get_args());
 }
 
 // == pluckArrayWith ==

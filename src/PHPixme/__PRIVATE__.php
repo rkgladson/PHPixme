@@ -69,10 +69,10 @@ class __PRIVATE__
    */
   static function assertCallable($callable)
   {
-    if (!is_callable($callable)) {
-      throw new \InvalidArgumentException('callback must be a callable function');
+    if (is_callable($callable)) {
+      return $callable;
     }
-    return $callable;
+    throw new \InvalidArgumentException('callback must be a callable function');
   }
 
   /**
@@ -99,10 +99,10 @@ class __PRIVATE__
    */
   static function assertPositiveOrZero($number)
   {
-    if (!is_integer($number) || $number < 0) {
-      throw new \InvalidArgumentException('argument must be a integer 0 or greater');
+    if (is_integer($number) && -1 < $number) {
+      return $number;
     }
-    return $number;
+    throw new \InvalidArgumentException('argument must be a integer 0 or greater');
   }
 
   /**
@@ -114,10 +114,10 @@ class __PRIVATE__
    */
   public static function assertTraversable($arrayLike)
   {
-    if (!is_array($arrayLike) && !($arrayLike instanceof \Traversable)) {
-      throw new \InvalidArgumentException('argument must be a Traversable or array');
+    if (is_array($arrayLike) || $arrayLike instanceof \Traversable) {
+      return $arrayLike;
     }
-    return $arrayLike;
+    throw new \InvalidArgumentException('argument must be a Traversable or array');
   }
 
   static function copyTransversable($traversable)

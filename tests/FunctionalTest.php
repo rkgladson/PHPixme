@@ -560,7 +560,7 @@ class S_tarlingTest extends \PHPUnit_Framework_TestCase
     $kvTupple = function ($v, $k) {
       return [$k, $v];
     };
-    $kvMap = P\ternary('array_map')->__invoke($kvTupple);
+    $kvMap = P\curry(3, P\ternary('array_map'))->__invoke($kvTupple);
     $this->assertEquals(
       array_map($kvTupple, $array, array_keys($array))
       , P\S($kvMap, 'array_keys')->__invoke($array)
