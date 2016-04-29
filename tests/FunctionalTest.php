@@ -684,7 +684,7 @@ class beforeTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       Closure
       , $printArgs
-      , 'The frist argument shal produce a Closure'
+      , 'The first argument shall produce a Closure'
     );
     $echoArgsIdiot = $printArgs(function ($x) {
       return $x;
@@ -692,7 +692,7 @@ class beforeTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(
       Closure
       , $echoArgsIdiot
-      , 'The secon argument shal produce a closure'
+      , 'The second argument shall produce a closure'
     );
 
     $this->expectOutputString($expectingSideEffect . $expectingSideEffect);
@@ -929,6 +929,18 @@ class foldTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\fold(P\I, 0, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
+    );
+  }
+
   /**
    * @dataProvider scenarioProvider
    */
@@ -946,7 +958,10 @@ class foldTest extends \PHPUnit_Framework_TestCase
       'array callback' => [
         [1], 1, 0
       ]
-      , 'traversable callback' => [
+      , 'iterator aggregate callback' => [
+        new \ArrayObject([1]), 1, 0
+      ]
+      , 'iterator callback' => [
         new \ArrayIterator([1]), 1, 0
       ]
       , 'natural interface callback' => [
@@ -980,6 +995,12 @@ class foldTest extends \PHPUnit_Framework_TestCase
         , 0
       ]
       , 'ArrayObject[]' => [
+        new \ArrayObject([])
+        , 0
+        , $add
+        , 0
+      ]
+      , 'ArrayIterator[]' => [
         new \ArrayIterator([])
         , 0
         , $add
@@ -1004,6 +1025,12 @@ class foldTest extends \PHPUnit_Framework_TestCase
         , 4
       ]
       , 'add ArrayObject[1,2,3]' => [
+        new \ArrayObject([1, 2, 3])
+        , 0
+        , $add
+        , 6
+      ]
+      , 'add ArrayIterator[1,2,3]' => [
         new \ArrayIterator([1, 2, 3])
         , 0
         , $add
@@ -1095,6 +1122,18 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\foldRight(P\I, 0, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
+    );
+  }
+
   /**
    * @dataProvider orderProvider
    */
@@ -1126,7 +1165,10 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
       'array callback' => [
         [1], 1, 0
       ]
-      , 'traversable callback' => [
+      , 'iterator aggregate callback' => [
+        new \ArrayObject([1]), 1, 0
+      ]
+      , 'iterator callback' => [
         new \ArrayIterator([1]), 1, 0
       ]
       , 'natural interface callback' => [
@@ -1141,6 +1183,7 @@ class foldRightTest extends \PHPUnit_Framework_TestCase
     $expected = '321';
     return [
       '[1,2,3]' => [$source, $expected]
+      , 'ArrayObject([1,2,3])' => [new \ArrayObject($source), $expected]
       , 'ArrayIterator([1,2,3])' => [new \ArrayIterator($source), $expected]
       , 'Seq(1,2,3)' => [P\Seq($source), $expected]
     ];
@@ -1292,6 +1335,18 @@ class reduceTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\reduce(P\I, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
+    );
+  }
+
   /**
    * @dataProvider scenarioProvider
    */
@@ -1309,7 +1364,8 @@ class reduceTest extends \PHPUnit_Framework_TestCase
       '[]' => [[]]
       , 'None' => [P\None()]
       , 'S[]' => [P\Seq::of()]
-      , 'ArrayItterator[]' => [new \ArrayIterator([])]
+      , 'ArrayObject[]' => [new \ArrayObject([])]
+      , 'ArrayIterator[]' => [new \ArrayIterator([])]
     ];
   }
 
@@ -1319,7 +1375,10 @@ class reduceTest extends \PHPUnit_Framework_TestCase
       'array callback' => [
         [1, 2], 1, 2, 1
       ]
-      , 'traversable callback' => [
+      , 'iterator aggregate callback' => [
+        new \ArrayObject([1, 2]), 1, 2, 1
+      ]
+      , 'iterator callback' => [
         new \ArrayIterator([1, 2]), 1, 2, 1
       ]
       , 'natural interface callback' => [
@@ -1463,6 +1522,18 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\reduceRight(P\I, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
+    );
+  }
+
   /**
    * @dataProvider orderProvider
    */
@@ -1495,7 +1566,8 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
       '[]' => [[]]
       , 'None' => [P\None()]
       , 'S[]' => [P\Seq::of()]
-      , 'ArrayItterator[]' => [new \ArrayIterator([])]
+      , 'ArrayObject[]' => [new \ArrayObject([])]
+      , 'ArrayIterator[]' => [new \ArrayIterator([])]
     ];
   }
 
@@ -1506,7 +1578,10 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
       'array callback' => [
         [1, 2], 2, 1, 0
       ]
-      , 'traversable callback' => [
+      , 'iterator aggregate callback' => [
+        new \ArrayObject([1, 2]), 2, 1, 0
+      ]
+      , 'iterator callback' => [
         new \ArrayIterator([1, 2]), 2, 1, 0
       ]
       , 'natural interface callback' => [
@@ -1533,6 +1608,11 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
       ]
 
       , 'add ArrayObject[1]' => [
+        new \ArrayObject([1])
+        , $add
+        , 1
+      ]
+      , 'add ArrayIterator[1]' => [
         new \ArrayIterator([1])
         , $add
         , 1
@@ -1552,8 +1632,12 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
         , $add
         , 6
       ]
-
       , 'add ArrayObject[1,2,3]' => [
+        new \ArrayObject([1, 2, 3])
+        , $add
+        , 6
+      ]
+      , 'add ArrayIterator[1,2,3]' => [
         new \ArrayIterator([1, 2, 3])
         , $add
         , 6
@@ -1567,6 +1651,7 @@ class reduceRightTest extends \PHPUnit_Framework_TestCase
     $output = '321';
     return [
       '[1,2,3]' => [$source, $output]
+      , 'ArrayObject(1,2,3)' => [new \ArrayObject($source), $output]
       , 'ArrayIterator(1,2,3)' => [new \ArrayIterator($source), $output]
       , 'Seq(1,2,3)' => [P\Seq($source), $output]
     ];
@@ -1596,30 +1681,24 @@ class mapTest extends \PHPUnit_Framework_TestCase
     P\map(function () use ($arrayLike, $expVal, $expKey) {
       $this->assertTrue(
         3 === func_num_args()
-        , 'map callback should receive three arguments'
+        , 'callback should receive three arguments'
       );
       $this->assertEquals(
         $expVal
         , func_get_arg(0)
-        , 'map callback $value should be equal to the value expected'
+        , 'callback $value should be equal to the value expected'
       );
       $this->assertEquals(
         $expKey
         , func_get_arg(1)
-        , 'map callback $key should be defined'
+        , 'callback $key should be defined'
       );
-      if (is_object($arrayLike)) {
-        $this->assertTrue(
-          $arrayLike === func_get_arg(2)
-          , 'map callback $container should be the same instance as the source data being mapped'
-        );
-      } else {
-        $this->assertEquals(
-          $arrayLike
-          , func_get_arg(2)
-          , 'map callback $container should equal to the array being mapped'
-        );
-      }
+
+      $this->assertTrue(
+        $arrayLike === func_get_arg(2)
+        , 'callback $container should be the same instance as the source data'
+      );
+
     }, $arrayLike);
   }
 
@@ -1635,13 +1714,25 @@ class mapTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(
       $array
       , $result
-      , 'map applied with idiot should produce a functionally identical array'
+      , 'applied with idiot should produce a functionally identical array'
     );
     $result[0] += 1;
     $this->assertNotEquals(
       $array
       , $result
-      , 'map applied with idiot should not actually be the same instance of array'
+      , 'applied with idiot should not actually be the same instance of array'
+    );
+  }
+
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\map(P\I, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
     );
   }
 
@@ -1668,7 +1759,10 @@ class mapTest extends \PHPUnit_Framework_TestCase
       , 'Some(1)' => [
         P\Some::of(1), 1, 0
       ]
-      , 'ArrayItterator[1]' => [
+      , 'ArrayObject[1]' => [
+        new \ArrayObject([1]), 1, 0
+      ]
+      , 'ArrayIterator[1]' => [
         new \ArrayIterator([1]), 1, 0
       ]
     ];
@@ -1682,6 +1776,11 @@ class mapTest extends \PHPUnit_Framework_TestCase
     return [
       '[1,2] * 2' => [
         [1, 2]
+        , $x2
+        , [2, 4]
+      ]
+      , 'ArrayObject[1,2] * 2' => [
+        new \ArrayObject([1, 2])
         , $x2
         , [2, 4]
       ]
@@ -1711,6 +1810,102 @@ class mapTest extends \PHPUnit_Framework_TestCase
           return "$key => $value";
         }
         , ['0 => 1', '1 => 2', '2 => 3']
+      ]
+    ];
+  }
+}
+
+class walkTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\walk'
+      , P\walk
+      , 'Ensure the constant is assigned to its function name'
+    );
+    $this->assertTrue(
+      function_exists(P\walk)
+      , 'Ensure the constant points to an existing function.'
+    );
+  }
+
+  /**
+   * @dataProvider callbackProvider
+   */
+  public function test_callback($arrayLike, $expVal, $expKey)
+  {
+    $ran = 0;
+    P\walk(function () use ($arrayLike, $expVal, $expKey, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive three arguments'
+      );
+      $this->assertEquals(
+        $expVal
+        , func_get_arg(0)
+        , 'callback $value should be equal to the value expected'
+      );
+      $this->assertEquals(
+        $expKey
+        , func_get_arg(1)
+        , 'callback $key should be defined'
+      );
+
+      $this->assertTrue(
+        $arrayLike === func_get_arg(2)
+        , 'callback $container should be the same as the source data being operated upon'
+      );
+      $ran += 1;
+    }, $arrayLike);
+    $this->assertTrue($ran > 0, 'the callback should of ran');
+  }
+
+  public function test_return($array = [1, 2, 3])
+  {
+
+    $this->assertInstanceOf(
+      Closure
+      , P\walk(P\I)
+      , 'map when partially applied should return a closure'
+    );
+    $result = P\walk(P\I)->__invoke($array);
+    $this->assertTrue(
+      $array === $result
+      , 'applied should produce a the same as what was passed into it.'
+    );
+
+  }
+
+  public function test_iterator_immutability()
+  {
+    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test->next();
+    $prevKey = $test->key();
+    P\walk(P\I, $test);
+    $this->assertTrue(
+      $prevKey === $test->key()
+      , 'The function must not alter the state of an iterator.'
+    );
+  }
+
+  public function callbackProvider()
+  {
+    return [
+      '[1]' => [
+        [1], 1, 0
+      ]
+      , 'S[1]' => [
+        P\Seq::of(1), 1, 0
+      ]
+      , 'Some(1)' => [
+        P\Some::of(1), 1, 0
+      ]
+      , 'ArrayIterator[1]' => [
+        new \ArrayIterator([1]), 1, 0
+      ]
+      , 'ArrayObject[1]' => [
+        new \ArrayObject([1]), 1, 0
       ]
     ];
   }
@@ -2002,8 +2197,10 @@ class toClosureTest extends \PHPUnit_Framework_TestCase
 
 }
 
-class tossTest extends \PHPUnit_Framework_TestCase{
-  public function test_constant () {
+class tossTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
     $this->assertStringEndsWith(
       '\toss'
       , P\toss
@@ -2020,12 +2217,14 @@ class tossTest extends \PHPUnit_Framework_TestCase{
   /**
    * @dataProvider throwProvider
    */
-  public function test_throw($data, $class) {
+  public function test_throw($data, $class)
+  {
     $this->setExpectedException($class);
     P\toss($data);
   }
 
-  public function throwProvider() {
+  public function throwProvider()
+  {
     return [
       'Not exception' => [5, P\Pot::class]
       , 'Pot' => [P\Pot(5), P\Pot::class]

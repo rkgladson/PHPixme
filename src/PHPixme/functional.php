@@ -2,7 +2,6 @@
 namespace PHPixme;
 
 // -- placeholder --
-
 /**
  * Returns the placeholder instance that is used for placing gaps in curry
  * @return \stdClass
@@ -15,7 +14,6 @@ function _()
 // == placeholder ==
 
 // -- curry --
-
 const curry = __NAMESPACE__ . '\curry';
 __PRIVATE__::$instance[curry] = __PRIVATE__::curryExactly2(function ($arity, callable $callable) {
   __PRIVATE__::assertPositiveOrZero($arity);
@@ -147,7 +145,6 @@ function flip(callable $hof)
   });
 }
 
-;
 // == flip ==
 
 // -- combine --
@@ -600,6 +597,32 @@ function map(callable $hof, $traversable = null)
 }
 
 // == map ==
+
+// -- walk --
+const walk = __NAMESPACE__ . '\walk';
+__PRIVATE__::$instance[walk] = __PRIVATE__::curryExactly2(function (callable $hof, $collection) {
+  if (is_array($collection)) {
+    array_walk($collection, $hof, $collection);
+  } else if ($collection instanceof CollectionInterface) {
+    return $collection->walk($hof);
+  } else {
+    foreach(__PRIVATE__::copyTransversable($collection) as $k => $v) {
+      call_user_func($hof, $v, $k, $collection);
+    }
+  }
+  return $collection;
+});
+/**
+ * @param callable $hof
+ * @param array|CollectionInterface|\Traversable $collection
+ * @return \Closure|$collection
+ */
+function walk(callable $hof = null, $collection = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[walk], func_get_args());
+}
+
+// == walk ==
 
 // -- callWith --
 const callWith = __NAMESPACE__ . '\callWith';
