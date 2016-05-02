@@ -15,6 +15,7 @@
     },
     "files": [
       "src/PHPixme/functional.php",
+      "src/PHPixme/operator.php",
       "src/PHPixme/companionsAttempt.php",
       "src/PHPixme/companionsEither.php",
       "src/PHPixme/companionsMaybe.php",
