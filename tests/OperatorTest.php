@@ -632,19 +632,19 @@ class lteTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_return($x = 0, $y = 1)
+  public function test_return($lhs = 0, $rhs = 1)
   {
-    $expectedResult = $x <= $y;
+    $expectedResult = $lhs <= $rhs;
     $this->assertEquals(
       $expectedResult
-      , P\lte($x, $y)
+      , P\lte($lhs, $rhs)
       , 'Immediate application'
     );
-    $lte_XXY = P\lte(P\_(), $y);
+    $lte_XXY = P\lte(P\_(), $rhs);
     $this->assertInstanceOf(Closure, $lte_XXY, 'deferred flipped application');
     $this->assertEquals(
       $expectedResult
-      , $lte_XXY($x)
+      , $lte_XXY($lhs)
       , 'the function should be able to be placeheld for easier flipping'
     );
   }
@@ -673,25 +673,26 @@ class ufoTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider returnProvider
    */
-  public function test_return($x = 0, $y = 1)
+  public function test_return($lhs = 0, $rhs = 1)
   {
 
 //    $expectedResult = $x <=> $y;
-    $expectedResult = $x > $y ? 1 : ($x < $y ? -1 : 0);
-
+    $expectedResult = $lhs > $rhs ? 1 : ($lhs < $rhs ? -1 : 0);
 
     $this->assertEquals(
       $expectedResult
-      , P\ufo($x, $y)
+      , P\ufo($lhs, $rhs)
       , 'Immediate application'
     );
-    $ufo_XXY = P\ufo(P\_(), $y);
+    $this->assertTrue(is_int(P\ufo($lhs, $rhs)));
+    $ufo_XXY = P\ufo(P\_(), $rhs);
     $this->assertInstanceOf(Closure, $ufo_XXY, 'deferred flipped application');
     $this->assertEquals(
       $expectedResult
-      , $ufo_XXY($x)
+      , $ufo_XXY($lhs)
       , 'the function should be able to be placeheld for easier flipping'
     );
+    $this->assertTrue(is_int($ufo_XXY($lhs)));
   }
 
   public function returnProvider()
@@ -1069,9 +1070,85 @@ class notBTest extends \PHPUnit_Framework_TestCase
     $resultFalse = ~1;
     $resultTrue = ~0;
     $this->assertEquals($resultTrue, P\notB(0));
-    $this->assertEquals($resultFalse,P\notB(1));
-    $this->assertEquals($resultTrue,P\notB(P\_())->__invoke(0));
-    $this->assertEquals($resultFalse,P\notB(P\_())->__invoke(1));
+    $this->assertEquals($resultFalse, P\notB(1));
+    $this->assertEquals($resultTrue, P\notB(P\_())->__invoke(0));
+    $this->assertEquals($resultFalse, P\notB(P\_())->__invoke(1));
 
+  }
+}
+
+class shiftLTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\shiftL'
+      , P\shiftL
+      , 'assure the constant contains itself'
+    );
+    $this->assertTrue(
+      function_exists(P\shiftL)
+      , 'assure the constant points to the function by the same name'
+    );
+    $this->assertInstanceOf(
+      Closure,
+      P\shiftL()
+      , 'the function applied with no arguments should result in the curried function'
+    );
+  }
+
+  public function test_return($lhs = 1, $rhs = 5)
+  {
+    $expectedResult = $lhs << $rhs;
+    $this->assertEquals(
+      $expectedResult
+      , P\shiftL($lhs, $rhs)
+      , 'Immediate application'
+    );
+    $shiftL_XXY = P\shiftL(P\_(), $rhs);
+    $this->assertInstanceOf(Closure, $shiftL_XXY, 'deferred flipped application');
+    $this->assertEquals(
+      $expectedResult
+      , $shiftL_XXY($lhs)
+      , 'the function should be able to be placeheld for easier flipping'
+    );
+  }
+}
+
+class shiftRTest extends \PHPUnit_Framework_TestCase
+{
+  public function test_constant()
+  {
+    $this->assertStringEndsWith(
+      '\shiftR'
+      , P\shiftR
+      , 'assure the constant contains itself'
+    );
+    $this->assertTrue(
+      function_exists(P\shiftR)
+      , 'assure the constant points to the function by the same name'
+    );
+    $this->assertInstanceOf(
+      Closure,
+      P\shiftR()
+      , 'the function applied with no arguments should result in the curried function'
+    );
+  }
+
+  public function test_return($lhs = 1, $rhs = 5)
+  {
+    $expectedResult = $lhs >> $rhs;
+    $this->assertEquals(
+      $expectedResult
+      , P\shiftR($lhs, $rhs)
+      , 'Immediate application'
+    );
+    $shiftR_XXY = P\shiftR(P\_(), $rhs);
+    $this->assertInstanceOf(Closure, $shiftR_XXY, 'deferred flipped application');
+    $this->assertEquals(
+      $expectedResult
+      , $shiftR_XXY($lhs)
+      , 'the function should be able to be placeheld for easier flipping'
+    );
   }
 }
