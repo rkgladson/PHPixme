@@ -9,7 +9,7 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
-defined('Closure') or define('Closure', \Closure::class);
+defined(__NAMESPACE__.'\Closure') or define(__NAMESPACE__.'\Closure', \Closure::class);
 
 class _Test extends \PHPUnit_Framework_TestCase
 {
