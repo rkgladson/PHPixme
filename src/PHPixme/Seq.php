@@ -21,7 +21,7 @@ class Seq implements
   private $keyR = [];
   private $keyRBackwards = [];
   private $length = 0;
-  
+
   /**
    * Seq constructor.
    * @param \Traversable|array|CollectionInterface $arrayLike
@@ -106,6 +106,19 @@ class Seq implements
       $dupe[$offset] = $value;
     }
     return new static($dupe);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function offsetApply($offset, callable $fn)
+  {
+    if (isset($this->hash[$offset])) {
+      $output = $this->hash;
+      $output[$offset] = call_user_func($fn, $this->hash[$offset]);
+      return new static($output);
+    }
+    return $this;
   }
 
   /**

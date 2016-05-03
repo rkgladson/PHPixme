@@ -84,8 +84,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_constructor_iterator_immutability() {
-    $testIter = new \ArrayIterator([1,2,3,4,5]);
+  public function test_constructor_iterator_immutability()
+  {
+    $testIter = new \ArrayIterator([1, 2, 3, 4, 5]);
     $testIter->next();
     $prevKey = $testIter->key();
     new P\Seq($testIter);
@@ -855,7 +856,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   public function test_reduceRight_direction($value = ['e' => 1, 'd' => 2, 'c' => 3, 'b' => 4, 5], $expected = '5bcde')
   {
-    $joinKeys = function ($acc, $value, $key) { return $acc . $key; };
+    $joinKeys = function ($acc, $value, $key) {
+      return $acc . $key;
+    };
     $this->assertEquals(
       $expected
       , P\Seq($value)->reduceRight($joinKeys)
@@ -1528,7 +1531,8 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    */
   public function test_forEach($seq, $keyR, $valueR)
   {
-    $idx = 0; $count = 0;
+    $idx = 0;
+    $count = 0;
     foreach ($seq as $key => $value) {
       $this->assertEquals(
         $keyR[$idx]
@@ -1543,7 +1547,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       $idx += 1;
 
       foreach ($seq as $k => $v) {
-        $count +=1;
+        $count += 1;
       }
     }
     $this->assertEquals(
@@ -1558,11 +1562,81 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  function test_offsetExists ($value = true, $offset = '1') {
+  public function test_offsetExists($value = true, $offset = '1')
+  {
     $source[$offset] = $value;
     $notOffset = $offset . 'nope';
     $eq = P\Seq::from($source);
     $this->assertTrue($eq->offsetExists($offset));
     $this->assertFalse($eq->offsetExists($notOffset));
   }
+
+  public function test_offsetGet($value = true, $offset = '1')
+  {
+    $source[$offset] = $value;
+    $notOffset = $offset . 'nope';
+    $eq = P\Seq::from($source);
+    $this->assertTrue($value === $eq->offsetGet($offset));
+    $this->assertNull($eq->offsetGet($notOffset));
+  }
+
+  public function test_offsetSet($value = true)
+  {
+    $emptySeq = P\Seq::from([]);
+    $expectedInsertedAtLocation[1] = $value;
+    $insertedAtLocation = $emptySeq->offsetSet(1, $value);
+    $this->assertInstanceOf(P\Seq::class, $insertedAtLocation);
+    $this->assertEquals($expectedInsertedAtLocation, $insertedAtLocation->toArray());
+    $expectedInsertedAtEnd[] = $value;
+    $insertedAtEnd = $emptySeq->offsetSet(null, $value);
+    $this->assertEquals($expectedInsertedAtEnd, $insertedAtEnd->toArray());
+  }
+
+  public function test_offsetApply()
+  {
+    $ident = P\Seq::of(1,2,3);
+    $seq_1_4_3 = $ident->offsetApply(1, P\add(2));
+    $this->assertInstanceOf(P\Seq::class, $seq_1_4_3 );
+    $this->assertTrue($ident !== $seq_1_4_3);
+    $this->assertEquals([1,4,3], $seq_1_4_3->toArray());
+    $this->assertNotEquals($ident->toArray(), $ident->offsetApply(1, P\add(2))->toArray());
+    $this->assertEquals([1,4,3], $ident->offsetApply(1, P\mul(2))->toArray());
+    $this->assertTrue(
+      $ident===$ident->offsetApply(null, function () {
+        throw new \Exception('Should never run!');
+      })
+      , 'Should be an identity when no offset exists'
+    );
+    $ran = 0;
+    $offset = 0;
+    $ident->offsetApply($offset, function () use (&$ran, $ident, $offset) {
+      $this->assertEquals(
+        1
+        , func_num_args()
+        , 'callback should receive only one argument'
+      );
+      $this->assertTrue(
+        func_get_arg(0)===$ident->offsetGet($offset)
+        , 'The value should be the contents at that offset'
+      );
+      $ran+=1;
+      return $offset;
+    });
+    $this->assertEquals(1, $ran, 'callback should run when the offset does exist');
+  }
+
+  public function test_offsetUnset($source = [1, 2, 3], $offset = 2)
+  {
+    $expected = $source;
+    unset($expected[$offset]);
+    $this->assertEquals($expected, P\Seq($source)->offsetUnset($offset)->toArray());
+  }
+
+  public function test_toArrayObject($source = [1, 2, 3])
+  {
+    $arrayObject = P\Seq::from($source)->toArrayObject();
+    $this->assertInstanceOf(\ArrayObject::class, $arrayObject);
+    $this->assertEquals($source, $arrayObject->getArrayCopy());
+  }
+
 }

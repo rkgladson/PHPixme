@@ -40,6 +40,17 @@ interface ImmutableOffsetAccess
    */
   public function offsetSet($offset, $value);
 
+
+  /**
+   * Sets the offset to the return value of $fn on a copy of that collection.
+   * Use this instead of trying to modify a return reference from offsetGet.
+   * If the offset does not exist, it returns itself, not executing the function
+   * @param mixed $offset
+   * @param callable $fn (mixed $value)-> mixed $z
+   * @return static
+   */
+  public function offsetApply($offset, callable $fn);
+
   /**
    * Unset the offset on a copy of the collection and returns the omitting collection.
    * @param mixed $offset
