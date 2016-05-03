@@ -281,15 +281,13 @@ class __PRIVATE__
         $outputIdx < $prevArgsLength || $newArgIdx < $newArgsLength;
         $outputIdx += 1
       ) {
-        if (
-          (
-            // The present index isn't a placeholder
+
+        if ((
             $outputIdx < $prevArgsLength
             && $prevArgs[$outputIdx] !== static::$placeholder
-          )
-          // There are none left to take
-          || $newArgIdx >= $newArgsLength
+          ) || $newArgIdx >= $newArgsLength
         ) {
+          // The present index isn't a placeholder and there are no more new args to take
           // Take from the previous arguments
           $cell = $prevArgs[$outputIdx];
         } else {
