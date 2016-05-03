@@ -2232,8 +2232,3 @@ class tossTest extends \PHPUnit_Framework_TestCase
   }
 
 }
-
-function getArgs()
-{
-  return func_get_args();
-}
