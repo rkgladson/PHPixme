@@ -1557,4 +1557,12 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'The foreach should not cause a mutation on iteration when nested'
     );
   }
+
+  function test_offsetExists ($value = true, $offset = '1') {
+    $source[$offset] = $value;
+    $notOffset = $offset . 'nope';
+    $eq = P\Seq::from($source);
+    $this->assertTrue($eq->offsetExists($offset));
+    $this->assertFalse($eq->offsetExists($notOffset));
+  }
 }

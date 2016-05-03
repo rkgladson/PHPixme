@@ -13,7 +13,6 @@ namespace {
 namespace tests\PHPixme {
   use PHPixme\AssertType;
   const Closure = \Closure::class;
-  require __DIR__ . '/phpunit/TestClass.php';
 
   function getArgs()
   {

@@ -11,6 +11,7 @@ namespace PHPixme;
 class Seq implements
   CollectionInterface
   , MultipleStaticCreation
+  , ImmutableOffsetAccess
   , FilterableInterface
   , ReducibleInterface
   , \Countable
@@ -20,11 +21,7 @@ class Seq implements
   private $keyR = [];
   private $keyRBackwards = [];
   private $length = 0;
-  // -- iterator state --
-  private $pointer = 0;
-  // == iterator state ==
-
-
+  
   /**
    * Seq constructor.
    * @param \Traversable|array|CollectionInterface $arrayLike
@@ -78,11 +75,56 @@ class Seq implements
   }
 
   /**
-   * @inheritdoc
+   * A shorthand to get the value. Return the value at the offset within the collection, or return null
+   * @param mixed $offset
+   * @return mixed|null
    */
   public function __invoke($offset)
   {
     return isset($this->hash[$offset]) ? $this->hash[$offset] : null;
+  }
+
+
+  /**
+   * @inheritdoc
+   */
+  public function offsetGet($offset)
+  {
+    return isset($this->hash[$offset]) ? $this->hash[$offset] : null;
+  }
+
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function offsetSet($offset, $value)
+  {
+    $dupe = $this->hash;
+    if (is_null($offset)) {
+      $dupe[] = $value;
+    } else {
+      $dupe[$offset] = $value;
+    }
+    return new static($dupe);
+  }
+
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function offsetUnset($offset)
+  {
+    $dupe = $this->hash;
+    unset($dupe[$offset]);
+    return new static($dupe);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function offsetExists($offset)
+  {
+    return isset($this->hash[$offset]);
   }
 
   /**
@@ -343,16 +385,16 @@ class Seq implements
     return static::from(array_map(
       static::class . '::from'
       , $this->fold(
-        function ($output, $value, $key) use ($hof) {
-          $groupKey = (string)call_user_func($hof, $value, $key, $this);
-          if (!isset($output[$groupKey])) {
-            $output[$groupKey] = [];
-          }
-          $output[$groupKey][$key] = $value;
-          return $output;
+      function ($output, $value, $key) use ($hof) {
+        $groupKey = (string)call_user_func($hof, $value, $key, $this);
+        if (!isset($output[$groupKey])) {
+          $output[$groupKey] = [];
         }
-        , []
-      )
+        $output[$groupKey][$key] = $value;
+        return $output;
+      }
+      , []
+    )
     ));
   }
 
@@ -414,6 +456,14 @@ class Seq implements
   public function toJson()
   {
     return json_encode($this->hash);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function toArrayObject()
+  {
+    return new \ArrayObject($this->hash);
   }
 
   public function reverse()
