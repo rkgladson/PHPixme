@@ -719,11 +719,13 @@ class andLTest extends \PHPUnit_Framework_TestCase
       function_exists(P\andL)
       , 'assure the constant points to the function by the same name'
     );
+    $andL = P\andL();
     $this->assertInstanceOf(
       Closure,
-      P\andL()
+      $andL
       , 'the function applied with no arguments should result in the curried function'
     );
+    $this->assertTrue($andL === $andL(), 'thunk identity');
   }
 
   /**
@@ -739,11 +741,28 @@ class andLTest extends \PHPUnit_Framework_TestCase
     );
     $andL_XXY = P\andL(P\_(), $y);
     $this->assertInstanceOf(Closure, $andL_XXY, 'deferred flipped application');
-    $this->assertEquals(
-      $expectedResult
-      , $andL_XXY($x)
-      , 'the function should be able to be placeheld for easier flipping'
-    );
+    $this->assertTrue($andL_XXY === $andL_XXY(), 'thunk identity');
+    $this->assertEquals($expectedResult, $andL_XXY($x));
+    $this->assertEquals($expectedResult, $andL_XXY()->__invoke($x));
+
+    $andLXX = P\andL($x);
+    $this->assertInstanceOf(Closure, $andLXX, 'omission should be a closure');
+    $this->assertTrue($andLXX === $andLXX(), 'thunk identity');
+    $this->assertEquals($expectedResult, $andLXX($y));
+    $this->assertEquals($expectedResult, $andLXX()->__invoke($y));
+
+    $andLXX_Y = P\andL($x, P\_());
+    $this->assertInstanceOf(Closure, $andLXX_Y, '2nd placeholder should be a closure');
+    $this->assertTrue($andLXX_Y === $andLXX_Y(), 'thunk identity');
+    $this->assertEquals($expectedResult, $andLXX_Y($y));
+    $this->assertEquals($expectedResult, $andLXX_Y()->__invoke($y));
+
+    // Torture the thunk.
+    $andL = P\andL();
+    $this->assertEquals($expectedResult, $andL($x, $y));
+    $this->assertEquals($expectedResult, $andL(P\_(), $y)->__invoke($x));
+    $this->assertEquals($expectedResult, $andL($x)->__invoke($y));
+    $this->assertEquals($expectedResult, $andL($x, P\_())->__invoke($y));
   }
 
   public function truthTableProvider()
@@ -770,11 +789,13 @@ class orLTest extends \PHPUnit_Framework_TestCase
       function_exists(P\orL)
       , 'assure the constant points to the function by the same name'
     );
+    $orL = P\orL();
     $this->assertInstanceOf(
       Closure,
-      P\orL()
+      $orL
       , 'the function applied with no arguments should result in the curried function'
     );
+    $this->assertTrue($orL === $orL(), 'thunk identity');
   }
 
   /**
@@ -790,11 +811,28 @@ class orLTest extends \PHPUnit_Framework_TestCase
     );
     $orL_XXY = P\orL(P\_(), $y);
     $this->assertInstanceOf(Closure, $orL_XXY, 'deferred flipped application');
-    $this->assertEquals(
-      $expectedResult
-      , $orL_XXY($x)
-      , 'the function should be able to be placeheld for easier flipping'
-    );
+    $this->assertTrue($orL_XXY === $orL_XXY(), 'thunk identity');
+    $this->assertEquals($expectedResult, $orL_XXY($x));
+    $this->assertEquals($expectedResult, $orL_XXY()->__invoke($x));
+
+    $orLXX = P\orL($x);
+    $this->assertInstanceOf(Closure, $orLXX, 'omission should be a closure');
+    $this->assertTrue($orLXX === $orLXX(), 'thunk identity');
+    $this->assertEquals($expectedResult, $orLXX($y));
+    $this->assertEquals($expectedResult, $orLXX()->__invoke($y));
+
+    $orLXX_Y = P\orL($x, P\_());
+    $this->assertInstanceOf(Closure, $orLXX_Y, '2nd placeholder should be a closure');
+    $this->assertTrue($orLXX_Y === $orLXX_Y(), 'thunk identity');
+    $this->assertEquals($expectedResult, $orLXX_Y($y));
+    $this->assertEquals($expectedResult, $orLXX_Y()->__invoke($y));
+
+    // Torture the thunk.
+    $orL = P\orL();
+    $this->assertEquals($expectedResult, $orL($x, $y));
+    $this->assertEquals($expectedResult, $orL(P\_(), $y)->__invoke($x));
+    $this->assertEquals($expectedResult, $orL($x)->__invoke($y));
+    $this->assertEquals($expectedResult, $orL($x, P\_())->__invoke($y));
   }
 
   public function truthTableProvider()
