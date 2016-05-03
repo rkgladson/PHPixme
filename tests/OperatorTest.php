@@ -2,7 +2,7 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
-const Closure = \Closure::class;
+defined('Closure') or define('Closure', \Closure::class);
 
 class addTest extends \PHPUnit_Framework_TestCase
 {
