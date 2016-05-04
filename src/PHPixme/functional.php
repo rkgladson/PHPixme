@@ -29,7 +29,7 @@ __PRIVATE__::$instance[curry] = __PRIVATE__::curryExactly2(function ($arity, cal
  * @return \Closure
  * @sig Integer -> Callable (*-> x) -> \Closure (* -> x)
  */
-function curry($arity, callable $hof = null)
+function curry($arity = null, callable $hof = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[curry], func_get_args());
 }
@@ -37,6 +37,17 @@ function curry($arity, callable $hof = null)
 // == curry ==
 
 // -- nAry --
+/**
+ * Wrap a function in an argument that will eat all but n arguments
+ * @param int $arity
+ * @param callable = $hof
+ * @return \Closure
+ * @sig Integer -> Callable (* -> x) -> \Closure (* -> x)
+ */
+function nAry($arity = null, callable $hof = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[nAry], func_get_args());
+}
 const nAry = __NAMESPACE__ . '\nAry';
 __PRIVATE__::$instance[nAry] = __PRIVATE__::curryExactly2(function ($number = 0, $hof = null) {
   __PRIVATE__::assertPositiveOrZero($number);
@@ -46,55 +57,43 @@ __PRIVATE__::$instance[nAry] = __PRIVATE__::curryExactly2(function ($number = 0,
     return call_user_func_array($hof, array_slice($args, 0, $number));
   };
 });
-/**
- * Wrap a function in an argument that will eat all but n arguments
- * @param int $arity
- * @param callable = $hof
- * @return \Closure
- * @sig Integer -> Callable (* -> x) -> \Closure (* -> x)
- */
-function nAry($arity, callable $hof = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[nAry], func_get_args());
-}
 
 // == nAry ==
 
 // -- unary --
-const unary = __NAMESPACE__ . '\unary';
 /**
  * wrap a callable in a function that will eat but one argument
  * @param callable $hof
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (a -> x)
  */
-function unary(callable $hof)
+function unary(callable $hof = null)
 {
   return function ($_0) use ($hof) {
     return call_user_func($hof, $_0);
   };
 }
+const unary = __NAMESPACE__ . '\unary';
 
 // == unary ==
 
 // -- binary --
-const binary = __NAMESPACE__ . '\binary';
 /**
  * Wrap a callable in a function that will eat all but two arguments
  * @param callable $hof
  * @return \Closure
  * @sig Callable (* -> x) -> \Closure (a, b -> x)
  */
-function binary(callable $hof)
+function binary(callable $hof = null)
 {
   return function ($_0, $_1) use ($hof) {
     return call_user_func($hof, $_0, $_1);
   };
 }
+const binary = __NAMESPACE__ . '\binary';
 
 // == binary ==
 // -- ternary --
-const ternary = __NAMESPACE__ . '\ternary';
 /**
  * Wrap a callable function in one that will eat all but three arguments
  * @param callable $hof
@@ -107,10 +106,10 @@ function ternary(callable $hof)
     return call_user_func_array($hof, array_slice(func_get_args(), 0, 3));
   };
 }
+const ternary = __NAMESPACE__ . '\ternary';
 
 // == ternary ==
 // -- nullary --
-const nullary = __NAMESPACE__ . '\nullary';
 /**
  * Wrap a function in one that will eat all arguments
  * @param $hof
@@ -124,11 +123,11 @@ function nullary(callable $hof)
     return call_user_func($hof);
   };
 }
+const nullary = __NAMESPACE__ . '\nullary';
 
 // == nullary ==
 
 // -- flip --
-const flip = __NAMESPACE__ . '\flip';
 /**
  * Takes a callable, then flips the two next arguments before calling the function
  * @param callable
@@ -144,6 +143,7 @@ function flip(callable $hof)
     return call_user_func_array($hof, $args);
   });
 }
+const flip = __NAMESPACE__ . '\flip';
 
 // == flip ==
 
@@ -172,7 +172,7 @@ __PRIVATE__::$instance[combine] = __PRIVATE__::curryGiven([], 2, function () {
  * @return \Closure
  * @sig (Unary Callable(y -> z), ..., Unary Callable(a -> b), Callable (*->a)) -> \Closure (* -> a)
  */
-function combine(callable $hofSecond, callable $hofFirst = null)
+function combine(callable $hofSecond = null, callable $hofFirst = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[combine], func_get_args());
 }
@@ -180,6 +180,16 @@ function combine(callable $hofSecond, callable $hofFirst = null)
 // == combine ==
 
 // -- pipe --
+/**
+ * @param $hofFirst
+ * @param callable $hofSecond
+ * @return mixed
+ * @sig (Callable (* -> a) -> Unary Callable ( a -> b ), ..., Unary Callable (y -> z)) -> \Closure (*->z)
+ */
+function pipe(callable $hofFirst = null, callable $hofSecond = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[pipe], func_get_args());
+}
 const pipe = __NAMESPACE__ . '\pipe';
 __PRIVATE__::$instance[pipe] = __PRIVATE__::curryGiven([], 2, function ($x) {
   $pipe = func_get_args();
@@ -196,21 +206,10 @@ __PRIVATE__::$instance[pipe] = __PRIVATE__::curryGiven([], 2, function ($x) {
     return $acc;
   };
 });
-/**
- * @param $hofFirst
- * @param callable $hofSecond
- * @return mixed
- * @sig (Callable (* -> a) -> Unary Callable ( a -> b ), ..., Unary Callable (y -> z)) -> \Closure (*->z)
- */
-function pipe(callable $hofFirst, callable $hofSecond = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[pipe], func_get_args());
-}
 
 // == pipe ==
 
 // -- Kestrel --
-const K = __NAMESPACE__ . '\K';
 /**
  * @param mixed $first
  * @return \Closure
@@ -221,8 +220,8 @@ function K($first)
   return function ($ignored = null) use ($first) {
     return $first;
   };
-
 }
+const K = __NAMESPACE__ . '\K';
 
 // == Kestrel ==
 
@@ -243,7 +242,6 @@ function KI($ignored = null)
 // == Kite ==
 
 // -- Idiot --
-const I = __NAMESPACE__ . '\I';
 /**
  * @param mixed $x
  * @return mixed $x
@@ -253,10 +251,22 @@ function I($x)
 {
   return $x;
 }
+const I = __NAMESPACE__ . '\I';
 
 // == Idiot ==
 
 // -- Starling --
+/**
+ * @param callable $x
+ * @param callable = $y
+ * @param mixed = $z
+ * @return \Closure|mixed
+ * @sig Callable x -> Callable y -> z -> a
+ */
+function S(callable $x = null, $y = null, $z = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[S], func_get_args());
+}
 const S = __NAMESPACE__ . '\S';
 __PRIVATE__::$instance[S] = __PRIVATE__::curryExactly3(function ($x, $y, $z) {
   __PRIVATE__::assertCallable($x);
@@ -265,22 +275,10 @@ __PRIVATE__::$instance[S] = __PRIVATE__::curryExactly3(function ($x, $y, $z) {
   __PRIVATE__::assertCallable($x_z);
   return call_user_func($x_z, call_user_func($y, $z));
 });
-/**
- * @param callable $x
- * @param callable = $y
- * @param mixed = $z
- * @return \Closure|mixed
- * @sig Callable x -> Callable y -> z -> a
- */
-function S(callable $x, $y = null, $z = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[S], func_get_args());
-}
 
 // == Starling ==
 
 // -- Y Combinator --
-const Y = __NAMESPACE__ . '\Y';
 /**
  * This combinator provides recursion without having a name for the callable itself
  * @param callable $callbackContainer ((\Closure self)->\Closure(*->x))
@@ -299,11 +297,11 @@ function Y(callable $callbackContainer)
 
   return $g($g);
 }
+const Y = __NAMESPACE__ . '\Y';
 
 // == Y Combinator ==
 
 // -- tap --
-const tap = __NAMESPACE__ . '\tap';
 /**
  * @param $callable
  * @return \Closure (x->x)
@@ -317,10 +315,21 @@ function tap($callable)
     return $value;
   };
 }
+const tap = __NAMESPACE__ . '\tap';
 
 // == tap ==
 
 // -- before --
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ * @sig Callable (*->) -> Callable (*->x) -> Closure (*->x)
+ */
+function before($decorator = null, $fn = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[before], func_get_args());
+}
 const before = __NAMESPACE__ . '\before';
 __PRIVATE__::$instance[before] = __PRIVATE__::curryExactly2(function ($decorator, $fn) {
   __PRIVATE__::assertCallable($decorator);
@@ -331,20 +340,20 @@ __PRIVATE__::$instance[before] = __PRIVATE__::curryExactly2(function ($decorator
     return call_user_func_array($fn, $args);
   };
 });
-/**
- * @param Callable $decorator
- * @param Callable $fn
- * @return \Closure
- * @sig Callable (*->) -> Callable (*->x) -> Closure (*->x)
- */
-function before($decorator, $fn = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[before], func_get_args());
-}
 
 // == before ==
 
 // -- after --
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ * @sig Callable (x->) -> Callable (*->x) -> Closure (*->x)
+ */
+function after($decorator = null, $fn = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[after], func_get_args());
+}
 const after = __NAMESPACE__ . '\after';
 __PRIVATE__::$instance[after] = __PRIVATE__::curryExactly2(function ($decorator, $fn) {
   __PRIVATE__::assertCallable($decorator);
@@ -355,20 +364,19 @@ __PRIVATE__::$instance[after] = __PRIVATE__::curryExactly2(function ($decorator,
     return $value;
   };
 });
-/**
- * @param Callable $decorator
- * @param Callable $fn
- * @return \Closure
- * @sig Callable (x->) -> Callable (*->x) -> Closure (*->x)
- */
-function after($decorator, $fn = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[after], func_get_args());
-}
 
 // == after ==
 
 // -- provided --
+/**
+ * @param Callable $decorator
+ * @param Callable $fn
+ * @return \Closure
+ */
+function provided($decorator = null, $fn = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[provided], func_get_args());
+}
 const provided = __NAMESPACE__ . '\provided';
 __PRIVATE__::$instance[provided] = __PRIVATE__::curryExactly2(function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
@@ -380,19 +388,19 @@ __PRIVATE__::$instance[provided] = __PRIVATE__::curryExactly2(function ($predica
       : null;
   };
 });
+
+// == provided ==
+
+// -- except --
 /**
  * @param Callable $decorator
  * @param Callable $fn
  * @return \Closure
  */
-function provided($decorator, $fn = null)
+function except($decorator = null, $fn = null)
 {
-  return call_user_func_array(__PRIVATE__::$instance[provided], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[except], func_get_args());
 }
-
-// == provided ==
-
-// -- except --
 const except = __NAMESPACE__ . '\except';
 __PRIVATE__::$instance[except] = __PRIVATE__::curryExactly2(function ($predicate, $fn) {
   __PRIVATE__::assertCallable($predicate);
@@ -404,19 +412,21 @@ __PRIVATE__::$instance[except] = __PRIVATE__::curryExactly2(function ($predicate
       : call_user_func_array($fn, $args);
   };
 });
-/**
- * @param Callable $decorator
- * @param Callable $fn
- * @return \Closure
- */
-function except($decorator, $fn = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[except], func_get_args());
-}
 
 // == except ==
 
 // -- fold --
+/**
+ * @param callable $hof
+ * @param mixed $startVal
+ * @param \Traversable $traversable
+ * @return \Closure|mixed
+ * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
+ */
+function fold($hof = null, $startVal = null, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[fold], func_get_args());
+}
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
@@ -430,20 +440,20 @@ __PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $start
   }
   return $output;
 });
-/**
- * @param callable $hof
- * @param mixed $startVal
- * @param \Traversable $traversable
- * @return \Closure|mixed
- * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
- */
-function fold($hof, $startVal = null, $traversable = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[fold], func_get_args());
-}
 
 // == fold ==
 // -- foldRight --
+/**
+ * @param callable $hof
+ * @param mixed = $startVal
+ * @param \Traversable= $traversable
+ * @return \Closure|mixed
+ * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
+ */
+function foldRight(callable $hof = null, $startVal = null, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[foldRight], func_get_args());
+}
 const foldRight = __NAMESPACE__ . '\foldRight';
 __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callable $hof, $startVal, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
@@ -471,21 +481,20 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callabl
   return $output;
 });
 
-/**
- * @param callable $hof
- * @param mixed = $startVal
- * @param \Traversable= $traversable
- * @return \Closure|mixed
- * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
- */
-function foldRight(callable $hof, $startVal = null, $traversable = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[foldRight], func_get_args());
-}
 
 // == foldRight ==
 
 // -- reduce --
+/**
+ * @param callable $hof
+ * @param \Traversable= $traversable
+ * @return \Closure|mixed
+ * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
+ */
+function reduce(callable $hof = null, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[reduce], func_get_args());
+}
 const reduce = __NAMESPACE__ . '\reduce';
 __PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arrayLike) {
   __PRIVATE__::assertCallable($hof);
@@ -508,20 +517,20 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arr
   }
   return $output;
 });
+
+// == reduce ==
+
+// -- reduceRight --
 /**
  * @param callable $hof
  * @param \Traversable= $traversable
  * @return \Closure|mixed
  * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
  */
-function reduce(callable $hof, $traversable = null)
+function reduceRight(callable $hof = null, $traversable = null)
 {
-  return call_user_func_array(__PRIVATE__::$instance[reduce], func_get_args());
+  return call_user_func_array(__PRIVATE__::$instance[reduceRight], func_get_args());
 }
-
-// == reduce ==
-
-// -- reduceRight --
 const reduceRight = __NAMESPACE__ . '\reduceRight';
 __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (callable $hof, $arrayLike) {
   if ($arrayLike instanceof ReducibleInterface) {
@@ -558,20 +567,21 @@ __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function (calla
   return $output;
 
 });
-/**
- * @param callable $hof
- * @param \Traversable= $traversable
- * @return \Closure|mixed
- * @sig Callable (a, b -> a) -> \Traversable[a,b] -> a
- */
-function reduceRight(callable $hof, $traversable = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[reduceRight], func_get_args());
-}
 
 // == reduceRight ==
 
 // -- map --
+/**
+ * @param callable $hof
+ * @param array|\Traversable|CollectionInterface $traversable
+ * @return \Closure|mixed
+ * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
+ *
+ */
+function map(callable $hof = null, $traversable = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[map], func_get_args());
+}
 const map = __NAMESPACE__ . '\map';
 __PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function (callable $hof, $traversable) {
   // Reflect on natural transformations
@@ -584,34 +594,10 @@ __PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function (callable $hof
   }
   return $output;
 });
-/**
- * @param callable $hof
- * @param array|\Traversable|CollectionInterface $traversable
- * @return \Closure|mixed
- * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
- *
- */
-function map(callable $hof, $traversable = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[map], func_get_args());
-}
 
 // == map ==
 
 // -- walk --
-const walk = __NAMESPACE__ . '\walk';
-__PRIVATE__::$instance[walk] = __PRIVATE__::curryExactly2(function (callable $hof, $collection) {
-  if (is_array($collection)) {
-    array_walk($collection, $hof, $collection);
-  } else if ($collection instanceof CollectionInterface) {
-    return $collection->walk($hof);
-  } else {
-    foreach(__PRIVATE__::copyTransversable($collection) as $k => $v) {
-      call_user_func($hof, $v, $k, $collection);
-    }
-  }
-  return $collection;
-});
 /**
  * @param callable $hof
  * @param array|CollectionInterface|\Traversable $collection
@@ -621,10 +607,34 @@ function walk(callable $hof = null, $collection = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[walk], func_get_args());
 }
+const walk = __NAMESPACE__ . '\walk';
+__PRIVATE__::$instance[walk] = __PRIVATE__::curryExactly2(function (callable $hof, $collection) {
+  if (is_array($collection)) {
+    array_walk($collection, $hof, $collection);
+  } else if ($collection instanceof CollectionInterface) {
+    return $collection->walk($hof);
+  } else {
+    foreach (__PRIVATE__::copyTransversable($collection) as $k => $v) {
+      call_user_func($hof, $v, $k, $collection);
+    }
+  }
+  return $collection;
+});
 
 // == walk ==
 
 // -- callWith --
+/**
+ * Produce a function that calls a function within a array or object
+ * @param string $accessor
+ * @param object|array $container
+ * @return \Closure ($container) -> ((args) -> $container{[$accessor]}(...args))
+ * @sig String -> Object|Array -> \Closure (*->x)
+ */
+function callWith($accessor = null, $container = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[callWith], func_get_args());
+}
 const callWith = __NAMESPACE__ . '\callWith';
 __PRIVATE__::$instance[callWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
   $callable = __PRIVATE__::assertCallable(
@@ -634,25 +644,10 @@ __PRIVATE__::$instance[callWith] = __PRIVATE__::curryExactly2(function ($accesso
     return call_user_func_array($callable, func_get_args());
   };
 });
-/**
- * Produce a function that calls a function within a array or object
- * @param string $accessor
- * @param object|array $container
- * @return \Closure ($container) -> ((args) -> $container{[$accessor]}(...args))
- * @sig String -> Object|Array -> \Closure (*->x)
- */
-function callWith($accessor, $container = null)
-{
-  return call_user_func_array(__PRIVATE__::$instance[callWith], func_get_args());
-}
 
 // == callWith ==
 
 // -- pluckObjectWith --
-const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
-__PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
-  return $container->{$accessor};
-});
 /**
  * Creates a function to access the property of an object
  * @param string $accessor
@@ -660,10 +655,14 @@ __PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($
  * @return \Closure ($object) -> object->accessor
  * @sig String -> Object -> \Closure (->x)
  */
-function pluckObjectWith($accessor, $container = null)
+function pluckObjectWith($accessor = null, $container = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[pluckObjectWith], func_get_args());
 }
+const pluckObjectWith = __NAMESPACE__ . '\pluckObjectWith';
+__PRIVATE__::$instance[pluckObjectWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
+  return $container->{$accessor};
+});
 
 // == pluckObjectWith ==
 // -- pluckArrayWith --
@@ -678,7 +677,7 @@ __PRIVATE__::$instance[pluckArrayWith] = __PRIVATE__::curryExactly2(function ($a
  * @return \Closure ($object) -> object->accessor
  * @sig String -> Array -> \Closure (->x)
  */
-function pluckArrayWith($accessor, $container = null)
+function pluckArrayWith($accessor = null, $container = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[pluckArrayWith], func_get_args());
 }
@@ -686,7 +685,6 @@ function pluckArrayWith($accessor, $container = null)
 // == pluckArrayWith ==
 
 // -- trampoline --
-const trampoline = __NAMESPACE__ . '\trampoline';
 /**
  * Provides a platform for tail recursive optimizations for recustive functions.
  * It will continue to execute the return value (a thunk) until the return result is not a \Closure.
@@ -704,11 +702,11 @@ function trampoline(callable $fn)
     return $result;
   };
 }
+const trampoline = __NAMESPACE__ . '\trampoline';
 
 // == trampoline ==
 
 // -- noop --
-const noop = __NAMESPACE__ . '\noop';
 /**
  * It does nothing!
  * return null
@@ -717,11 +715,11 @@ function noop()
 {
   // this space is intentionally left blank
 }
+const noop = __NAMESPACE__ . '\noop';
 
 // == noop ==
 
 // -- toClosure --
-const toClosure = __NAMESPACE__ . '\toClosure';
 /**
  * takes an everyday callable and converts it to a Closure
  * @param callable $fn (*->x)
@@ -739,11 +737,11 @@ function toClosure($fn)
       return call_user_func_array($fn, func_get_args());
     };
 }
+const toClosure = __NAMESPACE__ . '\toClosure';
 
 // == toClosure ==
 
 // -- toss --
-const toss = __NAMESPACE__ . '\toss';
 /**
  * @param mixed $x
  * @throws \Error|\Exception|Pot
@@ -754,4 +752,5 @@ function toss($x)
 {
   throw !($x instanceof \Exception || $x instanceof \Error) ? Pot::of($x) : $x;
 }
+const toss = __NAMESPACE__ . '\toss';
 // == rethrow ==

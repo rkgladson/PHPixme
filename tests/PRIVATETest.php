@@ -12,7 +12,7 @@ use PHPixme\__PRIVATE__ as internal;
 use PHPixme\__PRIVATE__;
 use PHPixme\CollectionInterface;
 use function PHPixme\_ as _;
-const closure = \Closure::class;
+const PHPixme = 'PHPixme';
 /**
  * Class __PRIVATE__Tests
  * This is to test some of the critical components that are not part of the public-facing API,
@@ -28,13 +28,13 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       return $args;
     });
     $this->assertInstanceOf(
-      closure
+      Closure
       , $arity1
       , 'It should wrap the function in a closure'
     );
     $thunk = $arity1();
     $this->assertInstanceOf(
-      closure
+      Closure
       , $thunk
       , 'when executed with no arguments, it should be a thunk'
     );
@@ -55,13 +55,13 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       return $args;
     });
     $this->assertInstanceOf(
-      closure
+      Closure
       , $arity2
       , 'it should wrap into a closure'
     );
     // Testing thunks
     $this->assertInstanceOf(
-      closure
+      Closure
       , $arity2()
       , 'thunks should return a closure'
     );
@@ -113,7 +113,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     });
     $expectedOutput = [1, 2, 3];
     // Establishing some basic qualities of curryExactly3
-    $this->assertInstanceOf(closure, $arity3);
+    $this->assertInstanceOf(Closure, $arity3);
     /*
      * A note about the notation.
      * => means imply.
@@ -128,7 +128,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      */
 
     /** Show that curryExactly3((x y z) -> a) ≅ (x y z) -> a **/
-    $this->assertInstanceOf(closure, $arity3());
+    $this->assertInstanceOf(Closure, $arity3());
     $this->assertTrue($arity3 === $arity3());
     $this->assertTrue($arity3 === $arity3(_()));
     $this->assertTrue($arity3 === $arity3(_(), _()));
@@ -140,13 +140,13 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     /** show that  (X1)->(X2)->(X3)  ≅ (X1 X2 X3) **/
     $step1 = $arity3(1);
     // Prove that step 1 is a thunk
-    $this->assertInstanceOf(closure, $step1);
+    $this->assertInstanceOf(Closure, $step1);
     $this->assertTrue($step1 === $step1());
     $this->assertTrue($step1 === $step1(_()));
     $this->assertTrue($step1 === $step1(_(), _()));
     $step2 = $step1(2);
     // Prove that step2 is a thunk
-    $this->assertInstanceOf(closure, $step2);
+    $this->assertInstanceOf(Closure, $step2);
     $this->assertTrue($step2 === $step2());
     $this->assertTrue($step2 === $step2(_()));
     $this->assertTrue($step2 === $step2(_(), _()));
@@ -166,8 +166,8 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     $step1X1_2 = $arity3(1, _());
     $step1X1_2_3 = $arity3(1, _(), _());
     // (X1) properties were proven previously as a thunk and a closure
-    $this->assertInstanceOf(closure, $step1X1_2);
-    $this->assertInstanceOf(closure, $step1X1_2_3);
+    $this->assertInstanceOf(Closure, $step1X1_2);
+    $this->assertInstanceOf(Closure, $step1X1_2_3);
     // (X1 _2) is a thunk
     $this->assertTrue($step1X1_2 === $step1X1_2());
     $this->assertTrue($step1X1_2 === $step1X1_2(_()));
@@ -189,11 +189,11 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      **/
     $step1X1X2 = $arity3(1, 2);
     $step1X1X2_3 = $arity3(1, 2, _());
-    $this->assertInstanceOf(closure, $step1X1X2);
+    $this->assertInstanceOf(Closure, $step1X1X2);
     $this->assertTrue($step1X1X2 === $step1X1X2());
     $this->assertTrue($step1X1X2 === $step1X1X2(_()));
     // (X1 X2) is a thunk
-    $this->assertInstanceOf(closure, $step1X1X2_3);
+    $this->assertInstanceOf(Closure, $step1X1X2_3);
     $this->assertTrue($step1X1X2_3 === $step1X1X2_3());
     $this->assertTrue($step1X1X2_3 === $step1X1X2_3(_()));
     // (X1 X2 _3) is a thunk
@@ -212,7 +212,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      * ≅ (_1 _2 X3) -> (X1 _2) -> (X2)
      **/
     $step1_1_2X3 = $arity3(_(), _(), 3);
-    $this->assertInstanceOf(closure, $step1_1_2X3);
+    $this->assertInstanceOf(Closure, $step1_1_2X3);
     $this->assertTrue($step1_1_2X3 === $step1_1_2X3());
     $this->assertTrue($step1_1_2X3 === $step1_1_2X3(_()));
     $this->assertTrue($step1_1_2X3 === $step1_1_2X3(_(), _()));
@@ -220,12 +220,12 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     $step2_1_2X3__X1 = $step1_1_2X3(1);
     $step2_1_2X3__X1_3 = $step1_1_2X3(1, _());
 
-    $this->assertInstanceOf(closure, $step2_1_2X3__X1);
+    $this->assertInstanceOf(Closure, $step2_1_2X3__X1);
     $this->assertTrue($step2_1_2X3__X1 === $step2_1_2X3__X1());
     $this->assertTrue($step2_1_2X3__X1 === $step2_1_2X3__X1(_()));
     // (_1 _2 X3) -> (X1) is a thunk
 
-    $this->assertInstanceOf(closure, $step2_1_2X3__X1_3);
+    $this->assertInstanceOf(Closure, $step2_1_2X3__X1_3);
     $this->assertTrue($step2_1_2X3__X1_3 === $step2_1_2X3__X1_3());
     $this->assertTrue($step2_1_2X3__X1_3 === $step2_1_2X3__X1_3(_()));
     // (_1 _2 X3) -> (X1 _2) is a thunk
@@ -253,39 +253,39 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      * ≅ (_1 X2 _3) -> (X1 _3) -> (X3)
      **/
     $step1_1X2 = $arity3(_(), 2);
-    $this->assertInstanceOf(closure, $step1_1X2);
+    $this->assertInstanceOf(Closure, $step1_1X2);
     $this->assertTrue($step1_1X2 === $step1_1X2());
     $this->assertTrue($step1_1X2 === $step1_1X2(_()));
     $this->assertTrue($step1_1X2 === $step1_1X2(_(), _()));
     // (_1 X2) is a thunk
 
     $step1_1X2_3 = $arity3(_(), 2, _());
-    $this->assertInstanceOf(closure, $step1_1X2_3);
+    $this->assertInstanceOf(Closure, $step1_1X2_3);
     $this->assertTrue($step1_1X2_3 === $step1_1X2_3());
     $this->assertTrue($step1_1X2_3 === $step1_1X2_3(_()));
     $this->assertTrue($step1_1X2_3 === $step1_1X2_3(_(), _()));
     // (_1 X2 _3) is a thunk
 
     $step2_1X2__X1 = $step1_1X2(1);
-    $this->assertInstanceOf(closure, $step2_1X2__X1);
+    $this->assertInstanceOf(Closure, $step2_1X2__X1);
     $this->assertTrue($step2_1X2__X1 === $step2_1X2__X1());
     $this->assertTrue($step2_1X2__X1 === $step2_1X2__X1(_()));
     // (_1 X2) -> (X1) is a thunk
 
     $step2_1X2_3__X1 = $step1_1X2_3(1);
-    $this->assertInstanceOf(closure, $step2_1X2_3__X1);
+    $this->assertInstanceOf(Closure, $step2_1X2_3__X1);
     $this->assertTrue($step2_1X2_3__X1 === $step2_1X2_3__X1());
     $this->assertTrue($step2_1X2_3__X1 === $step2_1X2_3__X1(_()));
     // (_1 X2 _3) -> (X1) is a thunk
 
     $step2_1X2__X1_3 = $step1_1X2(1, _());
-    $this->assertInstanceOf(closure, $step2_1X2__X1_3);
+    $this->assertInstanceOf(Closure, $step2_1X2__X1_3);
     $this->assertTrue($step2_1X2__X1_3 === $step2_1X2__X1_3());
     $this->assertTrue($step2_1X2__X1_3 === $step2_1X2__X1_3(_()));
     // (_1 X2) -> (X1 _3) is a thunk
 
     $step2_1X2_3__X1_3 = $step1_1X2_3(1, _());
-    $this->assertInstanceOf(closure, $step2_1X2_3__X1_3);
+    $this->assertInstanceOf(Closure, $step2_1X2_3__X1_3);
     $this->assertTrue($step2_1X2_3__X1_3 === $step2_1X2_3__X1_3());
     $this->assertTrue($step2_1X2_3__X1_3 === $step2_1X2_3__X1_3(_()));
     // (_1 X2 _3) -> (X1 _3) is a thunk
@@ -322,13 +322,13 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      */
     // Previously proven: (X1) === (X1 _2) === (X1 _2 _3) Skipping step.
     $step2X1___2X3 = $arity3(1)->__invoke(_(), 3);
-    $this->assertInstanceOf(closure, $step2X1___2X3);
+    $this->assertInstanceOf(Closure, $step2X1___2X3);
     $this->assertTrue($step2X1___2X3 === $step2X1___2X3());
     $this->assertTrue($step2X1___2X3 === $step2X1___2X3(_()));
     // (X1) -> (_2 X3) is a thunk
 
     $step1X1_2X3 = $arity3(1, _(), 3);
-    $this->assertInstanceOf(closure, $step1X1_2X3);
+    $this->assertInstanceOf(Closure, $step1X1_2X3);
     $this->assertTrue($step1X1_2X3 === $step1X1_2X3());
     $this->assertTrue($step1X1_2X3 === $step1X1_2X3(_()));
     // (X1 _2 X3) is a thunk
@@ -351,7 +351,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
      * ≅ (_1 X2 _3) -> (_1 X3) -> (X1)
      **/
     $step1_1X2X3 = $arity3(_(), 2, 3);
-    $this->assertInstanceOf(closure, $step1_1X2X3);
+    $this->assertInstanceOf(Closure, $step1_1X2X3);
     $this->assertTrue($step1_1X2X3 === $step1_1X2X3());
     $this->assertTrue($step1_1X2X3 === $step1_1X2X3(_()));
     // (_1 X2 X3) is a thunk
@@ -360,13 +360,13 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     // Skipping proofs for both of these steps
 
     $step2_1X2___1X3 = $arity3(_(), 2)->__invoke(_(), 3);
-    $this->assertInstanceOf(closure, $step2_1X2___1X3);
+    $this->assertInstanceOf(Closure, $step2_1X2___1X3);
     $this->assertTrue($step2_1X2___1X3 === $step2_1X2___1X3());
     $this->assertTrue($step2_1X2___1X3 === $step2_1X2___1X3(_()));
     // (_1 X2) -> (_1 X3) is a thunk
 
     $step2_1X2_3___1X3 = $arity3(_(), 2)->__invoke(_(), 3);
-    $this->assertInstanceOf(closure, $step2_1X2_3___1X3);
+    $this->assertInstanceOf(Closure, $step2_1X2_3___1X3);
     $this->assertTrue($step2_1X2_3___1X3 === $step2_1X2_3___1X3());
     $this->assertTrue($step2_1X2_3___1X3 === $step2_1X2_3___1X3(_()));
     // (_1 X2 _3) -> (_1 X3) is a thunk
@@ -389,7 +389,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     // Previously we proved that (_1 _2 X3) is a thunk.
     // Skipping proof for this step
     $step2_1_2X3___1X2 = $arity3(_(), _(), 3)->__invoke(_(), 2);
-    $this->assertInstanceOf(closure, $step2_1_2X3___1X2);
+    $this->assertInstanceOf(Closure, $step2_1_2X3___1X2);
     $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2());
     $this->assertTrue($step2_1_2X3___1X2 === $step2_1_2X3___1X2(_()));
     // (_1 _2 X3) -> (_1 X2) is a thunk
@@ -508,7 +508,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
 
   public function test_copyTransversable()
   {
-    $arr = [1,2,3];
+    $arr = [1, 2, 3];
     $result = internal::copyTransversable($arr);
     $arr[0] = 0;
     $this->assertTrue(is_array($result), 'Should return an array on an array input');
@@ -538,6 +538,25 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     $this->expectException(\InvalidArgumentException::class);
     internal::copyTransversable(null);
   }
+
+  /**
+   * @dataProvider internalInstanceProvider
+   * @param string $key
+   */
+  public function test_instanceFunctions($key)
+  {
+    // This is a canary for something horribly mismatched.
+    $closure = internal::$instance[$key];
+    $this->assertInstanceOf(Closure, $closure);
+    $this->assertInstanceOf(Closure, $closure(), 'the thunk should return a closure');
+    // Guarding for false positives of Pipe and Combine, as they are variadic,
+    // and will never return their identity, as the final length will always be indeterminate
+    // and it will always make a new function each step.
+    if (false === array_search($key, static::fnIdentityBlacklist)) {
+      $this->assertTrue($key()===$closure, 'Thunk currying should return the value stored in internal');
+    }
+  }
+  const fnIdentityBlacklist = [PHPixme.'\combine', PHPixme.'\pipe'];
 
   public function callableProvider()
   {
@@ -611,6 +630,18 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       , [null]
       , [1.0]
     ];
+  }
+
+  public function internalInstanceProvider()
+  {
+    // Flatten out the internal instance so that it can be easily identified where a value might be pointing elsewhere
+    $output = call_user_func_array('array_merge', array_map(function ($key) {
+      return [$key => [$key]];
+    }, array_filter(array_keys(internal::$instance), function ($key) {
+      return strpos($key, 'PHPixme\\') === 0;
+    })));
+    // LEAVE LIKE THIS FOR DEBUGGING
+    return $output;
   }
 }
 
