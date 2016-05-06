@@ -36,6 +36,15 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Some::class));
+    $this->assertTrue(
+      false !== array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be closed'
+    );
+  }
+
   public function test_Some_static_of($value = true)
   {
     $this->assertInstanceOf(
@@ -177,7 +186,8 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_foldRight_callback($value = true, $startValue = null) {
+  public function test_foldRight_callback($value = true, $startValue = null)
+  {
     $some = P\Some($value);
     $some->foldRight(function ($lastVal) use ($startValue, $value, $some) {
       $this->assertTrue(
@@ -226,6 +236,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
       , 'Some->reduce should produce its contents'
     );
   }
+
   public function test_reduceRight($value = true)
   {
     $this->assertTrue(
@@ -588,6 +599,26 @@ class SomeTest extends \PHPUnit_Framework_TestCase
       $value === $arr[0]
       , 'Some->toArray result contents should be the same as itself'
     );
+  }
+
+  public function test_toLeft($value = true)
+  {
+    $doNotRun = function () {
+      throw new \Exception('should not run');
+    };
+    $left = P\Some($value)->toLeft($doNotRun);
+    $this->assertInstanceOf(P\Left::class, $left);
+    $this->assertTrue($value === $left->merge());
+  }
+
+  public function test_toRight($value = true)
+  {
+    $doNotRun = function () {
+      throw new \Exception('should not run');
+    };
+    $right = P\Some($value)->toRight($doNotRun);
+    $this->assertInstanceOf(P\Right::class, $right);
+    $this->assertTrue($value === $right->merge());
   }
 
   public function test_find_callback($value = true)

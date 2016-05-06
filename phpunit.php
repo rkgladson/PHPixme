@@ -11,7 +11,8 @@ namespace {
 }
 // Define some dummy test functions that can be shared
 namespace tests\PHPixme {
-  use PHPixme\AssertType;
+  use PHPixme\AssertTypeTrait;
+  use PHPixme\ClosedTrait;
   const Closure = \Closure::class;
 
   function getArgs()
@@ -21,7 +22,16 @@ namespace tests\PHPixme {
 
   class AssertTypeStub
   {
-    use AssertType;
+    use AssertTypeTrait;
+  }
+
+  /**
+   * Class CloseTypeStub
+   * @property void $exceptionFoo
+   * @package tests\PHPixme
+   */
+  class CloseTypeStub {
+    use ClosedTrait;
   }
 
   class TestClass
@@ -50,6 +60,45 @@ namespace tests\PHPixme {
     {
       return $x;
     }
+  }
+
+  class JustAIterator implements \Iterator{
+    private $data = [];
+    private $valid = true;
+
+    public function current()
+    {
+      return current($this->data);
+    }
+
+    public function next()
+    {
+       $this->valid = false !== each($this->data);
+    }
+
+    public function key()
+    {
+      return key($this->data);
+    }
+
+    public function valid()
+    {
+      return $this->valid;
+    }
+
+    public function rewind()
+    {
+      reset($this->data);
+    }
+
+    public function __construct(array $data)
+    {
+      $this->data = $data;
+    }
+  }
+
+  function getAllTraits (\ReflectionClass $reflection) {
+    return array_merge($reflection->getTraitNames(), $reflection->getParentClass() !== false ? getAllTraits($reflection->getParentClass()) : []);
   }
 }
 // Load the autoload file.

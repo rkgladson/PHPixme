@@ -7,16 +7,22 @@
  */
 
 namespace PHPixme;
-
+/**
+ * Class Seq
+ * Seq is an 0 to N item monadic collection inspired by Scala's List and blended with PHP's ArrayObject.
+ * It is an immutable collection, and any offset operators applied to it will produce a new Seq with the modification.
+ * @package PHPixme
+ */
 class Seq implements
   CollectionInterface
   , MultipleStaticCreation
   , ImmutableOffsetAccess
   , FilterableInterface
   , ReducibleInterface
+  , GroupableInterface
   , \Countable
 {
-  use AssertType;
+  use AssertTypeTrait, ClosedTrait;
   private $hash = [];
   private $keyR = [];
   private $keyRBackwards = [];
@@ -43,16 +49,19 @@ class Seq implements
    */
   protected static function arrayLikeToArray($arrayLike)
   {
-    if ($arrayLike instanceof CollectionInterface) {
-      return $arrayLike->toArray();
-    }
-    __PRIVATE__::assertTraversable($arrayLike);
     if (is_array($arrayLike)) {
       return $arrayLike;
     }
+    // Of course PHP doesn't have a standard way of returning a array object, so we have to check
+    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
+      return $arrayLike->toArray();
+    }
+    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
+      return $arrayLike->getArrayCopy();
+    }
 
     $output = [];
-    foreach ((clone $arrayLike) as $key => $value) {
+    foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
       $output[$key] = $value;
     }
     return $output;
@@ -377,38 +386,70 @@ class Seq implements
     return $key === false ? -1 : $key;
   }
 
-  public function partition(callable $hof)
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function partition(callable $fn)
   {
-    $true = [];
-    $false = [];
-    // No side effects for PHP 5.x
+    $output = ["false" => [], "true" => []];
     foreach (I($this->hash) as $key => $value) {
-      if (call_user_func($hof, $value, $key, $this)) {
-        $true[$key] = $value;
-      } else {
-        $false[$key] = $value;
-      }
+      $output[call_user_func($fn, $value, $key, $this) ? "true" : "false"][] = $value;
     }
-    return static::of(static::from($false), static::from($true));
+    return static::from([
+      "false"=>static::from($output["false"])
+      , "true"=> static::from($output["true"])
+    ]);
   }
 
-  public function group($hof)
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function partitionWithKey(callable $fn)
   {
-    __PRIVATE__::assertCallable($hof);
-    return static::from(array_map(
-      static::class . '::from'
-      , $this->fold(
-      function ($output, $value, $key) use ($hof) {
-        $groupKey = (string)call_user_func($hof, $value, $key, $this);
-        if (!isset($output[$groupKey])) {
-          $output[$groupKey] = [];
-        }
-        $output[$groupKey][$key] = $value;
-        return $output;
-      }
-      , []
-    )
-    ));
+    $output = ["false" => [], "true" => []];
+    foreach (I($this->hash) as $key => $value) {
+      $output[call_user_func($fn, $value, $key, $this) ? "true" : "false"][] = [$key, $value];
+    }
+    return static::from([
+      "false"=>static::from($output["false"])
+      , "true"=> static::from($output["true"])
+    ]);
+  }
+
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function group(callable $fn)
+  {
+    $output0 = [];
+    foreach (I($this->hash) as $key => $value) {
+      $output0[call_user_func($fn, $value, $key, $this)][] = $value;
+    }
+    $output1 = [];
+    foreach ($output0 as $groupKey => $group) {
+      $output1[$groupKey] = static::from($group);
+    }
+    return static::from($output1);
+  }
+
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
+  public function groupWithKey(callable $fn)
+  {
+    $output0 = [];
+    foreach (I($this->hash) as $key => $value) {
+      $output0[call_user_func($fn, $value, $key, $this)][] = [$key, $value];
+    }
+    $output1 = [];
+    foreach ($output0 as $groupKey => $group) {
+      $output1[$groupKey] = static::from($group);
+    }
+    return static::from($output1);
   }
 
   public function drop($number = 0)

@@ -530,7 +530,31 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       , $result
       , 'it should not clone iterator aggregates, rather just get an instance of a iterator.'
     );
+  }
 
+  public function test_copyTraversable_generator()
+  {
+    $gen = function () {
+      yield 1;
+    };
+    $iterator = $gen();
+    $this->assertTrue(
+      $iterator === internal::copyTransversable($iterator)
+      , "Php 5.6 and 7 don't allow for cloning generator iterators, so we should silently fail if the generator is still good."
+    );
+  }
+
+  public function test_copyTraversable_generator_exception()
+  {
+    $this->expectException(\RangeException::class);
+    $gen = function () {
+      yield 1;
+    };
+    $iterator = $gen();
+    foreach ($iterator as $stupid) {
+      $stupid = 'does';
+    }
+    internal::copyTransversable($iterator);
   }
 
   public function test_copyTransversable_broken_contract()
@@ -553,10 +577,11 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     // and will never return their identity, as the final length will always be indeterminate
     // and it will always make a new function each step.
     if (false === array_search($key, static::fnIdentityBlacklist)) {
-      $this->assertTrue($key()===$closure, 'Thunk currying should return the value stored in internal');
+      $this->assertTrue($key() === $closure, 'Thunk currying should return the value stored in internal');
     }
   }
-  const fnIdentityBlacklist = [PHPixme.'\combine', PHPixme.'\pipe'];
+
+  const fnIdentityBlacklist = [PHPixme . '\combine', PHPixme . '\pipe'];
 
   public function callableProvider()
   {

@@ -120,17 +120,30 @@ class __PRIVATE__
     throw new \InvalidArgumentException('argument must be a Traversable or array');
   }
 
+  /**
+   * @param array|\Traversable $traversable
+   * @return array|\Traversable
+   */
   static function copyTransversable($traversable)
   {
     static::assertTraversable($traversable);
-    return is_array($traversable)
-      ? $traversable
-      : (
-      $traversable instanceof \IteratorAggregate
-        ? $traversable->getIterator()
-        : clone ($traversable)
-      );
+    if (is_array($traversable)) {
+      return $traversable;
+    }
+    // Allow for generators to be used once. Better than always throwing an error.
+    // Best to assume the user knows how to use Generators correctly.
+    if ($traversable instanceof \Generator) {
+      if ($traversable->valid()) {
+        return $traversable;
+      }
+      // Throw an error if the generator is expired.
+      throw new \RangeException('PHP does not allow for reuse of Generators');
+    }
+    return $traversable instanceof \IteratorAggregate
+      ? $traversable->getIterator()
+      : clone $traversable;
   }
+
 
   /**
    * Produces a thunk until a value passed to the callback.

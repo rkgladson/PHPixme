@@ -65,7 +65,6 @@ class None extends Maybe
     return static::getInstance();
   }
   
-  // == Natural transformation Static ==
 
   // -- Magic Methods --
   /**
@@ -94,8 +93,7 @@ class None extends Maybe
   }
 
   // == Magic Methods ==
-
-  // -- Natural Transformation interface methods --
+  
   /**
    * @inheritdoc
    */
@@ -225,9 +223,7 @@ class None extends Maybe
   {
     return $this;
   }
-
-  // == Natural Transformation interface methods ==
-
+  
 
   // -- Countable Interface --
   public function count()

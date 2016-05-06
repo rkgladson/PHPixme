@@ -46,6 +46,15 @@ class PotTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_not_a_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Pot::class));
+    $this->assertTrue(
+      false === array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be not be closed'
+    );
+  }
+
   /**
    * @dataProvider valueProvider
    */

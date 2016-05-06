@@ -597,6 +597,102 @@ __PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function (callable $hof
 
 // == map ==
 
+// -- group --
+/**
+ * Group a traversable by a return value, separating them out into [groupName=>[value...]]
+ * @param callable $fn
+ * @param array|\Traversable $arrayLike
+ * @return array|\Closure
+ */
+function group(callable $fn = null, $arrayLike = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[group], func_get_args());
+}
+const group = __NAMESPACE__ . '\group';
+__PRIVATE__::$instance[group] = __PRIVATE__::curryExactly2(function (callable $fn, $arrayLike) {
+  if ($arrayLike instanceof GroupableInterface) {
+    return $arrayLike->group($fn);
+  }
+  $output = [];
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
+    $output[call_user_func($fn, $value, $key, $arrayLike)][] = $value;
+  }
+  return $output;
+});
+// == group ==
+
+// -- groupWithKey --
+/**
+ * Group a traversable by a return value, separating them out into a nested array of [groupName=>[[key, value]...]]
+ * @param callable $fn
+ * @param array|\Traversable $arrayLike
+ * @return array|\Closure
+ */
+function groupWithKey(callable $fn = null, $arrayLike = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[groupWithKey], func_get_args());
+}
+const groupWithKey = __NAMESPACE__ . '\groupWithKey';
+__PRIVATE__::$instance[groupWithKey] = __PRIVATE__::curryExactly2(function (callable $fn, $arrayLike) {
+  if ($arrayLike instanceof GroupableInterface) {
+    return $arrayLike->groupWithKey($fn);
+  }
+  $output = [];
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
+    $output[call_user_func($fn, $value, $key, $arrayLike)][] = [$key, $value];
+  }
+  return $output;
+});
+// == group ==
+// -- partition --
+/**
+ * Like filter, but keeps both sides of the comparison. ["true"=>[value...], "false"=>[value...]]
+ * @param callable $fn
+ * @param boolean
+ * @param array|\Traversable $arrayLike
+ * @return array|\Closure
+ */
+function partition(callable $fn = null, $preserveKeys = null, $arrayLike = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[partition], func_get_args());
+}
+const partition = __NAMESPACE__ . '\partition';
+__PRIVATE__::$instance[partition] = __PRIVATE__::curryExactly2(function (callable $fn, $arrayLike) {
+  if ($arrayLike instanceof GroupableInterface) {
+    return $arrayLike->partition($fn);
+  }
+  $output = ["false" => [], "true" => []];
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
+    $output[call_user_func($fn, $value, $key, $arrayLike) ? "true" : "false"][] = $value;
+  }
+  return $output;
+});
+// == partition ==
+
+// -- partitionWithKey --
+/**
+ * Like filter, but keeps both sides of the comparison. ["true"=>[[key, value]...], "false"=>[[key, value]...]]
+ * @param callable $fn
+ * @param array|\Traversable $arrayLike
+ * @return array|\Closure
+ */
+function partitionWithKey(callable $fn = null, $arrayLike = null)
+{
+  return call_user_func_array(__PRIVATE__::$instance[partitionWithKey], func_get_args());
+}
+const partitionWithKey = __NAMESPACE__ . '\partitionWithKey';
+__PRIVATE__::$instance[partitionWithKey] = __PRIVATE__::curryExactly2(function (callable $fn, $arrayLike) {
+  if ($arrayLike instanceof GroupableInterface) {
+    return $arrayLike->partitionWithKey($fn);
+  }
+  $output = ["false" => [], "true" => []];
+  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
+    $output[call_user_func($fn, $value, $key, $arrayLike) ? "true" : "false"][] = [$key, $value];
+  }
+  return $output;
+});
+// == partitionWithKey ==
+
 // -- walk --
 /**
  * @param callable $hof

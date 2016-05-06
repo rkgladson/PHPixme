@@ -26,6 +26,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   public function seqSourceProvider()
   {
+    // TODO: Figure out how to add a generator to this without it expiring after the first test.
     return [
       '[]' => [[]]
       , '[1,2,3]' => [[1, 2, 3]]
@@ -34,6 +35,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'Array({one:1, two: 2})' => [['one' => 1, 'two' => 2]]
       , 'ArrayObject({one:1, two: 2})' => [new \ArrayObject(['one' => 1, 'two' => 2])]
       , 'ArrayIterator({one:1, two: 2})' => [new \ArrayIterator(['one' => 1, 'two' => 2])]
+      , 'JustAIterator({one:1, two: 2})' => [new JustAIterator(['one' => 1, 'two' => 2])]
       , 'S[]' => [P\Seq([])]
       , 'S[1,2,3]' => [P\Seq([1, 2, 3])]
     ];
@@ -1150,35 +1152,21 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(
       $expected
       , $haystack->indexOf($needle)
-      , 'Seq->indexOf should yield the expected results for $needle in $haystack'
+      , 'should yield the expected results for $needle in $haystack'
     );
   }
-
-  public function partitionProvider()
-  {
-    return [
-      'from 1 to 9 paritioned by odd (true) and even(false)' => [
-        P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9)
-        , function ($value, $key) {
-          return ($key % 2) === 0;
-        }
-        , P\Seq::of(
-          P\Seq::from([1 => 2, 3 => 4, 5 => 6, 7 => 8])
-          , P\Seq::from([0 => 1, 2 => 3, 4 => 5, 6 => 7, 8 => 9])
-        )
-      ]
-    ];
-  }
+  
 
   /**
    * @dataProvider partitionProvider
    */
   public function test_partition_callback(P\Seq $seq)
   {
-    $seq->partition(function () use ($seq) {
+    $ran = 0;
+    $seq->partition(function () use ($seq, &$ran) {
       $this->assertTrue(
         3 === func_num_args()
-        , 'Seq->partition callback should receive three arguments'
+        , 'callback should receive three arguments'
       );
       $value = func_get_arg(0);
       $key = func_get_arg(1);
@@ -1186,18 +1174,20 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
       $this->assertTrue(
         ($seq($key)) === $value
-        , 'Seq->partition callback $value should be equal to the value at $key'
+        , 'callback $value should be equal to the value at $key'
       );
       $this->assertNotFalse(
         $key
-        , 'Seq->partition callback $key should be defined'
+        , 'callback $key should be defined'
       );
       $this->assertTrue(
         $seq === $container
-        , 'Seq->partition callback $container should be itself'
+        , 'callback $container should be itself'
       );
+      $ran += 1;
       return true;
     });
+    $this->assertEquals(count($seq), $ran, 'it should of ran on every entry');
   }
 
   /**
@@ -1208,7 +1198,130 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(
       $expected
       , $seq->partition($hof)
-      , 'Seq->partition should separate as expected the results of the $hof based on its true(index 1) false(index 0) value'
+      , 'Seq->partition should separate as expected the results of the $hof based on its Seq("false"=>Seq(value),"true"=>Seq(value)) value'
+    );
+  }
+  
+  public function partitionProvider()
+  {
+    return [
+      'from 1 to 9 partitioned by odd (true) and even(false)' => [
+        P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        , function ($value, $key) {
+          return ($key % 2) === 0;
+        }
+        , P\Seq::from([
+          "false" => P\Seq::of(2, 4, 6, 8)
+          , "true" => P\Seq::of(1, 3, 5, 7, 9)
+        ])
+      ]
+    ];
+  }
+
+
+  /**
+   * @dataProvider partitionWithKeyProvider
+   */
+  public function test_partitionWithKey_callback(P\Seq $seq)
+  {
+    $ran = 0;
+    $seq->partitionWithKey(function () use ($seq, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive three arguments'
+      );
+      $value = func_get_arg(0);
+      $key = func_get_arg(1);
+      $container = func_get_arg(2);
+
+      $this->assertTrue(
+        ($seq($key)) === $value
+        , 'callback $value should be equal to the value at $key'
+      );
+      $this->assertNotFalse(
+        $key
+        , 'callback $key should be defined'
+      );
+      $this->assertTrue(
+        $seq === $container
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals(count($seq), $ran, 'it should of ran on every entry');
+  }
+
+  /**
+   * @dataProvider partitionWithKeyProvider
+   */
+  public function test_partitionWithKey(P\Seq $seq, $hof, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , $seq->partitionWithKey($hof)
+      , 'should separate as expected the results of the $hof based on its Seq("false"=>Seq([key, value]),"true"=>Seq([key, value])) value'
+    );
+  }
+
+  public function partitionWithKeyProvider()
+  {
+    return [
+      'from 1 to 9 partitioned by odd (true) and even(false)' => [
+        P\Seq::of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        , function ($value, $key) {
+          return ($key % 2) === 0;
+        }
+        , P\Seq::from([
+          "false" => P\Seq::from([[1, 2], [3, 4], [5, 6], [7, 8]])
+          , "true" => P\Seq::from([[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]])
+        ])
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider groupProvider
+   */
+  public function test_group_callback(P\Seq $seq)
+  {
+    $ran = 0;
+    $seq->group(function () use ($seq, &$ran) {
+      $this->assertTrue(
+        3 === func_num_args()
+        , 'callback should receive three arguments'
+      );
+      $value = func_get_arg(0);
+      $key = func_get_arg(1);
+      $container = func_get_arg(2);
+
+      $this->assertTrue(
+        ($seq($key)) === $value
+        , 'callback $value should be equal to the value at $key'
+      );
+      $this->assertNotFalse(
+        $key
+        , 'callback $key should be defined'
+      );
+      $this->assertTrue(
+        $seq === $container
+        , 'callback $container should be itself'
+      );
+      $ran += 1;
+      return true;
+    });
+    $this->assertEquals(count($seq), $ran, 'it should of ran on every entry');
+  }
+
+  /**
+   * @dataProvider groupProvider
+   */
+  public function test_group(P\Seq $seq, $hof, $expected)
+  {
+    $this->assertEquals(
+      $expected
+      , $seq->group($hof)
+      , 'applied to the key values given by the hof, should be a nested sequence of expected Seq'
     );
   }
 
@@ -1230,23 +1343,24 @@ class SeqTest extends \PHPUnit_Framework_TestCase
           return 'donno';
         }
         , P\Seq::from([
-          'number' => P\Seq::from([0 => 1, 2 => 3, 4 => 5, 6 => 7])
-          , 'string' => P\Seq::from([1 => '2', 5 => 6])
-          , 'object' => P\Seq::from([3 => P\Some(4)])
+          'number' => P\Seq::of(1, 3, 5, 7)
+          , 'string' => P\Seq::of('2', 6)
+          , 'object' => P\Seq::of(P\Some(4))
         ])
       ]
     ];
   }
 
   /**
-   * @dataProvider groupProvider
+   * @dataProvider groupWithKeyProvider
    */
-  public function test_group_callback(P\Seq $seq)
+  public function test_groupWithKey_callback(P\Seq $seq)
   {
-    $seq->group(function () use ($seq) {
+    $ran = 0;
+    $seq->groupWithKey(function () use ($seq, &$ran) {
       $this->assertTrue(
         3 === func_num_args()
-        , 'Seq->group callback should receive three arguments'
+        , 'callback should receive three arguments'
       );
       $value = func_get_arg(0);
       $key = func_get_arg(1);
@@ -1254,30 +1368,58 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
       $this->assertTrue(
         ($seq($key)) === $value
-        , 'Seq->group callback $value should be equal to the value at $key'
+        , 'callback $value should be equal to the value at $key'
       );
       $this->assertNotFalse(
         $key
-        , 'Seq->group callback $key should be defined'
+        , 'callback $key should be defined'
       );
       $this->assertTrue(
         $seq === $container
-        , 'Seq->group callback $container should be itself'
+        , 'callback $container should be itself'
       );
+      $ran += 1;
       return true;
     });
+    $this->assertEquals(count($seq), $ran, 'it should of ran on every entry');
   }
 
   /**
-   * @dataProvider groupProvider
+   * @dataProvider groupWithKeyProvider
    */
-  public function test_group(P\Seq $seq, $hof, $expected)
+  public function test_groupWithKey(P\Seq $seq, $hof, $expected)
   {
     $this->assertEquals(
       $expected
-      , $seq->group($hof)
-      , 'Seq->group, applied to the key values given by the hof, should be a nested sequence of expected Seq'
+      , $seq->groupWithKey($hof)
+      , 'applied to the key values given by the hof, should be a nested sequence of expected Seq'
     );
+  }
+
+  public function groupWithKeyProvider()
+  {
+    return [
+      '' => [
+        P\Seq::of(1, '2', 3, P\Some(4), 5, '6', 7)
+        , function ($value) {
+          if (is_string($value)) {
+            return 'string';
+          }
+          if (is_numeric($value)) {
+            return 'number';
+          }
+          if (is_object($value)) {
+            return 'object';
+          }
+          return 'donno';
+        }
+        , P\Seq::from([
+          'number' => P\Seq::from([[0, 1], [2, 3], [4, 5], [6, 7]])
+          , 'string' => P\Seq::from([[1, '2'], [5, 6]])
+          , 'object' => P\Seq::from([[3, P\Some(4)]])
+        ])
+      ]
+    ];
   }
 
   public function dropProvider()
@@ -1594,15 +1736,15 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   public function test_offsetApply()
   {
-    $ident = P\Seq::of(1,2,3);
+    $ident = P\Seq::of(1, 2, 3);
     $seq_1_4_3 = $ident->offsetApply(1, P\add(2));
-    $this->assertInstanceOf(P\Seq::class, $seq_1_4_3 );
+    $this->assertInstanceOf(P\Seq::class, $seq_1_4_3);
     $this->assertTrue($ident !== $seq_1_4_3);
-    $this->assertEquals([1,4,3], $seq_1_4_3->toArray());
+    $this->assertEquals([1, 4, 3], $seq_1_4_3->toArray());
     $this->assertNotEquals($ident->toArray(), $ident->offsetApply(1, P\add(2))->toArray());
-    $this->assertEquals([1,4,3], $ident->offsetApply(1, P\mul(2))->toArray());
+    $this->assertEquals([1, 4, 3], $ident->offsetApply(1, P\mul(2))->toArray());
     $this->assertTrue(
-      $ident===$ident->offsetApply(null, function () {
+      $ident === $ident->offsetApply(null, function () {
         throw new \Exception('Should never run!');
       })
       , 'Should be an identity when no offset exists'
@@ -1616,10 +1758,10 @@ class SeqTest extends \PHPUnit_Framework_TestCase
         , 'callback should receive only one argument'
       );
       $this->assertTrue(
-        func_get_arg(0)===$ident->offsetGet($offset)
+        func_get_arg(0) === $ident->offsetGet($offset)
         , 'The value should be the contents at that offset'
       );
-      $ran+=1;
+      $ran += 1;
       return $offset;
     });
     $this->assertEquals(1, $ran, 'callback should run when the offset does exist');

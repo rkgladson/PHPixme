@@ -82,6 +82,16 @@ class NoneTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\None::class));
+    $this->assertTrue(
+      false !== array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be closed'
+    );
+  }
+  
   public function test_static_of()
   {
     $this->assertTrue(
@@ -89,7 +99,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       , 'Of on None is its singleton'
     );
   }
-  
+
 
   public function test_contains()
   {
@@ -211,6 +221,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
     P\None()->reduce(function () {
     });
   }
+
   /**
    * @expectedException \LengthException
    */
@@ -229,7 +240,8 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       }, $startVal))
       , 'Folds on empty collections should return start values'
     );
-  }  
+  }
+
   public function test_foldRight()
   {
     $startVal = true;
@@ -301,6 +313,34 @@ class NoneTest extends \PHPUnit_Framework_TestCase
       0 === count($arr)
       , 'The length of the array produced by None->toArray should be 0'
     );
+  }
+
+  public function test_toLeft($value = true)
+  {
+    $ran = 0;
+    $run = function () use ($value, &$ran) {
+      $this->assertTrue(func_num_args() === 0, 'the callback should receive no arguments');
+      $ran +=1;
+      return $value;
+    };
+    $left = P\None()->toLeft($run);
+    $this->assertEquals(1, $ran);
+    $this->assertInstanceOf(P\Right::class, $left, 'toLeft on None should return a Right');
+    $this->assertTrue($value === $left->merge());
+  }
+
+  public function test_toRight($value = true)
+  {
+    $ran = 0;
+    $run = function () use ($value, &$ran) {
+      $this->assertTrue(func_num_args() === 0, 'the callback should receive no arguments');
+      $ran +=1;
+      return $value;
+    };
+    $right = P\None()->toRight($run);
+    $this->assertEquals(1, $ran);
+    $this->assertInstanceOf(P\Left::class, $right, 'toRight on None should return a Left');
+    $this->assertTrue($value === $right->merge());
   }
 
   public function test_isEmpty()

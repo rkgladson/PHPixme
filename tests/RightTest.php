@@ -22,6 +22,15 @@ class RightTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Right::class));
+    $this->assertTrue(
+      false !== array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be closed'
+    );
+  }
+
   public function test_static_of($value = true)
   {
     $this->assertInstanceOf(P\Right::class, P\Right::of($value));

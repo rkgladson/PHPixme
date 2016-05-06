@@ -27,6 +27,15 @@ class LeftTest extends \PHPUnit_Framework_TestCase
     $this->assertInstanceOf(P\Left::class, P\Left::of($value));
   }
 
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Left::class));
+    $this->assertTrue(
+      false !== array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be closed'
+    );
+  }
+  
   public function test_handedness($value = true)
   {
     $Left = P\Left($value);

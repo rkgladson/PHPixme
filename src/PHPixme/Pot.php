@@ -5,22 +5,18 @@
  * Date: 4/14/2016
  * Time: 4:54 PM
  */
-
 namespace PHPixme;
-
 /**
  * Class Pot
+ * Pot is a single collection who is designed to be thrown. It is not closed like other collections, mirroring the ability of \stdClass in that anything may be attached to the object outside of what is predefined. 
  * @package PHPixme
- * @description
- * Pot is an exception class that may contain any data you wish, designed to pass more than just a message.
- * Please note there is no EmptyPot. It must always have a value.
  */
 class Pot extends \Exception implements
   CollectionInterface
   , SingleStaticCreation
   , \Countable
 {
-  use AssertType;
+  use AssertTypeTrait;
   protected $contents;
 
   public function __construct($data, $message = '')

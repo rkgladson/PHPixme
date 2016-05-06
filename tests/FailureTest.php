@@ -39,6 +39,15 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Failure::class));
+    $this->assertTrue(
+      false !== array_search('PHPixme\ClosedTrait', $traits)
+      , 'should be closed'
+    );
+  }
+
   public function test_is_status()
   {
     $failure = P\Failure(new \Exception('test'));

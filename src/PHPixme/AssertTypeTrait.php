@@ -3,7 +3,7 @@
 namespace PHPixme;
 
 
-trait AssertType
+trait AssertTypeTrait
 {
   /**
    * Helper for return value checking.
