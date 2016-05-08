@@ -9,8 +9,21 @@
 namespace {
   error_reporting(E_ALL);
 }
+// Load the autoload file.
+namespace {
+  $autoloader = __DIR__ . '/vendor/autoload.php';
+  if (!file_exists($autoloader)) {
+    echo "Composer autoloader not found: $autoloader" . PHP_EOL;
+    echo "Please issue 'composer install' and try again." . PHP_EOL;
+    exit(1);
+  }
+  require $autoloader;
+}
+
+
 // Define some dummy test functions that can be shared
 namespace tests\PHPixme {
+
   use PHPixme\AssertTypeTrait;
   use PHPixme\ClosedTrait;
   const Closure = \Closure::class;
@@ -30,7 +43,8 @@ namespace tests\PHPixme {
    * @property void $exceptionFoo
    * @package tests\PHPixme
    */
-  class CloseTypeStub {
+  class CloseTypeStub
+  {
     use ClosedTrait;
   }
 
@@ -62,7 +76,8 @@ namespace tests\PHPixme {
     }
   }
 
-  class JustAIterator implements \Iterator{
+  class JustAIterator implements \Iterator
+  {
     private $data = [];
     private $valid = true;
 
@@ -73,7 +88,7 @@ namespace tests\PHPixme {
 
     public function next()
     {
-       $this->valid = false !== each($this->data);
+      $this->valid = false !== each($this->data);
     }
 
     public function key()
@@ -97,17 +112,8 @@ namespace tests\PHPixme {
     }
   }
 
-  function getAllTraits (\ReflectionClass $reflection) {
+  function getAllTraits(\ReflectionClass $reflection)
+  {
     return array_merge($reflection->getTraitNames(), $reflection->getParentClass() !== false ? getAllTraits($reflection->getParentClass()) : []);
   }
-}
-// Load the autoload file.
-namespace {
-  $autoloader = __DIR__ . '/vendor/autoload.php';
-  if (!file_exists($autoloader)) {
-    echo "Composer autoloader not found: $autoloader" . PHP_EOL;
-    echo "Please issue 'composer install' and try again." . PHP_EOL;
-    exit(1);
-  }
-  require $autoloader;
 }
