@@ -415,11 +415,12 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       $this->assertEquals(gettype($value), __PRIVATE__::getDescriptor($value));
     });
   }
-  
+
   /**
    * @requires extension curl
    */
-  public function test_getDescriptor_resource() {
+  public function test_getDescriptor_resource()
+  {
     $handle = curl_init('http://www.wikipedia.com/');
     $this->assertEquals('curl', __PRIVATE__::getDescriptor($handle));
     curl_close($handle);
@@ -579,15 +580,8 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     $closure = internal::$instance[$key];
     $this->assertInstanceOf(Closure, $closure);
     $this->assertInstanceOf(Closure, $closure(), 'the thunk should return a closure');
-    // Guarding for false positives of Pipe and Combine, as they are variadic,
-    // and will never return their identity, as the final length will always be indeterminate
-    // and it will always make a new function each step.
-    if (false === array_search($key, static::fnIdentityBlacklist)) {
-      $this->assertTrue($key() === $closure, 'Thunk currying should return the value stored in internal');
-    }
+    $this->assertTrue($key() === $closure, 'Thunk currying should return the value stored in internal');
   }
-
-  const fnIdentityBlacklist = [PHPixme . '\combine', PHPixme . '\pipe'];
 
   public function callableProvider()
   {

@@ -277,16 +277,18 @@ class __PRIVATE__
    */
   static function curryGiven($prevArgs, $arity, $callable, $firstPlaceholder = -1)
   {
-    return function () use ($arity, $callable, $prevArgs, $firstPlaceholder) {
+    $self = function () use (&$self, $arity, $callable, $prevArgs, $firstPlaceholder) {
 
       $prevArgsLength = count($prevArgs);
 
       $newArgs = func_get_args();
+      // Don't even bother testing if new args is 0 escape hatch, it's such a rare case and there won't be
+      // beneficial in 99% of the runs
       $newArgsLength = count($newArgs);
       // Kickstart the process from the last known placeholder location
       $outputArgs = $firstPlaceholder < 0 ? $prevArgs : array_slice($prevArgs, 0, $firstPlaceholder);
       // Mark how many have been inserted before picking up where we left off.
-      $left = $arity - count($outputArgs);
+      $startLeft = $left = $arity - count($outputArgs);
       // note the new placeholder's possible location
       $nextFirstPlaceholder = -1;
       for (
@@ -295,6 +297,7 @@ class __PRIVATE__
         $outputIdx += 1
       ) {
 
+        // Figure out who's source we should use for the current argument
         if ((
             $outputIdx < $prevArgsLength
             && $prevArgs[$outputIdx] !== static::$placeholder
@@ -309,20 +312,29 @@ class __PRIVATE__
           $newArgIdx += 1;
 
         }
+        // Store it at the argument index
         $outputArgs[$outputIdx] = $cell;
 
         if ($cell !== static::$placeholder) {
+          // Note that a placeholder has been taken
           $left -= 1;
         } else if ($nextFirstPlaceholder < 0) {
-          // Note the location of the first placeholder for next time.
+          // Note the location of the first placeholder for next time, to ease restarting of this loop
           $nextFirstPlaceholder = $outputIdx;
         }
       }
-      return ($left < 1
-        ? call_user_func_array($callable, $outputArgs)
-        : self::curryGiven($outputArgs, $arity, $callable, $nextFirstPlaceholder)
-      );
+      // Return the function identity when it has been determined that no change has happend
+      // This allows for some tracking of the state kept within the closure, in that we can now test for state change by id.
+      // Otherwise we return this new tate into a new closure.
+      // However if it is determined that the arity has been reached, we may now run the function that has been awaiting
+      // all its arguments.
+      return $left !== $startLeft
+        ? ($left < 1
+          ? call_user_func_array($callable, $outputArgs)
+          : self::curryGiven($outputArgs, $arity, $callable, $nextFirstPlaceholder)
+        ) : $self;
     };
+    return $self;
   }
 
 
