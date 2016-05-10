@@ -438,6 +438,22 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
   }
 
   /**
+   * @dataProvider callableProvider
+   */
+  public function test_reflectCallable (callable $callable, $descriptor) {
+    $reflection = internal::reflectCallable($callable);
+    $this->assertInstanceOf(\ReflectionFunctionAbstract::class, $reflection);
+    $this->assertInstanceOf($descriptor['reflection'], $reflection);
+  }
+
+  /**
+   * @dataProvider callableProvider
+   */
+  public function test_getArity(callable $callable, $descriptor) {
+    $this->assertEquals($descriptor['arity'], internal::getArity($callable));
+  }
+
+  /**
    * @param mixed $notCallable
    * @dataProvider  notCallableProvider
    */
@@ -589,13 +605,54 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       return $x;
     };
     return [
-      'static function' => [\PHPixme\I]
-      , 'closures' => [$closure]
-      , 'static method string' => [TestClass::class . '::testStatic']
-      , 'array-class static method' => [[TestClass::class, 'testStatic']]
-      , 'array-object method' => [[$object, 'getArgs']]
-      , 'array-object static method' => [[$object, 'testStatic']]
-      , 'invokable objects' => [new invokable()]
+      'static function' => [
+        \PHPixme\I
+        , [
+          'arity' => 1
+          , 'reflection' => \ReflectionFunction::class
+        ]
+      ]
+      , 'closures' => [
+        $closure,
+        [
+          'arity' => 1
+          , 'reflection' => \ReflectionFunction::class
+        ]
+      ]
+      , 'static method string' => [
+        TestClass::class . '::testStatic'
+        , [
+          'arity' => 0
+          , 'reflection' => \ReflectionMethod::class
+        ]
+      ]
+      , 'array-class static method' => [
+        [TestClass::class, 'testStatic']
+        , [
+          'arity' => 0
+          , 'reflection' => \ReflectionMethod::class
+        ]
+      ]
+      , 'array-object method' => [
+        [$object, 'getArgs']
+        , [
+          'arity' => 0
+          , 'reflection' => \ReflectionMethod::class
+        ]
+      ]
+      , 'array-object static method' => [
+        [$object, 'testStatic']
+        , [
+          'arity' => 0
+          , 'reflection' => \ReflectionMethod::class
+        ]
+      ]
+      , 'invokable objects' => [
+        new invokable(), [
+          'arity' => 1
+          , 'reflection' => \ReflectionMethod::class
+        ]
+      ]
     ];
   }
 

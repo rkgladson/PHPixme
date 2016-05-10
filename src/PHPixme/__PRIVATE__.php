@@ -337,6 +337,37 @@ class __PRIVATE__
     return $self;
   }
 
+  /**
+   * Gets the reflective version of a callable
+   * @param callable $callable
+   * @return \ReflectionFunctionAbstract
+   */
+  static public function reflectCallable(callable $callable)
+  {
+    $target = is_string($callable) ? explode('::', $callable, 2) : $callable;
+    return is_array($target)
+      ? (
+      count($target) > 1
+        ? new \ReflectionMethod($target[0], $target[1])
+        : new \ReflectionFunction($target[0])
+      ) : ($target instanceof \Closure
+        // Technically \Closure is covered by \ReflectionMethod __invoke, however, doesn't cover all that Closure is
+        ? new \ReflectionFunction($target)
+        : new \ReflectionMethod($target, '__invoke')
+      // PHP you make me sad
+      );
+  }
+
+  /**
+   * Gets the arity of a callable at runtime.
+   * @param callable $fn
+   * @return int
+   */
+  static public function getArity(callable $fn)
+  {
+    return self::reflectCallable($fn)->getNumberOfRequiredParameters();
+  }
+
 
   // -- Magic Methods --
   /**
