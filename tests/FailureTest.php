@@ -39,6 +39,12 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  public function test_static_creation () {
+    $ofMade = P\Failure::of(new \Exception());
+    $this->assertInstanceOf(P\StaticCreation::class, $ofMade);
+    $this->assertInstanceOf(P\Failure::class, $ofMade);
+  }
+
   public function test_closed_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(P\Failure::class));

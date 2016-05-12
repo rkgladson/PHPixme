@@ -19,23 +19,24 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       , 'The constant for the Class and Function should be equal to the Class Path'
     );
     $this->assertTrue(
-      function_exists(P\Success)
+      function_exists(P\Success::class)
       , 'The companion function exists for the class.'
     );
   }
 
   public function test_Success_companion()
   {
-    $this->assertStringEndsWith(
-      '\Success'
-      , P\Success
-      , 'Ensure the constant ends with the function/class name'
-    );
     $this->assertInstanceOf(
-      P\Success,
+      P\Success::class,
       P\Success(false),
       'the companion function should return an instance of its class'
     );
+  }
+
+  public function test_static_creation () {
+    $ofMade = P\Success::of(1);
+    $this->assertInstanceOf(P\StaticCreation::class, $ofMade);
+    $this->assertInstanceOf(P\Success::class, $ofMade);
   }
 
   public function test_closed_trait()

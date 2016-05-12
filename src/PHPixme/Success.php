@@ -19,11 +19,20 @@ class Success extends Attempt
   private $value = null;
 
   /**
-   * @inheritdoc
+   * @param mixed $value the success value
    */
   public function __construct($value)
   {
     $this->value = $value;
+  }
+
+  /**
+   * @inheritdoc
+   * @param mixed $value
+   * @return Success
+   */
+  static public function of($value) {
+    return new static($value);
   }
 
   /**

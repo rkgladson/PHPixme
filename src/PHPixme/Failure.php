@@ -128,11 +128,21 @@ class Failure extends Attempt
   }
 
   /**
-   * @inheritdoc
+   * @param \Exception $exception
    */
   public function __construct(\Exception $exception)
   {
     $this->err = $exception;
+  }
+
+  /**
+   * @inheritdoc
+   * @param \Exception $value
+   * @return static
+   */
+  static public function of($value)
+  {
+    return new static($value);
   }
 
   /**
