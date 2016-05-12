@@ -17,7 +17,7 @@ class EitherTest extends \PHPUnit_Framework_TestCase
       , 'The constant for the class and the function should be equal'
     );
     $this->assertFalse(
-      function_exists(P\Either)
+      function_exists(P\Either::class)
       , 'The companion function should not exist for the class. Either should not have a static applicative.'
     );
   }
@@ -27,5 +27,36 @@ class EitherTest extends \PHPUnit_Framework_TestCase
       , P\Either::class
       , 'Either is not a collection, but a disjoint union representation of a collection.'
     );
+  }
+
+  /**
+   * @dataProvider reflectionProvider
+   * @param \ReflectionClass $reflection
+   */
+  public function test_not_collection (\ReflectionClass $reflection ) {
+    $this->assertFalse(
+      $reflection->implementsInterface(P\CollectionInterface::class)
+      , 'Either, while having some collection like qualities, is an exclusive disjunction, not a collection.'
+      . ' Collections only have one path of operation, while Either has two possible states of paths.'
+    );
+  }
+
+  /**
+   * @dataProvider reflectionProvider
+   * @param \ReflectionClass $reflection
+   */
+  public function test_no_of(\ReflectionClass $reflection ) {
+
+    $this->assertTrue(
+      $reflection->implementsInterface(P\SingleStaticCreation::class)
+    );
+    $this->assertTrue(
+      $reflection->getMethod('of')->isAbstract()
+      , 'Either should not implement of, as it is not a collection of its own, but a disjunction'
+    );
+  }
+
+  public function reflectionProvider () {
+    return [[new \ReflectionClass(P\Either::class)]];
   }
 }

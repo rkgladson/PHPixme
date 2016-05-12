@@ -19,7 +19,7 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
       , 'The constant for the Class and Function should be equal to the Class Path'
     );
     $this->assertTrue(
-      function_exists(P\Attempt)
+      function_exists(P\Attempt::class)
       , 'The companion function exists for the class.'
     );
   }

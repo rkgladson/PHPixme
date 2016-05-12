@@ -1,9 +1,17 @@
 <?php
 namespace PHPixme;
-
-abstract class Either implements SingleStaticCreation
+/**
+ * Class Either
+ * Either is a Exclusive Disjunction of Collections, and therefore its children are not Transversable Collections
+ * Attempting to directly map across a disjunction will result in a type error.
+ * @package PHPixme
+ */
+abstract class Either implements
+  SingleStaticCreation
 {
   use AssertTypeTrait, ClosedTrait;
+  // Note: Either should not implement ::of on its own, and should leave it to its children
+  
   /**
    * Get the value regardless of whether the class is a Left or a Right
    * @return mixed
@@ -64,5 +72,4 @@ abstract class Either implements SingleStaticCreation
    * @return Either
    */
   abstract public function flattenRight();
-
 }
