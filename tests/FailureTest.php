@@ -20,20 +20,15 @@ class FailureTest extends \PHPUnit_Framework_TestCase
       , 'The constant for the Class and Function should be equal to the Class Path'
     );
     $this->assertTrue(
-      function_exists(P\Failure)
+      function_exists(P\Failure::class)
       , 'The companion function exists for the class.'
     );
   }
 
   public function test_Failure_companion()
   {
-    $this->assertStringEndsWith(
-      '\Failure'
-      , P\Failure
-      , 'Ensure the constant ends with the function name'
-    );
     $this->assertInstanceOf(
-      P\Failure
+      P\Failure::class
       , P\Failure(new \Exception('Test Exception'))
       , 'It should return failure instances'
     );
