@@ -32,6 +32,21 @@ interface ImmutableOffsetAccess
   public function offsetGet($offset);
 
   /**
+   * Retrieve the Some of an offset if it exists, and the None if it does not
+   * @param mixed $offset
+   * @return Maybe
+   */
+  public function offsetGetMaybe($offset);
+
+  /**
+   * Retrieve the Success of an offset if it exist,
+   * or the Failure of a exception\VacuousOffsetException containing the offset
+   * @param $offset
+   * @return Success|Failure
+   */
+  public function offsetGetAttempt($offset);
+
+  /**
    * Sets a value at offset on a copy of the collection, and returns that collection.
    * When $offset is null, it will push the value to the end of the copied collection.
    * @param mixed $offset

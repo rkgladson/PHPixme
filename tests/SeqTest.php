@@ -1155,7 +1155,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'should yield the expected results for $needle in $haystack'
     );
   }
-  
+
 
   /**
    * @dataProvider partitionProvider
@@ -1201,7 +1201,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'Seq->partition should separate as expected the results of the $hof based on its Seq("false"=>Seq(value),"true"=>Seq(value)) value'
     );
   }
-  
+
   public function partitionProvider()
   {
     return [
@@ -1720,6 +1720,32 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     $eq = P\Seq::from($source);
     $this->assertTrue($value === $eq->offsetGet($offset));
     $this->assertNull($eq->offsetGet($notOffset));
+  }
+
+  public function test_offsetGetMaybe($value = true, $offset = '1')
+  {
+    $source[$offset] = $value;
+    $notOffset = $offset . 'nope';
+    $eq = P\Seq::from($source);
+    $maybeOffset = $eq->offsetGetMaybe($offset);
+    $this->assertInstanceOf(P\Some::class, $maybeOffset);
+    $this->assertTrue($value === $maybeOffset->getOrElse(!$value));
+    $this->assertInstanceOf(P\None::class, $eq->offsetGetMaybe($notOffset));
+  }
+
+  public function test_offsetGetAttempt($value = true, $offset = '1')
+  {
+    $source[$offset] = $value;
+    $eq = P\Seq::from($source);
+    $attemptOffset = $eq->offsetGetAttempt($offset);
+    $this->assertInstanceOf(P\Success::class, $attemptOffset);
+    $this->assertTrue($value === $attemptOffset->getOrElse(!$value));
+    $notOffset = $offset . 'nope';
+    $attemptOffset = $eq->offsetGetAttempt($notOffset);
+    $this->assertInstanceOf(P\Failure::class, $attemptOffset);
+    $exception = $attemptOffset->failed()->get();
+    $this->assertInstanceOf(P\exception\VacuousOffsetException::class, $exception);
+    $this->assertEquals($notOffset, $exception->get());
   }
 
   public function test_offsetSet($value = true)

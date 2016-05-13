@@ -7,6 +7,8 @@
  */
 
 namespace PHPixme;
+use PHPixme\exception\VacuousOffsetException;
+
 /**
  * Class Seq
  * Seq is an 0 to N item monadic collection inspired by Scala's List and blended with PHP's ArrayObject.
@@ -99,7 +101,29 @@ class Seq implements
    */
   public function offsetGet($offset)
   {
-    return isset($this->hash[$offset]) ? $this->hash[$offset] : null;
+    return isset($this->hash[$offset])
+      ? $this->hash[$offset]
+      : null;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function offsetGetMaybe($offset)
+  {
+    return isset($this->hash[$offset])
+      ? Some($this->hash[$offset])
+      : None();
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function offsetGetAttempt($offset)
+  {
+    return isset($this->hash[$offset])
+      ? Success($this->hash[$offset])
+      : Failure(new VacuousOffsetException($offset));
   }
 
   /**
@@ -397,8 +421,8 @@ class Seq implements
       $output[call_user_func($fn, $value, $key, $this) ? "true" : "false"][] = $value;
     }
     return static::from([
-      "false"=>static::from($output["false"])
-      , "true"=> static::from($output["true"])
+      "false" => static::from($output["false"])
+      , "true" => static::from($output["true"])
     ]);
   }
 
@@ -413,8 +437,8 @@ class Seq implements
       $output[call_user_func($fn, $value, $key, $this) ? "true" : "false"][] = [$key, $value];
     }
     return static::from([
-      "false"=>static::from($output["false"])
-      , "true"=> static::from($output["true"])
+      "false" => static::from($output["false"])
+      , "true" => static::from($output["true"])
     ]);
   }
 
