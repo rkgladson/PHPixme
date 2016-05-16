@@ -1848,7 +1848,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   public function test_toArrayObject($source = [1, 2, 3])
   {
-    $arrayObject = P\Seq::from($source)->toArrayObject();
+    $arrayObject = P\Seq::from($source)->toArrayAccess();
     $this->assertInstanceOf(\ArrayObject::class, $arrayObject);
     $this->assertEquals($source, $arrayObject->getArrayCopy());
   }

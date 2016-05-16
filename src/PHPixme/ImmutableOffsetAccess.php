@@ -74,11 +74,12 @@ interface ImmutableOffsetAccess
   public function offsetUnset($offset);
 
   /**
-   * A convince adapter that might expect a mutable array object,
+   * A convince adapter that might expect a mutable ArrayAccess, of an appropriate type,
    * since ImmutableOffsetAccess cannot implement the ArrayAccess Interface due
-   * to their slight differences.
-   * @return \ArrayObject
+   * to their slight differences. 
+   * Note: It is up to the implementation to determine which Class is most appropriate
+   * @return \ArrayAccess
    */
-  public function toArrayObject();
+  public function toArrayAccess();
 
 }

@@ -595,8 +595,9 @@ class Seq implements
 
   /**
    * @inheritdoc
+   * @return \ArrayObject
    */
-  public function toArrayObject()
+  public function toArrayAccess()
   {
     return new \ArrayObject($this->hash);
   }
@@ -607,6 +608,10 @@ class Seq implements
   }
 
 
+  /**
+   * Returns a clone that represents the hash as an ArrayIterator
+   * @return \ArrayIterator
+   */
   public function getIterator()
   {
     return new \ArrayIterator($this->hash);
