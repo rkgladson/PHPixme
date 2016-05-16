@@ -19,6 +19,7 @@ class Seq implements
   CollectionInterface
   , MultipleStaticCreation
   , ImmutableOffsetAccess
+  , ListInterface
   , FilterableInterface
   , ReducibleInterface
   , GroupableInterface
@@ -70,6 +71,15 @@ class Seq implements
   }
 
   /**
+   * @param string|int $key
+   * @param array $hash
+   * @return bool
+   */
+  protected static function keyDefined($key, array &$hash) {
+    return isset($hash[$key]) || array_key_exists($key, $hash);
+  }
+
+  /**
    * @inheritdoc
    */
   public static function from($arrayLike)
@@ -92,7 +102,7 @@ class Seq implements
    */
   public function __invoke($offset)
   {
-    return isset($this->hash[$offset]) ? $this->hash[$offset] : null;
+    return static::keyDefined($offset, $this->hash) ? $this->hash[$offset] : null;
   }
 
 
@@ -101,7 +111,7 @@ class Seq implements
    */
   public function offsetGet($offset)
   {
-    return isset($this->hash[$offset])
+    return static::keyDefined($offset, $this->hash)
       ? $this->hash[$offset]
       : null;
   }
@@ -111,7 +121,7 @@ class Seq implements
    */
   public function offsetGetMaybe($offset)
   {
-    return isset($this->hash[$offset])
+    return static::keyDefined($offset, $this->hash)
       ? Some($this->hash[$offset])
       : None();
   }
@@ -121,7 +131,7 @@ class Seq implements
    */
   public function offsetGetAttempt($offset)
   {
-    return isset($this->hash[$offset])
+    return static::keyDefined($offset, $this->hash)
       ? Success($this->hash[$offset])
       : Failure(new VacuousOffsetException($offset));
   }
@@ -146,7 +156,7 @@ class Seq implements
    */
   public function offsetApply($offset, callable $fn)
   {
-    if (isset($this->hash[$offset])) {
+    if (static::keyDefined($offset, $this->hash)) {
       $output = $this->hash;
       $output[$offset] = call_user_func($fn, $this->hash[$offset]);
       return new static($output);
@@ -170,7 +180,7 @@ class Seq implements
    */
   public function offsetExists($offset)
   {
-    return isset($this->hash[$offset]);
+    return static::keyDefined($offset, $this->hash);
   }
 
   /**
@@ -389,11 +399,24 @@ class Seq implements
     return $this;
   }
 
+  /**
+   * @inheritdoc
+   */
+  public function headMaybe() {
+    return $this->isEmpty() ? None() : Some($this->hash[$this->keyR[0]]);
+  }
+
+  /**
+   * @inheritdoc
+   */
   public function head()
   {
     return $this->isEmpty() ? null : $this->hash[$this->keyR[0]];
   }
 
+  /**
+   * @inheritdoc
+   */
   public function tail()
   {
     if ($this->length > 1) {
@@ -404,11 +427,18 @@ class Seq implements
     return $this::from([]);
   }
 
+  /**
+   * Finds the first occurrence of a key with the value of the thing, returning -1 when not found.
+   * If your array has a key of -1, you should use find instead.
+   * @param $thing
+   * @return Some|None
+   */
   public function indexOf($thing)
   {
     $key = array_search($thing, $this->hash, true);
-    return $key === false ? -1 : $key;
+    return $key === false ? None() : Some($key);
   }
+
 
   /**
    * @inheritdoc
@@ -476,36 +506,63 @@ class Seq implements
     return static::from($output1);
   }
 
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
   public function drop($number = 0)
   {
     return $this::from(array_slice($this->hash, $number, null, true));
   }
 
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
   public function dropRight($number = 0)
   {
     return $this::from(array_slice($this->hash, 0, -1 * $number, true));
   }
 
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
   public function take($number = 0)
   {
     return $this::from(array_slice($this->hash, 0, $number, true));
   }
 
+  /**
+   * @inheritdoc
+   * @return Seq
+   */
   public function takeRight($number = 0)
   {
     return $this::from(array_slice($this->hash, -1 * $number, null, true));
   }
 
+  /**
+   * @inheritdoc
+   */
   public function toArray()
   {
     return $this->hash;
   }
 
+  /**
+   * Unzips the values from the keys and returns it as a Seq
+   * @return static
+   */
   public function values()
   {
     return static::from(array_values($this->hash));
   }
 
+  /**
+   * Unzips the keys from the values and returns it as a Seq
+   * @return static
+   */
   public function keys()
   {
     return static::from($this->keyR);

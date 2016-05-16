@@ -1073,6 +1073,47 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  public function headMaybeProvider()
+  {
+    return [
+      'keyless' => [
+        P\Seq::of(1, 2, 3)
+        , P\Some(1)
+      ]
+      , 'keyed' => [
+        P\Seq::from([
+          'one' => 1
+          , 'two' => 2
+          , 'three' => 3
+        ])
+        , P\Some(1)
+      ]
+      , 'some null head ' => [
+        P\Seq::of(null)
+        , P\Some(null)
+      ]
+      , 'empty' => [
+        P\Seq::of()
+        , P\None()
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider headMaybeProvider
+   */
+  public function test_headMaybe(P\Seq $seq, $expects)
+  {
+    $output = $seq->headMaybe();
+    $this->assertInstanceOf(P\Maybe::class, $output);
+    $this->assertEquals(
+      $expects
+      , $output
+      , 'return the head element as Maybe'
+    );
+  }
+
+
   public function tailProvider()
   {
     return [
@@ -1106,40 +1147,45 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(
       $expects
       , $seq->tail()
-      , 'Seq->head should return the rest of the Sequence'
+      , 'should return the rest of the Sequence'
     );
   }
 
   public function indexOfProvider()
   {
-    $none = P\None;
+    $none = P\None();
     $some1 = P\Some(1);
     $one = 1;
     return [
       'keyed source find None S[one=>1, none=>None, some=>Some(1) ]' => [
         P\Seq::from(['one' => $one, 'none' => $none, 'some' => $some1])
         , $none
-        , 'none'
+        , P\Some('none')
       ]
       , 'source find None S[1,None, Some(1)]' => [
         P\Seq::of($one, $none, $some1)
         , $none
-        , 1
+        , P\Some(1)
       ]
       , 'source find Some(1) in S[1,2,Some(1),3]' => [
         P\Seq::of(1, 2, $some1, 3)
         , $some1
-        , 2
+        , P\Some(2)
+      ]
+      , 'find null in 0 index' => [
+        P\Seq::from([null])
+        , null
+        , P\Some(0)
       ]
       , 'fail to find Some(1) in S[1,2,3]' => [
         P\Seq::of(1, 2, 3)
         , $some1
-        , -1
+        , $none
       ]
       , 'fail to find Some(1) in S[]' => [
         P\Seq::of()
         , $some1
-        , -1
+        , $none
       ]
     ];
   }
