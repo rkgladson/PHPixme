@@ -9,6 +9,8 @@ namespace PHPixme;
 abstract class Either implements
   SingleStaticCreation
   , UnbiasedDisjunctionInterface
+  , SingleLeftApplicativeDisjunctionInterface
+  , SingleRightApplicativeDisjunctionInterface
   , SwappableDisjunctionInterface
 {
   use AssertTypeTrait, ClosedTrait;
@@ -47,31 +49,38 @@ abstract class Either implements
    */
   abstract public function right();
 
+
+
   /**
-   * Returns True if the type is a Left
-   * @return boolean
+   * @inheritdoc
+   * @return Left
    */
-  abstract public function isLeft();
+  public static function ofLeft($value)
+  {
+    return Left::of($value);
+  }
 
   /**
    * Flatten the contents if the class is Left
    * @return Either
    */
   abstract public function flattenLeft();
-
-
+  
   /**
-   * Returns true if the type is a Right
-   * @return boolean
+   * @inheritdoc
+   * @return Right
    */
-  abstract public function isRight();
+  public static function ofRight($value)
+  {
+    return Right::of($value);
+  }
 
   /**
    * Flattens the contents if the Class is right.
    * @return Either
    */
   abstract public function flattenRight();
-  
+
   final public function toBiasedDisJunctionInterface()
   {
     //TODO: Implement a class that fits this need
