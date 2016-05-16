@@ -52,6 +52,12 @@ abstract class Attempt implements
   abstract public function get();
 
   /**
+   * Returns the value contained on either part of the Attempt Disjunction
+   * @return mixed
+   */
+  abstract public function merge();
+
+  /**
    * @param $default
    * @return mixed
    */
