@@ -76,7 +76,7 @@ class Left extends Either
    */
   public function fold(callable $leftFn, callable $rightFn)
   {
-    return call_user_func($leftFn, $this->value);
+    return $leftFn($this->value);
   }
 
   /**

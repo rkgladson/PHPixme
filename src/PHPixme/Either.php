@@ -8,28 +8,27 @@ namespace PHPixme;
  */
 abstract class Either implements
   SingleStaticCreation
+  , UnbiasedDisjunctionInterface
+  , SwappableDisjunctionInterface
 {
   use AssertTypeTrait, ClosedTrait;
+
   // Note: Either should not implement ::of on its own, and should leave it to its children
-  
+
   /**
    * Get the value regardless of whether the class is a Left or a Right
    * @return mixed
    */
   abstract public function merge();
 
+
   /**
-   * Fold over both potential left and right values, producing the output of each function
-   * determined by whether the Either is Left or a Right
-   * @param callable $leftFn (x->a) Used by Left
-   * @param callable $rightFn (x->b) used by Right
-   * @return mixed
-   * @sig ((x->a), (x->b)) -> a or b
+   * @inheritdoc
    */
   abstract public function fold(callable $leftFn, callable $rightFn);
 
   /**
-   * Converts a Left to a Right, or a Right to a left
+   * @inheritdoc
    * @return Either
    */
   abstract public function swap();
@@ -39,7 +38,7 @@ abstract class Either implements
    * Returns Some if Either is subclass Left, none if subclass Right
    * @return Maybe
    */
-   abstract public function left();
+  abstract public function left();
 
   /**
    * Projects the Either into a Maybe
@@ -72,4 +71,10 @@ abstract class Either implements
    * @return Either
    */
   abstract public function flattenRight();
+  
+  final public function toBiasedDisJunctionInterface()
+  {
+    //TODO: Implement a class that fits this need
+    throw new \Exception('Currently unimplemented');
+  }
 }
