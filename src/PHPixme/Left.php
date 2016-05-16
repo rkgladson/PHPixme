@@ -1,8 +1,9 @@
 <?php
 namespace PHPixme;
 
-class Left extends Either
+class Left extends Either implements LeftHandSideType
 {
+  use LeftHandedTrait;
   private $value;
 
   public function __construct($value)
@@ -29,14 +30,6 @@ class Left extends Either
 
   /**
    * @inheritdoc
-   */
-  public function isLeft()
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
    * @return Either
    */
   public function flattenLeft()
@@ -51,14 +44,6 @@ class Left extends Either
   public function right()
   {
     return None::getInstance();
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function isRight()
-  {
-    return false;
   }
 
   /**
