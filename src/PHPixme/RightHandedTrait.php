@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 5/16/2016
- * Time: 2:51 PM
- */
-
 namespace PHPixme;
 
 
@@ -15,7 +8,9 @@ trait RightHandedTrait
   {
     return false;
   }
-  final public function isRight() {
+
+  final public function isRight()
+  {
     return true;
   }
 }
