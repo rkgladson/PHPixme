@@ -36,13 +36,6 @@ interface UnbiasedDisjunctionInterface extends DisjunctionInterface
   public function fold(callable $leftFn, callable $rightFn);
 
   /**
-   * @param callable $leftFn
-   * @param callable $rightFn
-   * @return static
-   */
-  public function map(callable $leftFn, callable $rightFn);
-
-  /**
    * Convert to an appropriate BiasedDisjunctionInterface type of the Implementer's own specification
    * @return BiasedDisjunctionInterface
    */
