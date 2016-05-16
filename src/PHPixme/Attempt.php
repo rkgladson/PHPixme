@@ -19,7 +19,7 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Attempt implements
-  CollectionInterface
+  BiasedDisjunctionInterface
   , SingleStaticCreation
   , \Countable
 {
@@ -148,6 +148,14 @@ abstract class Attempt implements
    * @return $this
    */
   abstract public function walk(callable $hof);
-  
+
+  /**
+   * Converts a Failure to a Left, and Success to a Right
+   * @return Left|Right
+   */
+  public function toUnbiasedDisjunctionInterface()
+  {
+    return $this->isFailure() ? Left::of($this->merge()) : Right::of($this->merge());
+  }
 }
 

@@ -15,8 +15,9 @@ namespace PHPixme;
  * It will ignore any attempts to apply new success behaviors to the error state
  * contained within prior to any recovery attempts.
  */
-class Failure extends Attempt
+class Failure extends Attempt implements LeftHandSideType
 {
+  use LeftHandedTrait;
   private $err;
 
   /**
@@ -25,6 +26,14 @@ class Failure extends Attempt
   public function get()
   {
     throw $this->err;
+  }
+
+  /**
+   * @inheritdoc
+   * @return \Exception
+   */
+  public function merge() {
+    return $this->err;
   }
 
   /**
