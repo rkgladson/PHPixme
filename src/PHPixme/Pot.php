@@ -187,8 +187,10 @@ class Pot extends \Exception implements
     return 1;
   }
   // == Count Interface ==
-  
-  
+
+  /**
+   * @inheritdoc
+   */
   public function getIterator()
   {
     return new \ArrayIterator([$this->contents]);

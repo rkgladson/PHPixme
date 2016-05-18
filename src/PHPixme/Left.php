@@ -36,7 +36,7 @@ class Left extends Either implements LeftHandSideType
   {
     return new Some($this->value);
   }
-
+  
   /**
    * @inheritdoc
    * @return Either

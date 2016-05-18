@@ -8,9 +8,6 @@
 
 namespace PHPixme;
 
-
-use phpDocumentor\Reflection\DocBlock\Type\Collection;
-
 /**
  * Class NothingCollectionTrait
  * A boilerplate for { @see CollectionInterface } that are a perceived nothing by the interface.

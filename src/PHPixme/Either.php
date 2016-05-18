@@ -16,7 +16,6 @@ abstract class Either implements
   , SwappableDisjunctionInterface
 {
   use AssertTypeTrait, ClosedTrait;
-
   // Note: Either should not implement ::of on its own, and should leave it to its children
 
   /**
@@ -51,7 +50,6 @@ abstract class Either implements
    */
   abstract public function right();
 
-
   /**
    * @inheritdoc
    * @return Left
@@ -66,6 +64,7 @@ abstract class Either implements
    * @return Either
    */
   abstract public function flattenLeft();
+
 
   /**
    * @inheritdoc
