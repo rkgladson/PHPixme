@@ -7,10 +7,12 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Either implements
-  SingleStaticCreation
+  UnaryApplicativeInterface
   , UnbiasedDisjunctionInterface
-  , SingleLeftApplicativeDisjunctionInterface
-  , SingleRightApplicativeDisjunctionInterface
+  , UnaryApplicativeLeftDisjunctionInterface
+  , FlattenLeftInterface
+  , UnaryApplicativeRightDisjunctionInterface
+  , FlattenRightInterface
   , SwappableDisjunctionInterface
 {
   use AssertTypeTrait, ClosedTrait;
@@ -50,7 +52,6 @@ abstract class Either implements
   abstract public function right();
 
 
-
   /**
    * @inheritdoc
    * @return Left
@@ -65,7 +66,7 @@ abstract class Either implements
    * @return Either
    */
   abstract public function flattenLeft();
-  
+
   /**
    * @inheritdoc
    * @return Right
@@ -81,9 +82,14 @@ abstract class Either implements
    */
   abstract public function flattenRight();
 
-  final public function toBiasedDisJunctionInterface()
+  /**
+   * converts the contained track to a Exclusive left or right
+   * @return Exclusive
+   */
+  public function toBiasedDisJunctionInterface()
   {
-    //TODO: Implement a class that fits this need
-    throw new \Exception('Currently unimplemented');
+    return $this->isLeft()
+      ? Exclusive::ofLeft($this->merge())
+      : Exclusive::ofRight($this->merge());
   }
 }

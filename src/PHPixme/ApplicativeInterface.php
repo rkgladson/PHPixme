@@ -8,11 +8,14 @@
 
 namespace PHPixme;
 
-
-interface StaticCreation
+/**
+ * Interface StaticCreation
+ * Denotes that the class implements some kind of **of** static method
+ * @package PHPixme
+ */
+interface ApplicativeInterface
 {
   // Because PHP has a design flaw of not being able to extend method arguments in interfaces
   // of cannot be explicitly defined here.
-  // static function of($head, ...$tail)
   // This place is intentionally left blank.
 }

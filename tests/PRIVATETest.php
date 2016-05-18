@@ -566,19 +566,6 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_copyTraversable_generator_exception()
-  {
-    $this->expectException(\RangeException::class);
-    $gen = function () {
-      yield 1;
-    };
-    $iterator = $gen();
-    foreach ($iterator as $stupid) {
-      $stupid = 'does';
-    }
-    internal::copyTransversable($iterator);
-  }
-
   public function test_copyTransversable_broken_contract()
   {
     $this->expectException(\InvalidArgumentException::class);

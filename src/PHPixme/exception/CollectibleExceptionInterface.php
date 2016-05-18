@@ -7,7 +7,11 @@
  */
 
 namespace PHPixme\exception;
-
+/**
+ * Interface CollectibleExceptionInterface
+ * Denotes that there is some way to promote the exception to the throwable collection Pot
+ * @package PHPixme\exception
+ */
 interface CollectibleExceptionInterface
 {
   /**

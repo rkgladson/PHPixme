@@ -8,7 +8,11 @@
 
 namespace PHPixme;
 
-
+/**
+ * Interface GroupableInterface
+ * Denotes that the collection can be grouped into two other nested collections
+ * @package PHPixme
+ */
 interface GroupableInterface
 {
   /**

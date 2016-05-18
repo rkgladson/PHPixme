@@ -14,10 +14,13 @@ namespace PHPixme;
  * Contains the results of a successful Attempt block, allowing for successful
  * behaviors prior to the block to be executed.
  */
-class Success extends Attempt implements RightHandSideType
+class Success extends Attempt implements
+  RightHandSideType
+
 {
   use RightHandedTrait;
   private $value = null;
+  const shortName = 'success';
 
   /**
    * @param mixed $value the success value
@@ -32,7 +35,8 @@ class Success extends Attempt implements RightHandSideType
    * @param mixed $value
    * @return Success
    */
-  static public function of($value) {
+  static public function of($value)
+  {
     return new static($value);
   }
 
@@ -47,7 +51,8 @@ class Success extends Attempt implements RightHandSideType
   /**
    * @inheritdoc
    */
-  public function merge() {
+  public function merge()
+  {
     return $this->value;
   }
 
@@ -77,7 +82,11 @@ class Success extends Attempt implements RightHandSideType
     }
     return Attempt::assertType($result);
   }
-
+  
+  /**
+   * @inheritdoc
+   * @return static
+   */
   public function flatten()
   {
     return Attempt::assertType($this->value);

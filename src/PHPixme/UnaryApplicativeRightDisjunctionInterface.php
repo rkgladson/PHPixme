@@ -8,8 +8,12 @@
 
 namespace PHPixme;
 
-
-interface SingleRightApplicativeDisjunctionInterface
+/**
+ * Interface UnaryApplicativeRightDisjunctionInterface
+ * Denotes that the right handed side of a Disjunction has a applicative method
+ * @package PHPixme
+ */
+interface UnaryApplicativeRightDisjunctionInterface
 {
   /**
    * Creates a new 'right hand side' DisjunctionInterface

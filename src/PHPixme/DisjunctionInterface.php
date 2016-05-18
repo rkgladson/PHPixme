@@ -8,7 +8,12 @@
 
 namespace PHPixme;
 
-
+/**
+ * Interface DisjunctionInterface
+ * Disjunctive types are objects which have two possible value outcomes, a left hand, and a right hand. 
+ * The state of these two possible classes may always be retrieved with { @see DisjunctiveInterface::merge merge}.
+ * @package PHPixme
+ */
 interface DisjunctionInterface
 {
   /**

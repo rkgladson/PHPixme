@@ -13,7 +13,7 @@ namespace PHPixme;
  * Collections who's value domain is either 0 or/to 1 should implement this interface.
  * @package PHPixme
  */
-interface SingleStaticCreation extends StaticCreation
+interface UnaryApplicativeInterface extends ApplicativeInterface
 {
   /**
    * Passes a single item value into a new instance of itself.

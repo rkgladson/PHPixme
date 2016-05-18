@@ -35,7 +35,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   public function test_static_creation () {
     $ofMade = P\Success::of(1);
-    $this->assertInstanceOf(P\StaticCreation::class, $ofMade);
+    $this->assertInstanceOf(P\ApplicativeInterface::class, $ofMade);
     $this->assertInstanceOf(P\Success::class, $ofMade);
   }
 

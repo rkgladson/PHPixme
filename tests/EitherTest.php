@@ -48,7 +48,7 @@ class EitherTest extends \PHPUnit_Framework_TestCase
   public function test_no_of(\ReflectionClass $reflection ) {
 
     $this->assertTrue(
-      $reflection->implementsInterface(P\SingleStaticCreation::class)
+      $reflection->implementsInterface(P\UnaryApplicativeInterface::class)
     );
     $this->assertTrue(
       $reflection->getMethod('of')->isAbstract()

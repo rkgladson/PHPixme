@@ -49,6 +49,11 @@ class __PRIVATE__
     return static::$placeholder;
   }
 
+  /**
+   * Get a descriptive name of the type of some php thing
+   * @param $value
+   * @return string
+   */
   public static function getDescriptor($value)
   {
     return is_object($value)
@@ -131,13 +136,10 @@ class __PRIVATE__
       return $traversable;
     }
     // Allow for generators to be used once. Better than always throwing an error.
-    // Best to assume the user knows how to use Generators correctly.
+    // Best to assume the user knows how to use Generators correctly, and might even be sending
+    // an empty iterator
     if ($traversable instanceof \Generator) {
-      if ($traversable->valid()) {
-        return $traversable;
-      }
-      // Throw an error if the generator is expired.
-      throw new \RangeException('PHP does not allow for reuse of Generators');
+      return $traversable;
     }
     return $traversable instanceof \IteratorAggregate
       ? $traversable->getIterator()

@@ -1,11 +1,20 @@
 <?php
 namespace PHPixme;
 
+/**
+ * Class Left
+ * The left hand side of the Either disjunction
+ * @package PHPixme
+ */
 class Left extends Either implements LeftHandSideType
 {
   use LeftHandedTrait;
   private $value;
 
+  /**
+   * Left constructor.
+   * @param mixed $value the value for the left hand track to contain
+   */
   public function __construct($value)
   {
     $this->value = $value;

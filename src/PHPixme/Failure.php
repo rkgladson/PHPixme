@@ -15,11 +15,14 @@ namespace PHPixme;
  * It will ignore any attempts to apply new success behaviors to the error state
  * contained within prior to any recovery attempts.
  */
-class Failure extends Attempt implements LeftHandSideType
+class Failure extends Attempt implements 
+  LeftHandSideType
 {
-  use LeftHandedTrait;
+  use LeftHandedTrait
+    , NothingCollectionTrait;
   private $err;
-
+  const shortName = 'failure';
+  
   /**
    * @inheritdoc
    */
@@ -47,22 +50,6 @@ class Failure extends Attempt implements LeftHandSideType
   /**
    * @inheritdoc
    */
-  public function flatMap(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function flatten()
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
   public function failed()
   {
     return Success($this->err);
@@ -82,14 +69,6 @@ class Failure extends Attempt implements LeftHandSideType
   function isSuccess()
   {
     return false;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function map(callable $hof)
-  {
-    return $this;
   }
 
   /**
@@ -129,14 +108,6 @@ class Failure extends Attempt implements LeftHandSideType
   }
 
   /**
-   * @inheritdoc
-   */
-  public function walk(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
    * @param \Exception $exception
    */
   public function __construct(\Exception $exception)
@@ -160,63 +131,6 @@ class Failure extends Attempt implements LeftHandSideType
   public function getIterator()
   {
     return new \EmptyIterator();
-  }
-
-
-  /**
-   * @inheritdoc
-   */
-  public function fold(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function foldRight(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function isEmpty()
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function find(callable $hof)
-  {
-    return None();
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forAll(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forNone(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forSome(callable $predicate)
-  {
-    return false;
   }
 
   /**

@@ -15,7 +15,7 @@ namespace PHPixme;
  */
 interface CollectionInterface extends
   // We make no assumption about the kind of static creation it will have, rather that it will have it
-  StaticCreation
+  ApplicativeInterface
   // Collections should not store their own iteration state, but rather delegate it to another object
   , \IteratorAggregate
 {
@@ -57,7 +57,7 @@ interface CollectionInterface extends
 
   /**
    * @return self
-   * @throws \Exception if the data-set could not be flattened
+   * @throws \UnexpectedValueException if the data-set could not be flattened
    * @sig () -> self
    */
   public function flatten();

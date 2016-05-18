@@ -13,11 +13,15 @@ namespace PHPixme;
  */
 class None extends Maybe
 {
+  use NothingCollectionTrait;
   /**
    * @var self
    */
   protected static $instance = null;
 
+  /**
+   * @inheritdoc
+   */
   public function contains($x)
   {
     return false;
@@ -64,7 +68,7 @@ class None extends Maybe
   {
     return static::getInstance();
   }
-  
+
 
   // -- Magic Methods --
   /**
@@ -97,38 +101,6 @@ class None extends Maybe
   /**
    * @inheritdoc
    */
-  public function isEmpty()
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function find(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function flatten()
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function flatMap(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
   public function filter(callable $hof)
   {
     return $this;
@@ -141,67 +113,19 @@ class None extends Maybe
   {
     return $this;
   }
-
-
-  /**
-   * @inheritdoc
-   */
-  public function fold(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
   
   /**
    * @inheritdoc
-   */
-  public function foldRight(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forAll(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forNone(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forSome(callable $predicate)
-  {
-    return false;
-  }
-
-
-  /**
-   * @inheritdoc
-   */
-  public function map(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
+   * @throws \LengthException
    */
   public function reduce(callable $hof)
   {
     throw new \LengthException('Cannot reduce on None. Behaviour is undefined');
   }
-  
+
   /**
    * @inheritdoc
+   * @throws \LengthException
    */
   public function reduceRight(callable $hof)
   {
@@ -216,20 +140,13 @@ class None extends Maybe
     return [];
   }
 
-  /**
-   * @inheritdoc
-   */
-  public function walk(callable $hof)
-  {
-    return $this;
-  }
-  
 
   // -- Countable Interface --
   public function count()
   {
     return 0;
   }
+
   // == Countable Interface ==
   public function getIterator()
   {

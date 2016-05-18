@@ -3,6 +3,11 @@
 namespace PHPixme;
 
 
+/**
+ * Class AssertTypeTrait
+ * A trait to add standard runtime type checking to a class and its children 
+ * @package PHPixme
+ */
 trait AssertTypeTrait
 {
   /**

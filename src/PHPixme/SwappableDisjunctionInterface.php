@@ -20,16 +20,5 @@ interface SwappableDisjunctionInterface
    * @return SwappableDisjunctionInterface
    */
   public function swap();
-
-  /**
-   * Flatten the contents if the class is 'left hand side'
-   * @return SwappableDisjunctionInterface
-   */
-  public function flattenLeft();
-
-  /**
-   * Flattens the contents if the class is a 'right hand side'
-   * @return SwappableDisjunctionInterface
-   */
-  public function flattenRight();
+  
 }
