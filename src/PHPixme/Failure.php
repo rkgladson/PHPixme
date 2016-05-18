@@ -17,8 +17,10 @@ namespace PHPixme;
  */
 class Failure extends Attempt
 {
+  use NothingCollectionTrait;
   private $err;
-
+  const shortName = 'failure';
+  
   /**
    * @inheritdoc
    */
@@ -31,22 +33,6 @@ class Failure extends Attempt
    * @inheritdoc
    */
   public function filter(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function flatMap(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function flatten()
   {
     return $this;
   }
@@ -73,14 +59,6 @@ class Failure extends Attempt
   function isSuccess()
   {
     return false;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function map(callable $hof)
-  {
-    return $this;
   }
 
   /**
@@ -120,14 +98,6 @@ class Failure extends Attempt
   }
 
   /**
-   * @inheritdoc
-   */
-  public function walk(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
    * @param \Exception $exception
    */
   public function __construct(\Exception $exception)
@@ -151,63 +121,6 @@ class Failure extends Attempt
   public function getIterator()
   {
     return new \EmptyIterator();
-  }
-
-
-  /**
-   * @inheritdoc
-   */
-  public function fold(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function foldRight(callable $hof, $startVal)
-  {
-    return $startVal;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function isEmpty()
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function find(callable $hof)
-  {
-    return None();
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forAll(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forNone(callable $predicate)
-  {
-    return true;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function forSome(callable $predicate)
-  {
-    return false;
   }
 
   /**

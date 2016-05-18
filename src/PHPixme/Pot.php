@@ -13,23 +13,36 @@ namespace PHPixme;
  */
 class Pot extends \Exception implements
   CollectionInterface
-  , SingleStaticCreation
+  , UnaryApplicativeInterface
   , \Countable
 {
   use AssertTypeTrait;
   protected $contents;
 
+  /**
+   * Pot constructor.
+   * @param mixed $data
+   * @param string $message
+   */
   public function __construct($data, $message = '')
   {
     $this->message = $message;
     $this->contents = $data;
   }
 
+  /**
+   * get the contents of the pot
+   * @return mixed
+   */
   public function __invoke()
   {
     return $this->contents;
   }
 
+  /**
+   * get the contents of the pot
+   * @return mixed
+   */
   public function get()
   {
     return $this->contents;
@@ -174,8 +187,10 @@ class Pot extends \Exception implements
     return 1;
   }
   // == Count Interface ==
-  
-  
+
+  /**
+   * @inheritdoc
+   */
   public function getIterator()
   {
     return new \ArrayIterator([$this->contents]);

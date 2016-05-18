@@ -7,11 +7,11 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Either implements
-  SingleStaticCreation
+  UnaryApplicativeInterface
 {
   use AssertTypeTrait, ClosedTrait;
   // Note: Either should not implement ::of on its own, and should leave it to its children
-  
+
   /**
    * Get the value regardless of whether the class is a Left or a Right
    * @return mixed
@@ -19,12 +19,7 @@ abstract class Either implements
   abstract public function merge();
 
   /**
-   * Fold over both potential left and right values, producing the output of each function
-   * determined by whether the Either is Left or a Right
-   * @param callable $leftFn (x->a) Used by Left
-   * @param callable $rightFn (x->b) used by Right
-   * @return mixed
-   * @sig ((x->a), (x->b)) -> a or b
+   * @inheritdoc
    */
   abstract public function fold(callable $leftFn, callable $rightFn);
 
@@ -47,7 +42,7 @@ abstract class Either implements
    * @return Maybe
    */
   abstract public function right();
-
+  
   /**
    * Returns True if the type is a Left
    * @return boolean
@@ -59,8 +54,7 @@ abstract class Either implements
    * @return Either
    */
   abstract public function flattenLeft();
-
-
+  
   /**
    * Returns true if the type is a Right
    * @return boolean

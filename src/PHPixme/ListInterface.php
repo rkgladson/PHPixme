@@ -8,7 +8,11 @@
 
 namespace PHPixme;
 
-
+/**
+ * Interface ListInterface
+ * Denotes the class may be treated as a linked list.
+ * @package PHPixme
+ */
 interface ListInterface
 {
   /**

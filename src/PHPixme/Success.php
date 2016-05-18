@@ -17,6 +17,7 @@ namespace PHPixme;
 class Success extends Attempt
 {
   private $value = null;
+  const shortName = 'success';
 
   /**
    * @param mixed $value the success value
@@ -31,7 +32,8 @@ class Success extends Attempt
    * @param mixed $value
    * @return Success
    */
-  static public function of($value) {
+  static public function of($value)
+  {
     return new static($value);
   }
 
@@ -69,7 +71,11 @@ class Success extends Attempt
     }
     return Attempt::assertType($result);
   }
-
+  
+  /**
+   * @inheritdoc
+   * @return static
+   */
   public function flatten()
   {
     return Attempt::assertType($this->value);

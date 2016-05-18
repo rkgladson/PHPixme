@@ -8,11 +8,16 @@
 
 namespace PHPixme\exception;
 use PHPixme\Pot;
-use PHPixme\SingleStaticCreation;
+use PHPixme\UnaryApplicativeInterface;
 
+/**
+ * Class VacuousOffsetException
+ * Represents the contained offset as an error when the position does not exist.
+ * @package PHPixme\exception
+ */
 class VacuousOffsetException extends \OutOfBoundsException
   implements 
-  SingleStaticCreation
+  UnaryApplicativeInterface
   , CollectibleExceptionInterface
   , \Countable
 {

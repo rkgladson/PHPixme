@@ -8,7 +8,11 @@
 
 namespace PHPixme;
 
-
+/**
+ * Interface ReducibleInterface
+ * Denotes a class implements reduction
+ * @package PHPixme
+ */
 interface ReducibleInterface
 {
   /**

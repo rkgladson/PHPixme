@@ -20,19 +20,19 @@ namespace PHPixme;
  */
 abstract class Attempt implements
   CollectionInterface
-  , SingleStaticCreation
+  , UnaryApplicativeInterface
   , \Countable
 {
   use AssertTypeTrait, ClosedTrait;
+  const shortName = 0;
 
   /**
    * @param callable $value
    * @return Failure|Success
-   * @throws \InvalidArgumentException if $value is not a callable
    */
   public static function of($value)
   {
-    return Attempt(__PRIVATE__::assertCallable($value));
+    return Attempt($value);
   }
 
   /**
@@ -111,15 +111,15 @@ abstract class Attempt implements
 
 
   /**
-   * Converts the value of success or failure to an indexed array with the instance type pointing to value
+   * Returns an array with the value at the { @see static::shortName ::shortName } offset
    * @return array
    */
   public function toArray()
   {
     try {
-      return ['success' => $this->get()];
+      return [$this::shortName => $this->get()];
     } catch (\Exception $e) {
-      return ['failure' => $e];
+      return [$this::shortName => $e];
     }
   }
 

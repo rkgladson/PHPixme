@@ -364,6 +364,11 @@ class Seq implements
     return $output;
   }
 
+  /**
+   * Union join the values of one or more with this Seq and return a new Seq
+   * @param array $arrayLikeN An array of transversable
+   * @return Seq
+   */
   public function union(...$arrayLikeN)
   {
     array_unshift($arrayLikeN, $this->hash);
@@ -567,8 +572,10 @@ class Seq implements
   {
     return static::from($this->keyR);
   }
-
-
+  
+  /**
+   * @inheritdoc
+   */
   public function isEmpty()
   {
     return $this->length === 0;
@@ -583,11 +590,20 @@ class Seq implements
     return $this->length;
   }
 
+  /**
+   * Converts the sequence into a delimited string
+   * @param string $glue
+   * @return string
+   */
   public function toString($glue = ',')
   {
     return implode($glue, $this->hash);
   }
 
+  /**
+   * Encodes the Seq to a json string
+   * @return string
+   */
   public function toJson()
   {
     return json_encode($this->hash);
@@ -602,6 +618,10 @@ class Seq implements
     return new \ArrayObject($this->hash);
   }
 
+  /**
+   * Take the order of the Seq, and return the reverse order
+   * @return Seq
+   */
   public function reverse()
   {
     return $this::from(array_reverse($this->hash, true));

@@ -36,7 +36,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
 
   public function test_static_creation () {
     $ofMade = P\Failure::of(new \Exception());
-    $this->assertInstanceOf(P\StaticCreation::class, $ofMade);
+    $this->assertInstanceOf(P\ApplicativeInterface::class, $ofMade);
     $this->assertInstanceOf(P\Failure::class, $ofMade);
   }
 
@@ -368,11 +368,11 @@ class FailureTest extends \PHPUnit_Framework_TestCase
       , 'Failure->toArray should result in array'
     );
     $this->assertTrue(
-      $err === $result['failure']
+      $err === $result[P\Failure::shortName]
       , 'Failure->toArray should return contain "failure"=>Exception'
     );
     $this->assertNotTrue(
-      isset($result['success'])
+      array_key_exists(P\Success::shortName, $result)
       , 'Failure->toArray should not contain a "success" key'
     );
   }

@@ -1,10 +1,20 @@
 <?php
 namespace PHPixme;
 
-class Left extends Either
+/**
+ * Class Left
+ * The left hand side of the Either disjunction
+ * @package PHPixme
+ */
+class Left extends Either 
 {
+  use LeftHandedTrait;
   private $value;
 
+  /**
+   * Left constructor.
+   * @param mixed $value the value for the left hand track to contain
+   */
   public function __construct($value)
   {
     $this->value = $value;
@@ -26,15 +36,7 @@ class Left extends Either
   {
     return new Some($this->value);
   }
-
-  /**
-   * @inheritdoc
-   */
-  public function isLeft()
-  {
-    return true;
-  }
-
+    
   /**
    * @inheritdoc
    * @return Either
@@ -55,14 +57,6 @@ class Left extends Either
 
   /**
    * @inheritdoc
-   */
-  public function isRight()
-  {
-    return false;
-  }
-
-  /**
-   * @inheritdoc
    * return Left
    */
   public function flattenRight()
@@ -76,7 +70,7 @@ class Left extends Either
    */
   public function fold(callable $leftFn, callable $rightFn)
   {
-    return call_user_func($leftFn, $this->value);
+    return $leftFn($this->value);
   }
 
   /**

@@ -8,7 +8,11 @@
 
 namespace PHPixme;
 
-
+/**
+ * Interface FilterableInterface
+ * Denotes the collection is filterable to an empty representation of some kind
+ * @package PHPixme
+ */
 interface FilterableInterface
 {
   /**

@@ -16,12 +16,18 @@ namespace PHPixme;
  */
 abstract class Maybe implements 
   CollectionInterface
-  , SingleStaticCreation
+  , UnaryApplicativeInterface
   , FilterableInterface
   , ReducibleInterface
   , \Countable
 {
   use AssertTypeTrait, ClosedTrait;
+
+  /**
+   * Create a child of the Maybe construct
+   * @param mixed|null $head
+   * @return None|Some
+   */
   static function of($head = null)
   {
     return Maybe($head);
@@ -67,6 +73,10 @@ abstract class Maybe implements
     return !$this->isEmpty();
   }
 
+  /**
+   * Gets the value if it exists, otherwise returns null.
+   * @return mixed
+   */
   public function orNull()
   {
     return $this->getOrElse(null);

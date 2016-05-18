@@ -611,7 +611,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
   {
     return [
       [P\CollectionInterface::class]
-      , [P\SingleStaticCreation::class]
+      , [P\UnaryApplicativeInterface::class]
       , [\Countable::class]
       , [\IteratorAggregate::class]
     ];
