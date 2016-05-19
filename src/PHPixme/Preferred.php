@@ -10,7 +10,8 @@ namespace PHPixme;
 class Preferred extends Exclusive implements
   RightHandSideType
 {
-  use RightHandedTrait;
+  use RightHandedTrait
+    , ImmutableConstructorTrait;
   private $value;
   const shortName = 'preferred';
 
@@ -20,6 +21,7 @@ class Preferred extends Exclusive implements
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 

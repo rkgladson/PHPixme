@@ -16,6 +16,7 @@ class Undesired extends Exclusive implements
   LeftHandSideType
 {
   use LeftHandedTrait
+    , ImmutableConstructorTrait
     , NothingCollectionTrait;
   private $value;
   const shortName = 'undesired';
@@ -26,6 +27,7 @@ class Undesired extends Exclusive implements
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 
