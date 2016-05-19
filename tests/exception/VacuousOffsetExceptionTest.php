@@ -8,34 +8,42 @@
 
 namespace tests\PHPixme\exception;
 
-use \PHPixme\exception\VacuousOffsetException as testTarget;
+use PHPixme\exception\MutationException;
+use \PHPixme\exception\VacuousOffsetException as testSubject;
 use PHPixme\Pot;
 
 class VacuousOffsetExceptionTest extends \PHPUnit_Framework_TestCase
 {
   public function test_static_creation($value = true)
   {
-    $this->assertInstanceOf(testTarget::class, testTarget::of($value));
+    self::assertInstanceOf(testSubject::class, testSubject::of($value));
   }
 
   public function test_get($value = true)
   {
-    $empty = new testTarget($value);
-    $this->assertTrue($value, $empty->get());
+    $empty = new testSubject($value);
+    self::assertTrue($value, $empty->get());
   }
 
-  public function test_countable($value = true) {
-    $empty = new testTarget($value);
-    $this->assertEquals(1, $empty->count());
-    $this->assertEquals(1, count($empty));
+  public function test_countable($value = true)
+  {
+    $empty = new testSubject($value);
+    self::assertEquals(1, $empty->count());
+    self::assertEquals(1, count($empty));
   }
 
-  public function test_toPot($value = true) {
-    $empty = new testTarget($value);
+  public function test_toPot($value = true)
+  {
+    $empty = new testSubject($value);
     $emptyPot = $empty->toPot();
-    $this->assertInstanceOf(Pot::class, $emptyPot);
-    $this->assertEquals($empty->get(), $emptyPot->get());
-    $this->assertEquals($empty->getMessage(), $emptyPot->getMessage());
+    self::assertInstanceOf(Pot::class, $emptyPot);
+    self::assertEquals($empty->get(), $emptyPot->get());
+    self::assertEquals($empty->getMessage(), $emptyPot->getMessage());
+  }
 
+  public function test_patience()
+  {
+    $this->expectException(MutationException::class);
+    (new testSubject(0))->__construct(1);
   }
 }

@@ -9,18 +9,22 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use PHPixme\exception\MutationException;
+use PHPixme\Pot as testSubject;
+use const PHPixme\Pot as testConst;
+use function PHPixme\Pot as testFn;
 
 class PotTest extends \PHPUnit_Framework_TestCase
 {
   public function test_existential_companion()
   {
-    $this->assertEquals(
-      P\Pot::class
-      , P\Pot
+    self::assertEquals(
+      testSubject::class
+      , testConst
       , 'Ensure that class path is the constant value'
     );
-    $this->assertTrue(
-      function_exists(P\Pot::class)
+    self::assertTrue(
+      function_exists(testSubject::class)
       , 'Ensure that there is a function with the same name as the class'
     );
   }
@@ -29,7 +33,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
   {
     $this->assertInstanceOf(
       P\Pot::class
-      , P\Pot($value)
+      , testFn($value)
       , 'The companion function aught to return an instance of its class'
     );
   }
@@ -40,16 +44,22 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_aspects($aspect)
   {
-    $this->assertInstanceOf(
+    self::assertInstanceOf(
       $aspect
-      , P\Pot(true)
+      , testFn(true)
     );
+  }
+
+  public function test_patience()
+  {
+    $this->expectException(MutationException::class);
+    (new testSubject(0))->__construct(1);
   }
 
   public function test_not_a_closed_trait()
   {
-    $traits = getAllTraits(new \ReflectionClass(P\Pot::class));
-    $this->assertTrue(
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    self::assertTrue(
       false === array_search('PHPixme\ClosedTrait', $traits)
       , 'should be not be closed'
     );
@@ -60,13 +70,21 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_of($value = true)
   {
-    $this->assertInstanceOf(
-      P\Pot::class
-      , P\Pot::of($value)
+    self::assertInstanceOf(
+      testSubject::class
+      , testSubject::of($value)
     );
   }
 
-
+  public function test_fromThrowable($value = true, $message = 'Hoi!', $code = 404) {
+    $exception = new \Exception($message, $code);
+    $pottedException = testSubject::fromThrowable($exception, $value);
+    self::assertInstanceOf(testSubject::class, $pottedException);
+    self::assertEquals($value, $pottedException->get());
+    self::assertEquals($message, $pottedException->getMessage());
+    self::assertEquals($code, $pottedException->getCode());
+    self::assertTrue($exception === $pottedException->getPrevious());
+  }
 
 
   /**
@@ -74,12 +92,12 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_invocation($value = true)
   {
-    $this->assertTrue(
-      $value === P\Pot($value)->get()
+    self::assertTrue(
+      $value === testFn($value)->get()
       , 'should return the contents from a companion($value)'
     );
-    $this->assertTrue(
-      $value === P\Pot::of($value)->__invoke()
+    self::assertTrue(
+      $value === testSubject::of($value)->__invoke()
       , 'should return the contents from ::of($value)'
     );
   }
@@ -89,12 +107,12 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_get($value = true)
   {
-    $this->assertTrue(
-      $value === P\Pot($value)->get()
+    self::assertTrue(
+      $value === testFn($value)->get()
       , 'should return the contents from a companion($value)'
     );
-    $this->assertTrue(
-      $value === P\Pot::of($value)->get()
+    self::assertTrue(
+      $value === testSubject::of($value)->get()
       , 'should return the contents from ::of($value)'
     );
   }
@@ -105,11 +123,11 @@ class PotTest extends \PHPUnit_Framework_TestCase
   public function test_constructor($value)
   {
     $instance = new P\Pot($value);
-    $this->assertTrue(
+    self::assertTrue(
       $value === $instance->get()
       , 'should return the contents from a companion($value)'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $value === $instance()
       , 'should return the contents from a companion($value)'
     );
@@ -121,9 +139,9 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_map_callback($value)
   {
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->map(function () use ($pot) {
-      $this->assertTrue(
+      self::assertTrue(
         3 === func_num_args()
         , '->map callback should receive three arguments'
       );
@@ -131,15 +149,15 @@ class PotTest extends \PHPUnit_Framework_TestCase
       $key = func_get_arg(1);
       $container = func_get_arg(2);
 
-      $this->assertTrue(
+      self::assertTrue(
         ($pot($key)) === $value
         , '->map callback $value should be equal to the value at $key'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         $key
         , 'Seq->map callback $key should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === $container
         , '->map callback $container should be itself'
       );
@@ -151,16 +169,16 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_map($value)
   {
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot2 = $pot->map(function ($x) {
       return $x;
     });
-    $this->assertInstanceOf(
-      P\Pot::class
+    self::assertInstanceOf(
+      testSubject::class
       , $pot2
       , 'Map should only return its own kind'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $value === $pot2()
       , 'map applied idenity should be exactly the same'
     );
@@ -171,25 +189,25 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_fold_callback($value, $startValue)
   {
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->fold(function ($lastVal) use ($startValue, $value, $pot) {
-      $this->assertTrue(
+      self::assertTrue(
         4 === func_num_args()
         , 'callback should receive four arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(0) === $startValue
         , 'callback $prevVal should be the $startValue'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(1) === $value
         , '$value should be its contents'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(2)
         , 'callback $key should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(3) === $pot
         , 'callback $container should be itself'
       );
@@ -203,9 +221,9 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_fold($fn, $value, $startVal, $expectation)
   {
-    $this->assertEquals(
+    self::assertEquals(
       $expectation
-      , P\Pot($value)->fold($fn, $startVal)
+      , testFn($value)->fold($fn, $startVal)
     );
   }
 
@@ -214,25 +232,25 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_foldRight_callback($value, $startValue)
   {
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->foldRight(function ($lastVal) use ($startValue, $value, $pot) {
-      $this->assertTrue(
+      self::assertTrue(
         4 === func_num_args()
         , 'callback should receive four arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(0) === $startValue
         , 'callback $prevVal should be the $startValue'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(1) === $value
         , '$value should be its contents'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(2)
         , 'callback $key should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(3) === $pot
         , 'callback $container should be itself'
       );
@@ -247,30 +265,30 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_foldRight(callable $fn, $value, $startVal, $expectation)
   {
-    $this->assertEquals(
+    self::assertEquals(
       $expectation
-      , P\Pot($value)->foldRight($fn, $startVal)
+      , testFn($value)->foldRight($fn, $startVal)
     );
   }
 
   public function test_flatMap_callback($value = true)
   {
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->flatMap(function () use ($value, $pot) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'callback should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'callback $value should equal to the stored value'
       );
-      $this->assertTrue(
+      self::assertTrue(
         false !== func_get_arg(1)
         , 'callback $key should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         func_get_arg(2) === $pot
         , 'callback $collection should be the object being acted upon'
       );
@@ -283,7 +301,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatMap_contract_broken($value = true)
   {
-    P\Pot($value)->flatMap(function () use ($value) {
+    testFn($value)->flatMap(function () use ($value) {
       return $value;
     });
   }
@@ -294,21 +312,21 @@ class PotTest extends \PHPUnit_Framework_TestCase
       return $myself;
     };
     $clone = function ($value) {
-      return P\Pot($value);
+      return testFn($value);
     };
 
-    $pot = P\Pot(P\None());
-    $this->assertTrue(
+    $pot = testFn(P\None());
+    self::assertTrue(
       $pot === $pot->flatMap($idenity)
       , 'FlatMap is allowed to return its own instance'
     );
     $potClone = $pot->flatMap($clone);
-    $this->assertInstanceOf(
-      P\Pot::class
+    self::assertInstanceOf(
+      testSubject::class
       , $potClone
       , 'Flatmap should always return its own kind.'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $pot !== $potClone
       , 'When applyed to an operation, the flatmap need not return the exact instance of itself.'
     );
@@ -316,18 +334,18 @@ class PotTest extends \PHPUnit_Framework_TestCase
 
   public function test_flatten($value = true)
   {
-    $level1 = P\Pot($value); $level2 = P\Pot($level1);
+    $level1 = testFn($value); $level2 = testFn($level1);
     $unwrapped = $level2->flatten();
-    $this->assertInstanceOf(
-      P\Pot::class
+    self::assertInstanceOf(
+      testSubject::class
       , $unwrapped
       , 'the return value should be of type Pot'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $unwrapped === $level1
       , 'The unwrapped results should be that of the contents of the nested value.'
     );
-    $this->assertEquals(
+    self::assertEquals(
       $value
       ,$unwrapped->get()
       , 'The value contained by the flattened value should be equal to the origonal double nested value'
@@ -340,45 +358,45 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatten_contract_broken($value = true)
   {
-    P\Pot($value)->flatten();
+    testFn($value)->flatten();
   }
 
   public function test_forAll_callback($value = true)
   {
     $run = 0;
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->forAll(function () use ($value, $pot, &$run) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'find should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'the value should be exactly the value that was stored in the pot'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(1)
         , 'the key argument should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === func_get_arg(2)
         , 'the container should be the third argument'
       );
       $run +=1;
       return true;
     });
-    $this->assertEquals(1, $run, 'the callback should of ran once');
+    self::assertEquals(1, $run, 'the callback should of ran once');
   }
 
   public function test_forAll($value = true, $notValue = null)
   {
-    $pot = P\Pot($value);
-    $this->assertTrue(
+    $pot = testFn($value);
+    self::assertTrue(
       $pot->forAll(function ($v) use ($value) {return $value === $v;})
       , 'A true resultant for when the function returns true'
     );
-    $this->assertFalse(
+    self::assertFalse(
       $pot->forAll(function ($v) use ($notValue) {return $notValue === $v;})
       , 'a false resultant when the function returns false'
     );
@@ -387,39 +405,39 @@ class PotTest extends \PHPUnit_Framework_TestCase
   public function test_forNone_callback($value = true)
   {
     $run = 0;
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->forNone(function () use ($value, $pot, &$run) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'find should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'the value should be exactly the value that was stored in the pot'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(1)
         , 'the key argument should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === func_get_arg(2)
         , 'the container should be the third argument'
       );
       $run +=1;
       return true;
     });
-    $this->assertEquals(1, $run, 'the callback should of ran once');
+    self::assertEquals(1, $run, 'the callback should of ran once');
   }
 
   public function test_forNone($value = true, $notValue = null)
   {
-    $pot = P\Pot($value);
-    $this->assertFalse(
+    $pot = testFn($value);
+    self::assertFalse(
       $pot->forNone(function ($v) use ($value) {return $value === $v;})
       , 'A false resultant for when the function returns true'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $pot->forNone(function ($v) use ($notValue) {return $notValue === $v;})
       , 'a True resultant when the function returns false'
     );
@@ -428,39 +446,39 @@ class PotTest extends \PHPUnit_Framework_TestCase
   public function test_forSome_callback($value = true)
   {
     $run = 0;
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->forSome(function () use ($value, $pot, &$run) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'find should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'the value should be exactly the value that was stored in the pot'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(1)
         , 'the key argument should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === func_get_arg(2)
         , 'the container should be the third argument'
       );
       $run +=1;
       return true;
     });
-    $this->assertEquals(1, $run, 'the callback should of ran once');
+    self::assertEquals(1, $run, 'the callback should of ran once');
   }
 
   public function test_forSome($value = true, $notValue = null)
   {
-    $pot = P\Pot($value);
-    $this->assertTrue(
+    $pot = testFn($value);
+    self::assertTrue(
       $pot->forSome(function ($v) use ($value) {return $value === $v;})
       , 'A true resultant for when the function returns true'
     );
-    $this->assertFalse(
+    self::assertFalse(
       $pot->forSome(function ($v) use ($notValue) {return $notValue === $v;})
       , 'a false resultant when the function returns false'
     );
@@ -469,70 +487,70 @@ class PotTest extends \PHPUnit_Framework_TestCase
   public function test_walk_callback($value = true)
   {
     $run = 0;
-    $pot = P\Pot($value);
+    $pot = testFn($value);
     $pot->walk(function () use ($value, $pot, &$run) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'find should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'the value should be exactly the value that was stored in the pot'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(1)
         , 'the key argument should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === func_get_arg(2)
         , 'the container should be the third argument'
       );
       $run +=1;
     });
-    $this->assertEquals(1, $run, 'the callback should of ran once');
+    self::assertEquals(1, $run, 'the callback should of ran once');
   }
 
   public function test_walk($value = '^_^')
   {
     $this->expectOutputString($value);
-    P\Pot($value)->walk(P\unary('printf'));
+    testFn($value)->walk(P\unary('printf'));
   }
 
   public function test_toArray($value = true)
   {
-    $this->assertEquals(
+    self::assertEquals(
       [$value]
-      , P\Pot($value)->toArray()
+      , testFn($value)->toArray()
     );
   }
 
   public function test_find_callback($value = true)
   {
-    $pot = P\Pot($value); 
+    $pot = testFn($value); 
     $run = 0;
     $pot->find(function () use ($value, $pot, &$run) {
-      $this->assertEquals(
+      self::assertEquals(
         3
         , func_num_args()
         , 'find should recieve 3 arguments'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $value === func_get_arg(0)
         , 'the value should be exactly the value that was stored in the pot'
       );
-      $this->assertNotFalse(
+      self::assertNotFalse(
         func_get_arg(1)
         , 'the key argument should be defined'
       );
-      $this->assertTrue(
+      self::assertTrue(
         $pot === func_get_arg(2)
         , 'the container should be the third argument'
       );
       $run +=1;
       return true;
     });
-    $this->assertEquals(
+    self::assertEquals(
       1
       , $run
       , 'the callback should run once'
@@ -547,13 +565,13 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_find($value, callable $fn, $isNone)
   {
-    $resultant = P\Pot($value)->find($fn);
-    $this->assertInstanceOf(
+    $resultant = testFn($value)->find($fn);
+    self::assertInstanceOf(
       P\Maybe::class
       , $resultant
       , 'The type should be some or none'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $isNone === $resultant->isEmpty()
       , 'the resultant should be the expected Maybe type'
     );
@@ -565,8 +583,8 @@ class PotTest extends \PHPUnit_Framework_TestCase
 
   public function test_isEmpty($value = false)
   {
-    $this->assertFalse(
-      P\Pot($value)->isEmpty()
+    self::assertFalse(
+      testFn($value)->isEmpty()
       , 'As a SingleCollection, it should never be empty'
     );
   }
@@ -582,17 +600,17 @@ class PotTest extends \PHPUnit_Framework_TestCase
       $v_ = $v;
       $iterations += 1;
     }
-    $this->assertEquals(
+    self::assertEquals(
       1
       , $iterations
       , 'It should terminate after one traversal.'
     );
-    $this->assertEquals(
+    self::assertEquals(
       $value
       , $v_
       , 'the last stored value should be equal to the value of the container'
     );
-    $this->assertEquals(
+    self::assertEquals(
       0
       , $k_
       , 'the last stored key should be the \'index\' of the container'
@@ -601,8 +619,8 @@ class PotTest extends \PHPUnit_Framework_TestCase
 
   public function test_count($value = true)
   {
-    $this->assertTrue(
-      1 === P\Pot($value)->count()
+    self::assertTrue(
+      1 === testFn($value)->count()
       , 'Count should be the constant 1'
     );
   }

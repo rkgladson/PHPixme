@@ -18,16 +18,34 @@ class Pot extends \Exception implements
 {
   use AssertTypeTrait;
   protected $contents;
+  private $onceAndOnlyOnce = false;
 
   /**
    * Pot constructor.
-   * @param mixed $data
+   * @param mixed $contents
    * @param string $message
+   * @param int $code
+   * @param \Exception $previous
+   * @inheritdoc
    */
-  public function __construct($data, $message = '')
+  public function __construct($contents, $message = "", $code = 0, \Exception $previous = null)
   {
-    $this->message = $message;
-    $this->contents = $data;
+    if ($this->onceAndOnlyOnce) {
+      throw new exception\MutationException();
+    }
+    $this->onceAndOnlyOnce = true;
+    parent::__construct($message, $code, $previous);
+    $this->contents = $contents;
+  }
+
+  /**
+   * Take some data and pot it using a previous Exception
+   * @param \Exception $exception
+   * @param mixed $data=
+   * @return Pot
+   */
+  public static function fromThrowable(\Exception $exception, $data = null) {
+    return new static($data, $exception->getMessage(), $exception->getCode(), $exception);
   }
 
   /**

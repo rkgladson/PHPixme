@@ -7,6 +7,8 @@
  */
 
 namespace PHPixme\exception;
+
+use PHPixme\ClosedTrait;
 use PHPixme\Pot;
 use PHPixme\UnaryApplicativeInterface;
 
@@ -16,23 +18,30 @@ use PHPixme\UnaryApplicativeInterface;
  * @package PHPixme\exception
  */
 class VacuousOffsetException extends \OutOfBoundsException
-  implements 
+  implements
   UnaryApplicativeInterface
   , CollectibleExceptionInterface
   , \Countable
 {
+  use ClosedTrait;
   /**
    * @var mixed
    */
   protected $offset;
+  private $onceAndOnlyOnce = false;
 
   /**
    * VacuousOffsetException constructor.
    * @param mixed $offset The offset that was attempted
-   * @param string $message (Optional) A description of why the offset is Vacuous 
+   * @param string $message (Optional) A description of why the offset is Vacuous
+   * @throws MutationException
    */
   public function __construct($offset, $message = 'The offset does not exist')
   {
+    if ($this->onceAndOnlyOnce) {
+      throw new MutationException();
+    }
+    $this->onceAndOnlyOnce = true;
     $this->offset = $offset;
     $this->message = $message;
   }
@@ -41,7 +50,8 @@ class VacuousOffsetException extends \OutOfBoundsException
    * Gets the contained offset value which caused the Exception
    * @return mixed
    */
-  public function get () {
+  public function get()
+  {
     return $this->offset;
   }
 
@@ -66,7 +76,8 @@ class VacuousOffsetException extends \OutOfBoundsException
   /**
    * @inheritdoc
    */
-  public function toPot() {
-    return new Pot($this->offset, $this->message);
+  public function toPot()
+  {
+    return new Pot($this->offset, $this->message, $this->code, $this);
   }
 }

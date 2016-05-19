@@ -11,20 +11,20 @@ trait ClosedTrait
   /**
    * The following is not permitted:
    * @inheritdoc
-   * @throws \OutOfBoundsException
+   * @throws exception\MutationException
    */
   final public function __get($key)
   {
-    throw new \OutOfBoundsException('You may not get dynamic properties on a closed object.');
+    throw new exception\MutationException();
   }
 
   /**
    * The following is not permitted:
    * @inheritdoc
-   * @throws \OutOfBoundsException
+   * @throws exception\MutationException
    */
   final public function __set($key, $value)
   {
-    throw new \BadMethodCallException('You may not set on dynamic properties on a closed object.');
+    throw new exception\MutationException();
   }
 }
