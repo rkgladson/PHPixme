@@ -16,6 +16,7 @@ namespace PHPixme;
  */
 class Success extends Attempt
 {
+  use ImmutableConstructorTrait;
   private $value = null;
   const shortName = 'success';
 
@@ -24,6 +25,7 @@ class Success extends Attempt
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 

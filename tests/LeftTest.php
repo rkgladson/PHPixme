@@ -31,9 +31,14 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   {
     $traits = getAllTraits(new \ReflectionClass(P\Left::class));
     $this->assertTrue(
-      false !== array_search('PHPixme\ClosedTrait', $traits)
+      false !== array_search(P\ClosedTrait::class, $traits)
       , 'should be closed'
     );
+  }
+
+  public function test_patience(){
+    $this->expectException(P\exception\MutationException::class);
+    (new P\Left(0))->__construct(1);
   }
   
   public function test_handedness($value = true)

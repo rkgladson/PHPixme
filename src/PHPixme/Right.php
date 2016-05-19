@@ -8,7 +8,7 @@ namespace PHPixme;
  */
 class Right extends Either
 {
-  use RightHandedTrait;
+  use RightHandedTrait, ImmutableConstructorTrait;
   private $value;
 
   /**
@@ -17,6 +17,7 @@ class Right extends Either
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 

@@ -8,6 +8,7 @@
 
 namespace PHPixme\exception;
 use PHPixme\ClosedTrait;
+use PHPixme\ImmutableConstructorTrait;
 
 /**
  * Class MutationException
@@ -17,21 +18,17 @@ use PHPixme\ClosedTrait;
  */
 class MutationException extends \Exception
 {
-  use ClosedTrait;
-  private $onceAndOnlyOnce = false;
+  use ClosedTrait, ImmutableConstructorTrait;
   /**
    * @throws \Exception
    */
   public function __construct() {
-    if ($this->onceAndOnlyOnce) {
-      // Oh dear, are you serious...? You are an "interesting" child.
-      throw new self();
-    }
-    $this->onceAndOnlyOnce = true;
+    $this->assertOnce();
     $this->message = static::quotes[mt_rand(0, count(static::quotes) - 1)];
   }
   const quotes = [
     "You seem to like mutability, so I made several messages for you each time you call this."
+    , "Its people like you who turn PHP into a BDSM language."
     , "\"...the problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle.\" ~ Joe Armstrong, creator of Erlang"
     , "I'm sorry, I can't let you do that, Dave."
     , 'You think this is a game?'

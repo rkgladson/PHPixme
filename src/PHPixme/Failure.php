@@ -17,7 +17,7 @@ namespace PHPixme;
  */
 class Failure extends Attempt
 {
-  use NothingCollectionTrait;
+  use NothingCollectionTrait, ImmutableConstructorTrait;
   private $err;
   const shortName = 'failure';
   
@@ -102,6 +102,7 @@ class Failure extends Attempt
    */
   public function __construct(\Exception $exception)
   {
+    $this->assertOnce();
     $this->err = $exception;
   }
 

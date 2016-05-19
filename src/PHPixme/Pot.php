@@ -16,9 +16,8 @@ class Pot extends \Exception implements
   , UnaryApplicativeInterface
   , \Countable
 {
-  use AssertTypeTrait;
+  use AssertTypeTrait, ImmutableConstructorTrait;
   protected $contents;
-  private $onceAndOnlyOnce = false;
 
   /**
    * Pot constructor.
@@ -30,10 +29,7 @@ class Pot extends \Exception implements
    */
   public function __construct($contents, $message = "", $code = 0, \Exception $previous = null)
   {
-    if ($this->onceAndOnlyOnce) {
-      throw new exception\MutationException();
-    }
-    $this->onceAndOnlyOnce = true;
+    $this->assertOnce();
     parent::__construct($message, $code, $previous);
     $this->contents = $contents;
   }

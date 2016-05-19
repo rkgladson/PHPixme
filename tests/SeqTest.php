@@ -96,7 +96,20 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       $prevKey === $testIter->key()
       , 'the constructor aught not to ever change the state of an iterator'
     );
+  }
 
+  public function test_closed_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(P\Seq::class));
+    $this->assertTrue(
+      false !== array_search(P\ClosedTrait::class, $traits)
+      , 'should be closed'
+    );
+  }
+  
+  public function test_patience(){
+    $this->expectException(P\exception\MutationException::class);
+    (new P\Seq([]))->__construct([]);
   }
 
   public function arrayOfThingsProvider()

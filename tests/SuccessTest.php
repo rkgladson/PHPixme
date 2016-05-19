@@ -43,11 +43,15 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   {
     $traits = getAllTraits(new \ReflectionClass(P\Success::class));
     $this->assertTrue(
-      false !== array_search('PHPixme\ClosedTrait', $traits)
+      false !== array_search(P\ClosedTrait::class, $traits)
       , 'should be closed'
     );
   }
-  
+
+  public function test_patience(){
+    $this->expectException(P\exception\MutationException::class);
+    (new P\Success(1))->__construct(2);
+  }
   
   public function test_is_status()
   {

@@ -87,7 +87,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
   {
     $traits = getAllTraits(new \ReflectionClass(P\None::class));
     $this->assertTrue(
-      false !== array_search('PHPixme\ClosedTrait', $traits)
+      false !== array_search(P\ClosedTrait::class, $traits)
       , 'should be closed'
     );
   }

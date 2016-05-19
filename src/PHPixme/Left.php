@@ -8,7 +8,7 @@ namespace PHPixme;
  */
 class Left extends Either 
 {
-  use LeftHandedTrait;
+  use LeftHandedTrait, ImmutableConstructorTrait;
   private $value;
 
   /**
@@ -17,6 +17,7 @@ class Left extends Either
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 
