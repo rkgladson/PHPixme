@@ -27,6 +27,8 @@ namespace tests\PHPixme {
   use PHPixme\AssertTypeTrait;
   use PHPixme\ClosedTrait;
   const Closure = \Closure::class;
+  // To reduce the amount of pain caused by using reflection if there is a refactor.
+  const shortName = 'shortName';
 
   function getArgs()
   {
