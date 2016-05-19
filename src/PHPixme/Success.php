@@ -18,8 +18,7 @@ class Success extends Attempt implements
   RightHandSideType
 
 {
-  use RightHandedTrait;
-    , ClosedTrait
+  use RightHandedTrait
     , ImmutableConstructorTrait;
   private $value = null;
   const shortName = 'success';

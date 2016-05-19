@@ -8,7 +8,8 @@ namespace PHPixme;
  */
 class Right extends Either implements RightHandSideType
 {
-  use RightHandedTrait, ImmutableConstructorTrait;
+  use RightHandedTrait
+    , ImmutableConstructorTrait;
   private $value;
 
   /**

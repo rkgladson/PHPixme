@@ -8,7 +8,8 @@ namespace PHPixme;
  */
 class Left extends Either implements LeftHandSideType
 {
-  use LeftHandedTrait, ImmutableConstructorTrait;
+  use LeftHandedTrait
+    , ImmutableConstructorTrait;
   private $value;
 
   /**
