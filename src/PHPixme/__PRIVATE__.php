@@ -136,9 +136,13 @@ class __PRIVATE__
       return $traversable;
     }
     // Allow for generators to be used once. Better than always throwing an error.
-    // Best to assume the user knows how to use Generators correctly, and might even be sending
-    // an empty iterator
+    // Best to assume the user knows how to use Generators correctly,
+    // and might even be sending an empty iterator
     if ($traversable instanceof \Generator) {
+      // We should NOT check the generator before it enters a foreach
+      // As with any PHP built in, observing it changes the outcome.
+      // Touching any method on an empty generator will cause a foreach to
+      // Throw rather than silently not iterating.
       return $traversable;
     }
     return $traversable instanceof \IteratorAggregate
