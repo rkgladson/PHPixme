@@ -19,6 +19,7 @@ class Failure extends Attempt implements
   LeftHandSideType
 {
   use LeftHandedTrait
+    , ImmutableConstructorTrait
     , NothingCollectionTrait;
   private $err;
   const shortName = 'failure';
@@ -112,6 +113,7 @@ class Failure extends Attempt implements
    */
   public function __construct(\Exception $exception)
   {
+    $this->assertOnce();
     $this->err = $exception;
   }
 

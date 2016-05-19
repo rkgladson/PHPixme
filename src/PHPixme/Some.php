@@ -15,6 +15,7 @@ namespace PHPixme;
  */
 class Some extends Maybe
 {
+  use ImmutableConstructorTrait;
   protected $x;
 
   // -- Magic Methods --
@@ -24,6 +25,7 @@ class Some extends Maybe
    */
   public function __construct($x)
   {
+    $this->assertOnce();
     $this->x = $x;
   }
 // == Magic Methods ==

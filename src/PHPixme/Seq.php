@@ -25,7 +25,7 @@ class Seq implements
   , GroupableInterface
   , \Countable
 {
-  use AssertTypeTrait, ClosedTrait;
+  use AssertTypeTrait, ClosedTrait, ImmutableConstructorTrait;
   private $hash = [];
   private $keyR = [];
   private $keyRBackwards = [];
@@ -37,6 +37,7 @@ class Seq implements
    */
   public function __construct($arrayLike)
   {
+    $this->assertOnce();
     $this->hash = static::arrayLikeToArray($arrayLike);
     $this->keyR = array_keys($this->hash);
     $this->keyRBackwards = array_reverse($this->keyR);

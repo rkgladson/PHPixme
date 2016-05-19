@@ -9,6 +9,7 @@
 namespace PHPixme\exception;
 
 use PHPixme\ClosedTrait;
+use PHPixme\ImmutableConstructorTrait;
 use PHPixme\Pot;
 use PHPixme\UnaryApplicativeInterface;
 
@@ -23,12 +24,11 @@ class VacuousOffsetException extends \OutOfBoundsException
   , CollectibleExceptionInterface
   , \Countable
 {
-  use ClosedTrait;
+  use ClosedTrait, ImmutableConstructorTrait;
   /**
    * @var mixed
    */
   protected $offset;
-  private $onceAndOnlyOnce = false;
 
   /**
    * VacuousOffsetException constructor.
@@ -38,10 +38,7 @@ class VacuousOffsetException extends \OutOfBoundsException
    */
   public function __construct($offset, $message = 'The offset does not exist')
   {
-    if ($this->onceAndOnlyOnce) {
-      throw new MutationException();
-    }
-    $this->onceAndOnlyOnce = true;
+    $this->assertOnce();
     $this->offset = $offset;
     $this->message = $message;
   }

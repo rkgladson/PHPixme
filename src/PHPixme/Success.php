@@ -19,6 +19,8 @@ class Success extends Attempt implements
 
 {
   use RightHandedTrait;
+    , ClosedTrait
+    , ImmutableConstructorTrait;
   private $value = null;
   const shortName = 'success';
 
@@ -27,6 +29,7 @@ class Success extends Attempt implements
    */
   public function __construct($value)
   {
+    $this->assertOnce();
     $this->value = $value;
   }
 

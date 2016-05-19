@@ -50,19 +50,19 @@ class PotTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_patience()
-  {
-    $this->expectException(MutationException::class);
-    (new testSubject(0))->__construct(1);
-  }
-
   public function test_not_a_closed_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
     self::assertTrue(
-      false === array_search('PHPixme\ClosedTrait', $traits)
+      false === array_search(P\ClosedTrait::class, $traits)
       , 'should be not be closed'
     );
+  }
+
+  public function test_patience()
+  {
+    $this->expectException(MutationException::class);
+    (new testSubject(0))->__construct(1);
   }
 
   /**

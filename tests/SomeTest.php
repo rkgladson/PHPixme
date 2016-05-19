@@ -40,9 +40,15 @@ class SomeTest extends \PHPUnit_Framework_TestCase
   {
     $traits = getAllTraits(new \ReflectionClass(P\Some::class));
     $this->assertTrue(
-      false !== array_search('PHPixme\ClosedTrait', $traits)
+      false !== array_search(P\ClosedTrait::class, $traits)
       , 'should be closed'
     );
+  }
+
+  public function test_patience()
+  {
+    $this->expectException(P\exception\MutationException::class);
+    (new P\Some(1))->__construct(null);
   }
 
   public function test_Some_static_of($value = true)
