@@ -10,17 +10,18 @@ namespace tests\PHPixme;
 
 
 use PHPixme\ClosedTrait;
+use PHPixme\exception\MutationException;
 
 class ClosedTraitTest extends \PHPUnit_Framework_TestCase
 {
   function test_exception_on_get_dynamic() {
-    $this->expectException(\OutOfBoundsException::class);
+    $this->expectException(MutationException::class);
     $obj = new CloseTypeStub();
-    $bar = $obj->exceptionFoo;
+    $obj->exceptionFoo;
   }
 
   function test_exception_on_set_dynamic() {
-    $this->expectException(\BadMethodCallException::class);
+    $this->expectException(MutationException::class);
     $obj = new CloseTypeStub();
     $obj->exceptionFoo = 'bar';
   }
