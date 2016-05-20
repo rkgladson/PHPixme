@@ -10,19 +10,12 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constant()
   {
-    self::assertEquals(
-      testSubject::class
-      , testConst
-      , 'there should be some constant that points to the class with the same name'
-    );
-    self::assertTrue(
-      function_exists(testSubject::class)
-      , 'there should be some function existing that has the same name'
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
     self::assertNotEquals(
-      (new \ReflectionClass(testSubject::class))->getParentClass()->getConstant(shortName)
+      getParent(testSubject::class)->getConstant(shortName)
       , testSubject::shortName
-      , 'It should define its own shortName'
+      , 'It should define its own'
     );
   }
 
@@ -322,17 +315,17 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_find_return($value = 1)
   {
+    $notValue = !$value;
     $subject = testNew($value);
     $found = $subject->find(function ($v) use ($value) {
       return $value === $v;
     });
-    self::assertInstanceOf(P\Some::class, $found);
-    self::assertTrue($value === $found->get());
-
-    $notValue = !$value;
     $missing = $subject->find(function ($v) use ($notValue) {
       return $notValue === $v;
     });
+    
+    self::assertInstanceOf(P\Some::class, $found);
+    self::assertSame($value, $found->get());
     self::assertInstanceOf(P\None::class, $missing);
   }
 

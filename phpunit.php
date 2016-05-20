@@ -30,6 +30,18 @@ namespace tests\PHPixme {
   // To reduce the amount of pain caused by using reflection if there is a refactor.
   const shortName = 'shortName';
 
+  const doNotRun = __NAMESPACE__ . '\doNotRun';
+  function doNotRun()
+  {
+    throw new \Exception('should not run.');
+  }
+
+  const noop = __NAMESPACE__ . '\noop';
+  function noop()
+  {
+    // This space is intentionally left blank
+  }
+
   function getArgs()
   {
     return func_get_args();
@@ -114,8 +126,21 @@ namespace tests\PHPixme {
     }
   }
 
+  /**
+   * @param \ReflectionClass $reflection
+   * @return array
+   */
   function getAllTraits(\ReflectionClass $reflection)
   {
     return array_merge($reflection->getTraitNames(), $reflection->getParentClass() !== false ? getAllTraits($reflection->getParentClass()) : []);
   }
+
+  /**
+   * @param string $class
+   * @return \ReflectionClass
+   */
+  function getParent ($class) {
+    return (new \ReflectionClass($class))->getParentClass();
+  }
+  
 }

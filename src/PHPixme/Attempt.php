@@ -21,6 +21,8 @@ namespace PHPixme;
 abstract class Attempt implements
   BiasedDisjunctionInterface
   , UnaryApplicativeInterface
+  , UnaryApplicativeLeftDisjunctionInterface
+  , UnaryApplicativeRightDisjunctionInterface
   , FlattenRightInterface
   , \Countable
 {
@@ -34,6 +36,25 @@ abstract class Attempt implements
   public static function of($value)
   {
     return Attempt($value);
+  }
+
+  /**
+   * @inheritdoc
+   * @param \Throwable|\Exception $item
+   * @return Failure
+   */
+  public static function ofLeft($item)
+  {
+    return new Failure($item);
+  }
+
+  /**
+   * @inheritdoc
+   * @return Success
+   */
+  public static function ofRight($item)
+  {
+    return new Success($item);
   }
 
   /**
@@ -84,7 +105,6 @@ abstract class Attempt implements
     }
     return Attempt::assertType($result);
   }
-
 
   /**
    * Changes a Failure to a success.
@@ -172,7 +192,7 @@ abstract class Attempt implements
    */
   public function toUnbiasedDisjunctionInterface()
   {
-    return $this->isFailure() ? Left::of($this->merge()) : Right::of($this->merge());
+    return $this->isLeft() ? Either::ofLeft($this->merge()) : Either::ofRight($this->merge());
   }
 }
 

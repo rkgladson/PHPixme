@@ -78,7 +78,7 @@ class Success extends Attempt implements
   public function flatMap(callable $hof)
   {
     try {
-      $result = $hof($this->value);
+      $result = $hof($this->value, 0 , $this);
     } catch (\Exception $e) {
       return Failure($e);
     }

@@ -1,21 +1,9 @@
 <?php
-
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 4/8/2016
- * Time: 10:44 AM
- */
 namespace PHPixme;
 
-  /**
-   * Class __Private__
-   * Used for function instances
-   *
-   */
 /**
  * Class __PRIVATE__
- * Place globals here.
+ * Lasciate ogne speranza, voi ch'intrate
  * @internal
  * @package PHPixme
  */
@@ -25,7 +13,13 @@ class __PRIVATE__
    * @var array Closure instances can be safely placed inside the array
    */
   public static $instance = [];
+  /**
+   * @var \stdClass the placeholder instance, since its the only way to make something unique that I know of
+   */
   private static $placeholder;
+  /**
+   * @var bool this is a singleton, and this is the excution flag.
+   */
   private static $initialized = false;
 
   /**
@@ -41,7 +35,6 @@ class __PRIVATE__
   }
 
   /**
-   *
    * @return \stdClass
    */
   public static function placeholder()
