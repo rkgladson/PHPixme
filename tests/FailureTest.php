@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/7/2016
- * Time: 4:03 PM
- */
-
 namespace tests\PHPixme;
 
 use PHPixme as P;
@@ -143,6 +136,12 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($subject, $subject->flatten());
   }
 
+  public function test_flattenRight()
+  {
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->flattenRight());
+  }
+
   public function test_failed()
   {
     $value = valueE();
@@ -275,6 +274,19 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   {
     $value = valueE();
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
+  }
+
+  public function test_toUnbiasedDisjunctionInterface () {
+    $value = valueE();
+    $subject = testNew($value);
+
+    $result = $subject->toUnbiasedDisjunctionInterface();
+
+    self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
+    self::assertInstanceOf(P\LeftHandSideType::class, $result);
+    self::assertEquals($subject->isLeft(), $result->isLeft());
+    self::assertEquals($subject->isRight(), $result->isRight());
+    self::assertSame($value, $result->merge());
   }
 
   public function test_toMaybe()

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/7/2016
- * Time: 11:58 AM
- */
 namespace tests\PHPixme;
 
 use PHPixme as P;
@@ -63,9 +57,7 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
   {
     $value = 1;
 
-    $result = testSubject::of(function () use ($value) {
-      return $value;
-    });
+    $result = testSubject::ofRight($value);
 
     self::assertInstanceOf(rhs::class, $result);
     self::assertEquals(new rhs($value), $result);

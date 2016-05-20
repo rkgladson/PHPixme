@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/7/2016
- * Time: 3:22 PM
- */
 namespace tests\PHPixme;
 
 use PHPixme as P;
@@ -195,6 +189,22 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
     self::assertSame($lhsContents, testNew($lhsContents)->flatten());
     self::assertSame($rhsContents, testNew($rhsContents)->flatten());
+  }
+
+  function test_flattenRight_contract_broken()
+  {
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(null)->flattenRight();
+  }
+
+
+  function test_flattenRight_return()
+  {
+    $lhsContents = testSubject::ofLeft(new \Exception());
+    $rhsContents = testNew(1);
+
+    self::assertSame($lhsContents, testNew($lhsContents)->flattenRight());
+    self::assertSame($rhsContents, testNew($rhsContents)->flattenRight());
   }
 
   function test_failed($value = true)
@@ -412,6 +422,19 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   public function test_toArray($value = true)
   {
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
+  }
+
+  public function test_toUnbiasedDisjunctionInterface ($value = 1) {
+    $subject = testNew($value);
+    
+    $result = $subject->toUnbiasedDisjunctionInterface();
+    
+    self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
+    self::assertInstanceOf(P\RightHandSideType::class, $result);
+    self::assertEquals($subject->isLeft(), $result->isLeft());
+    self::assertEquals($subject->isRight(), $result->isRight());
+    self::assertSame($value, $result->merge());
+    
   }
 
   public function test_toMaybe($value = true)
