@@ -137,7 +137,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $self = testNew($value);
-    testNew($value)->map(function () use ($self, $value, &$ran) {
+    $self->map(function () use ($self, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
       self::assertTrue($value === $v);
@@ -161,7 +161,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $self = testNew($value);
-    testNew($value)->fold(function () use ($self, $value, $startValue, &$ran) {
+    $self->fold(function () use ($self, $value, $startValue, &$ran) {
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
       self::assertTrue($startValue === $s);
@@ -183,7 +183,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $self = testNew($value);
-    testNew($value)->foldRight(function () use ($self, $value, $startValue, &$ran) {
+    $self->foldRight(function () use ($self, $value, $startValue, &$ran) {
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
       self::assertTrue($startValue === $s);
