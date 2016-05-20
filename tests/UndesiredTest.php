@@ -6,7 +6,6 @@ use PHPixme\Undesired as testSubject;
 use function PHPixme\Undesired as testNew;
 use const PHPixme\Undesired as testConst;
 
-
 class UndesiredTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constant()
@@ -36,8 +35,9 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
   {
     self::assertTrue((new testSubject($value))->merge() === $value);
   }
-  
-  public function test_applicative($value = 1) {
+
+  public function test_applicative($value = 1)
+  {
     $disjunction = testSubject::of($value);
     self::assertInstanceOf(testSubject::class, $disjunction);
     self::assertTrue($disjunction->merge() === $value);
@@ -78,38 +78,42 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
   {
     $disjunction = testNew($value);
     self::assertTrue($disjunction === $disjunction->flattenRight());
-    
+
     $sibling = testSubject::ofRight($value);
     self::assertTrue($disjunction === testNew($disjunction)->flattenLeft());
     self::assertTrue($sibling === testNew($sibling)->flattenLeft());
   }
-  
-  public function test_swap($value = 1) {
-    $changed = testNew($value)->swap();
-    self::assertInstanceOf(P\Preferred::class, $changed);
-    self::assertTrue($value === $changed->merge());
+
+  public function test_swap($value = 1)
+  {
+    $displaced = testNew($value)->swap();
+    self::assertInstanceOf(P\Preferred::class, $displaced);
+    self::assertTrue($value === $displaced->merge());
   }
 
   public function test_count($value = 1)
   {
-    $disjunction = testNew($value);
-    self::assertEquals(0, $disjunction->count());
-    self::assertEquals(0, count($disjunction));
+    $subject = testNew($value);
+    self::assertEquals(0, $subject->count());
+    self::assertEquals(0, count($subject));
   }
-  
-  public function test_iterator_interface($value = 1) {
+
+  public function test_iterator_interface($value = 1)
+  {
     $ran = 0;
     foreach (testNew($value) as $meaningless) {
-      $ran+=1;
+      $ran += 1;
     }
     self::assertEquals(0, $ran, 'should be considered empty');
   }
-  
-  public function test_toArray($value = 1) {
-    self::assertEquals([testSubject::shortName=>$value], testNew($value)->toArray());
+
+  public function test_toArray($value = 1)
+  {
+    self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
-  public function test_toUnbiasedDisjunction($value = 1) {
+  public function test_toUnbiasedDisjunction($value = 1)
+  {
     $disjunction = testNew($value)->toUnbiasedDisjunctionInterface();
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $disjunction);
     self::assertInstanceOf(P\LeftHandSideType::class, $disjunction);
