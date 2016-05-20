@@ -2,118 +2,123 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use PHPixme\Left as testSubject;
+use function PHPixme\Left as testNew;
+use const PHPixme\Left as testConst;
+use PHPixme\Right as oppositeSubject;
 
 class LeftTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constants()
   {
-    $this->assertTrue(
-      P\Left::class === P\Left
-      , 'The constant for the class and the function should be equal'
-    );
-    $this->assertTrue(
-      function_exists(P\Left)
-      , 'The companion function should exist'
-    );
-    $this->assertInstanceOf(
-      P\Left::class
-      , P\Left(true)
-      , 'The static companion should return the Class of its namesake'
-    );
+    self::assertSame(testSubject::class, P\Left);
+    self::assertTrue(function_exists(P\Left));
+  }
+
+  public function test_companion($value = null)
+  {
+    $result = testNew($value);
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertEquals(new testSubject($value), $result);
   }
 
   public function test_static_of($value = true)
   {
-    $this->assertInstanceOf(P\Left::class, P\Left::of($value));
+    $result = testSubject::of($value);
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertEquals(new testSubject($value), $result);
   }
 
-  public function test_closed_trait()
+  public function test_attributes()
   {
-    $traits = getAllTraits(new \ReflectionClass(P\Left::class));
-    $this->assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
+    $reflection = new \ReflectionClass(testSubject::class);
+    self::assertTrue($reflection->implementsInterface(P\LeftHandSideType::class));
   }
 
-  public function test_patience(){
-    $this->expectException(P\exception\MutationException::class);
-    (new P\Left(0))->__construct(1);
+  public function test_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\LeftHandedTrait::class, $traits);
   }
-  
+
+  public function test_patience()
+  {
+    $this->expectException(P\exception\MutationException::class);
+    (new testSubject(0))->__construct(1);
+  }
+
   public function test_handedness($value = true)
   {
-    $Left = P\Left($value);
-    $this->assertTrue($Left->isLeft());
-    $this->assertFalse($Left->isRight());
-    $this->assertInstanceOf(P\Some::class, $Left->left());
-    $this->assertTrue($value === $Left->left()->get());
-    $this->assertInstanceOf(P\None::class, $Left->right());
+    $Left = testNew($value);
+    self::assertTrue($Left->isLeft());
+    self::assertFalse($Left->isRight());
+    self::assertInstanceOf(P\Some::class, $Left->left());
+    self::assertTrue($value === $Left->left()->get());
+    self::assertInstanceOf(P\None::class, $Left->right());
+  }
+
+  public function test_merge($value = true)
+  {
+    $subject = new testSubject($value);
+    self::assertSame($value, $subject->merge());
   }
 
   public function test_fold_callback($value = true)
   {
     $ran = 0;
-    $run = function () use ($value, &$ran) {
-      $this->assertEquals(
-        1, func_num_args()
-        , 'the callback should receive one argument'
-      );
-      $this->assertTrue(
-        $value === func_get_arg(0)
-        , 'the first argument should be exactly the value that was contained.'
-      );
-      $ran +=1;
+    $subject = testNew($value);
+    $test = function () use ($value, $subject, &$ran) {
+      self::assertEquals(2, func_num_args());
+      list ($v, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
       return $value;
     };
 
-    P\Left($value)->fold($run, P\toss);
-    $this->assertEquals(1, $ran);
+    $subject->fold($test, doNotRun);
+
+    self::assertEquals(1, $ran);
   }
 
   public function test_fold_return($value = true)
   {
-    $left = P\Left($value);
-    $this->assertEquals(
-      $value
-      , $left->fold(P\I, P\toss)
-      , 'a fold of the identity should return the value'
-    );
+    $left = testNew($value);
+    self::assertSame($value, $left->fold(P\I, doNotRun));
   }
 
   public function test_swap($value = true)
   {
-    $right = P\Left($value)->swap();
-    $this->assertInstanceOf(P\Right::class, $right);
-    $this->assertTrue($value === $right->merge());
+    $result = testNew($value)->swap();
+    self::assertInstanceOf(oppositeSubject::class, $result);
+    self::assertSame($value, $result->merge());
   }
 
   public function test_flattenRight($value = true)
   {
-    $left = P\Left($value);
-    $this->assertTrue(
-      $left === $left->flattenRight()
-      , 'When called on its opposite, it should return itself.'
-    );
+    $subject = testNew($value);
+    self::assertSame($subject, $subject->flattenRight());
   }
 
   public function test_flattenLeft($value = true)
   {
-    $left = P\Left($value);
+    $left = testNew($value);
     $right = P\Right($value);
-    $leftLeft = P\Left($left);
-    $leftRight = P\Left($right);
-    $this->assertTrue(
-      $left === $leftLeft->flattenLeft()
-      , 'When containing a left, it should return that left'
-    );
-    $this->assertTrue(
-      $right === $leftRight->flattenLeft()
-      , 'When containing a right, it should return that right'
-    );
+    $leftLeft = testNew($left);
+    $leftRight = testNew($right);
+
+    self::assertSame($left, $leftLeft->flattenLeft());
+    self::assertSame($right, $leftRight->flattenLeft());
   }
-  public function test_flattenLeft_contract_violated () {
+
+  public function test_flattenLeft_contract_violated()
+  {
     $this->expectException(\UnexpectedValueException::class);
-    P\Left(true)->flattenLeft();
+    testNew(true)->flattenLeft();
   }
 }

@@ -2,20 +2,21 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use function PHPixme\Right as testNew;
 
 class RightTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constants()
   {
-    $this->assertTrue(
+    self::assertTrue(
       P\Right::class === P\Right
       , 'The constant for the class and the function should be equal'
     );
-    $this->assertTrue(
+    self::assertTrue(
       function_exists(P\Right)
       , 'The companion function should exist'
     );
-    $this->assertInstanceOf(
+    self::assertInstanceOf(
       P\Right::class
       , P\Right(true)
       , 'The static companion should return the Class of its namesake'
@@ -25,7 +26,7 @@ class RightTest extends \PHPUnit_Framework_TestCase
   public function test_closed_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(P\Right::class));
-    $this->assertTrue(
+    self::assertTrue(
       false !== array_search(P\ClosedTrait::class, $traits)
       , 'should be closed'
     );
@@ -38,43 +39,43 @@ class RightTest extends \PHPUnit_Framework_TestCase
 
   public function test_static_of($value = true)
   {
-    $this->assertInstanceOf(P\Right::class, P\Right::of($value));
+    self::assertInstanceOf(P\Right::class, P\Right::of($value));
   }
 
   public function test_handedness($value = true)
   {
     $right = P\Right($value);
-    $this->assertTrue($right->isRight());
-    $this->assertFalse($right->isLeft());
-    $this->assertInstanceOf(P\Some::class, $right->right());
-    $this->assertTrue($value === $right->right()->get());
-    $this->assertInstanceOf(P\None::class, $right->left());
+    self::assertTrue($right->isRight());
+    self::assertFalse($right->isLeft());
+    self::assertInstanceOf(P\Some::class, $right->right());
+    self::assertTrue($value === $right->right()->get());
+    self::assertInstanceOf(P\None::class, $right->left());
   }
 
   public function test_fold_callback($value = true)
   {
     $ran = 0;
-    $run = function () use ($value, &$ran) {
-      $this->assertEquals(
-        1, func_num_args()
-        , 'the callback should receive one argument'
-      );
-      $this->assertTrue(
-        $value === func_get_arg(0)
-        , 'the first argument should be exactly the value that was contained.'
-      );
+    $subject = testNew($value);
+    $test = function () use ($value, $subject, &$ran) {
+      self::assertEquals(2, func_num_args());
+      list ($v, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return $value;
     };
 
-    P\Right($value)->fold(P\toss, $run);
-    $this->assertEquals(1, $ran);
+    $subject->fold(doNotRun, $test);
+
+    self::assertEquals(1, $ran);
   }
 
   public function test_fold_return($value = true)
   {
     $right = P\Right($value);
-    $this->assertEquals(
+    self::assertEquals(
       $value
       , $right->fold(P\toss, P\I)
       , 'a fold of the identity should return the value'
@@ -84,14 +85,14 @@ class RightTest extends \PHPUnit_Framework_TestCase
   public function test_swap($value = true)
   {
     $left = P\Right($value)->swap();
-    $this->assertInstanceOf(P\Left::class, $left);
-    $this->assertTrue($value === $left->merge());
+    self::assertInstanceOf(P\Left::class, $left);
+    self::assertTrue($value === $left->merge());
   }
 
   public function test_flattenLeft($value = true)
   {
     $right = P\Right($value);
-    $this->assertTrue(
+    self::assertTrue(
       $right === $right->flattenLeft()
       , 'When called on its opposite, it should return itself.'
     );
@@ -103,11 +104,11 @@ class RightTest extends \PHPUnit_Framework_TestCase
     $right = P\Right($value);
     $rightLeft = P\Right($left);
     $rightRight = P\Right($right);
-    $this->assertTrue(
+    self::assertTrue(
       $left === $rightLeft->flattenRight()
       , 'When containing a left, it should return that left'
     );
-    $this->assertTrue(
+    self::assertTrue(
       $right === $rightRight->flattenRight()
       , 'When containing a right, it should return that right'
     );

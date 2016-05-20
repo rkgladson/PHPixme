@@ -72,7 +72,7 @@ class Left extends Either implements LeftHandSideType
    */
   public function fold(callable $leftFn, callable $rightFn)
   {
-    return $leftFn($this->value);
+    return $leftFn($this->value, $this);
   }
 
   /**
