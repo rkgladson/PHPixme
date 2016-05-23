@@ -12,11 +12,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     self::assertEquals(testSubject::class, testConst);
     self::assertTrue(function_exists(testSubject::class));
-    self::assertNotEquals(
-      getParent(testSubject::class)->getConstant(shortName)
-      , testSubject::shortName
-      , 'It should define its own'
-    );
+    self::assertNotEquals(getParent(testSubject::class)->getConstant(shortName), testSubject::shortName);
   }
 
   public function test_companion($value = 1)
@@ -26,27 +22,22 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_merge_and_constructor($value = 1)
   {
-    self::assertTrue((new testSubject($value))->merge() === $value);
+    self::assertSame($value, (new testSubject($value))->merge());
   }
 
   public function test_applicative($value = 1)
   {
     $disjunction = testSubject::of($value);
     self::assertInstanceOf(testSubject::class, $disjunction);
-    self::assertTrue($disjunction->merge() === $value);
+    self::assertSame($value, $disjunction->merge());
   }
 
   public function test_traits()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
-    self::assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
-    self::assertTrue(
-      false !== array_search(P\RightHandedTrait::class, $traits)
-      , 'should be right handed'
-    );
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\RightHandedTrait::class, $traits);
   }
 
   public function test_patience($value = 1)
@@ -58,6 +49,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_handedness($value = 1)
   {
     $disjunction = testNew($value);
+
     self::assertInstanceOf(P\RightHandSideType::class, $disjunction);
     self::assertFalse($disjunction->isLeft());
     self::assertTrue($disjunction->isRight());
@@ -66,23 +58,25 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_flatten_handedly($value = 1)
   {
     $disjunction = testNew($value);
-    self::assertTrue($disjunction === $disjunction->flattenLeft());
-
     $sibling = testSubject::ofLeft($value);
-    self::assertTrue($disjunction === testNew($disjunction)->flattenRight());
-    self::assertTrue($sibling === testNew($sibling)->flattenRight());
+
+    self::assertSame($disjunction, $disjunction->flattenLeft());
+    self::assertSame($disjunction, testNew($disjunction)->flattenRight());
+    self::assertSame($sibling, testNew($sibling)->flattenRight());
   }
 
   public function test_swap($value = 1)
   {
     $displaced = testNew($value)->swap();
+
     self::assertInstanceOf(P\Undesired::class, $displaced);
-    self::assertTrue($value === $displaced->merge());
+    self::assertSame($value, $displaced->merge());
   }
 
   public function test_count($value = 1)
   {
     $subject = testNew($value);
+
     self::assertEquals(1, $subject->count());
     self::assertEquals(1, count($subject));
   }
@@ -91,8 +85,10 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     foreach (testNew($value) as $k => $v) {
-      self::assertTrue($k === $ran);
-      self::assertTrue($v === $value);
+
+      self::assertEquals($k, $ran);
+      self::assertSame($v, $value);
+
       $ran += 1;
     }
     self::assertEquals(1, $ran, 'should be considered one of something');
@@ -106,11 +102,12 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_toUnbiasedDisjunction($value = 1)
   {
     $resultant = testNew($value)->toUnbiasedDisjunctionInterface();
+
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $resultant);
     self::assertInstanceOf(P\RightHandSideType::class, $resultant);
     self::assertFalse($resultant->isLeft());
     self::assertTrue($resultant->isRight());
-    self::assertTrue($value === $resultant->merge());
+    self::assertSame($value, $resultant->merge());
   }
 
   public function test_isEmpty($value = 1)
@@ -122,12 +119,15 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->map(function () use ($subject, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -136,10 +136,12 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_map_return($value = 1)
   {
     $subject = testNew($value);
-    $resultant = $subject->map(P\I);
+
+    $resultant = $subject->map(identity);
+
     self::assertInstanceOf(testSubject::class, $resultant);
     self::assertEquals($resultant, $subject);
-    self::assertFalse($resultant === $value);
+    self::assertNotSame($resultant, $value);
   }
 
   public function test_flatMap_callback($value = 1)
@@ -147,12 +149,15 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
     $ran = 0;
     $contents = testNew($value);
     $subject = testNew($contents);
+
     $subject->flatMap(function () use ($subject, $contents, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($contents === $v);
+
+      self::assertSame($contents, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return $v;
     });
@@ -162,28 +167,32 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_flatMap_contract_violation()
   {
     $this->expectException(\UnexpectedValueException::class);
-    testNew(null)->flatMap(P\I);
+    testNew(null)->flatMap(identity);
   }
 
   public function test_flatMap_return($value = 1)
   {
     $disjunction = testNew($value);
     $sibling = testSubject::ofLeft($value);
-    self::assertTrue($disjunction === testNew($disjunction)->flatMap(P\I));
-    self::assertTrue($sibling === testNew($sibling)->flatMap(P\I));
+
+    self::assertSame($disjunction, testNew($disjunction)->flatMap(identity));
+    self::assertSame($sibling, testNew($sibling)->flatMap(identity));
   }
 
   public function test_fold_callback($value = 1, $startValue = 0)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->fold(function () use ($subject, $value, $startValue, &$ran) {
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
-      self::assertTrue($startValue === $s);
-      self::assertTrue($value === $v);
+
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return $s;
     }, $startValue);
@@ -192,20 +201,23 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_fold_return($value = 1, $startValue = 1)
   {
-    self::assertTrue($startValue === testNew($value)->fold(P\I, $startValue));
+    self::assertSame($startValue, testNew($value)->fold(identity, $startValue));
   }
 
   public function test_foldRight_callback($value = 1, $startValue = 0)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->foldRight(function () use ($subject, $value, $startValue, &$ran) {
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
-      self::assertTrue($startValue === $s);
-      self::assertTrue($value === $v);
+
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return $s;
     }, $startValue);
@@ -214,19 +226,22 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_foldRight_return($value = 1, $startValue = 1)
   {
-    self::assertTrue($startValue === testNew($value)->foldRight(P\I, $startValue));
+    self::assertSame($startValue, testNew($value)->foldRight(identity, $startValue));
   }
 
   public function test_forAll_callback($value = 1)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->forAll(function () use ($value, $subject, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -234,26 +249,25 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_forAll_return($value = 1)
   {
-    $notValue = !$value;
     $subject = testNew($value);
-    self::assertTrue($subject->forAll(function ($v) use ($value) {
-      return $value === $v;
-    }));
-    self::assertFalse($subject->forAll(function ($v) use ($notValue) {
-      return $notValue === $v;
-    }));
+
+    self::assertTrue($subject->forAll(bTrue));
+    self::assertFalse($subject->forAll(bFalse));
   }
 
   public function test_forNone_callback($value = 1)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->forNone(function () use ($value, $subject, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+      
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+      
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -261,26 +275,25 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_forNone_return($value = 1)
   {
-    $notValue = !$value;
     $subject = testNew($value);
-    self::assertFalse($subject->forNone(function ($v) use ($value) {
-      return $value === $v;
-    }));
-    self::assertTrue($subject->forNone(function ($v) use ($notValue) {
-      return $notValue === $v;
-    }));
+    
+    self::assertFalse($subject->forNone(bTrue));
+    self::assertTrue($subject->forNone(bFalse));
   }
 
   public function test_forSome_callback($value = 1)
   {
     $ran = 0;
     $self = testNew($value);
+
     $self->forSome(function () use ($value, $self, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($self === $t);
+      self::assertSame($self, $t);
+
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -288,14 +301,10 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_forSome_return($value = 1)
   {
-    $notValue = !$value;
     $subject = testNew($value);
-    self::assertTrue($subject->forSome(function ($v) use ($value) {
-      return $value === $v;
-    }));
-    self::assertFalse($subject->forSome(function ($v) use ($notValue) {
-      return $notValue === $v;
-    }));
+   
+    self::assertTrue($subject->forSome(bTrue));
+    self::assertFalse($subject->forSome(bFalse));
   }
 
   public function test_find_callback($value = 1)
@@ -305,9 +314,11 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
     $subject->find(function () use ($subject, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+      
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject, $t);
+      
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -315,15 +326,11 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
 
   public function test_find_return($value = 1)
   {
-    $notValue = !$value;
     $subject = testNew($value);
-    $found = $subject->find(function ($v) use ($value) {
-      return $value === $v;
-    });
-    $missing = $subject->find(function ($v) use ($notValue) {
-      return $notValue === $v;
-    });
     
+    $found = $subject->find(bTrue);
+    $missing = $subject->find(bFalse);
+
     self::assertInstanceOf(P\Some::class, $found);
     self::assertSame($value, $found->get());
     self::assertInstanceOf(P\None::class, $missing);
@@ -333,12 +340,15 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $self = testNew($value);
+    
     $self->walk(function () use ($self, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
-      self::assertTrue($value === $v);
+      
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($self === $t);
+      self::assertSame($self, $t);
+      
       $ran += 1;
     });
     self::assertEquals(1, $ran, 'the callback should of ran');
@@ -347,6 +357,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   public function test_walk_return($value = 1)
   {
     $subject = testNew($value);
-    self::assertTrue($subject === $subject->walk(P\I));
+    
+    self::assertSame($subject, $subject->walk(noop));
   }
 }

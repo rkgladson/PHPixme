@@ -9,30 +9,47 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use PHPixme\Exclusive as testSubject;
+use const PHPixme\Exclusive as testConst;
+use PHPixme\Undesired as lhs;
+use PHPixme\Preferred as rhs;
 
 class ExclusiveTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constants()
   {
-    self::assertEquals(P\Exclusive::class, P\Exclusive);
-    self::assertEquals(
-      0
-      , P\Exclusive::shortName
-      , 'the offset of to array should be the head'
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertFalse(function_exists(testSubject::class));
+    self::assertSame(0, testSubject::shortName);
   }
 
   public function test_applicative($value = 1)
   {
-    $exclusive = P\Exclusive::of($value);
-    self::assertTrue(
-      $exclusive->isRight()
-      , 'It should have a right hand side preference'
-    );
-    self::assertInstanceOf(P\Preferred::class, $exclusive);
-    self::assertEquals(
-      P\Preferred::of($value), $exclusive
-      , 'It should be equivalent to the right hand ::of'
-    );
+    $result = testSubject::of($value);
+
+    self::assertTrue($result->isRight());
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertInstanceOf(rhs::class, $result);
+    self::assertEquals(rhs::of($value), $result);
+  }
+
+  public function test_left_applicative($value = 1)
+  {
+    $result = testSubject::ofLeft($value);
+
+    self::assertTrue($result->isLeft());
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertInstanceOf(lhs::class, $result);
+    self::assertEquals(lhs::of($value), $result);
+  }
+
+  public function test_right_applicative($value = 1)
+  {
+    $result = testSubject::ofRight($value);
+
+    self::assertTrue($result->isRight());
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertInstanceOf(rhs::class, $result);
+    self::assertEquals(rhs::of($value), $result);
   }
 }

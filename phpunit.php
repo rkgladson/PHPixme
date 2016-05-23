@@ -126,6 +126,22 @@ namespace tests\PHPixme {
     }
   }
 
+
+  const bFalse = __NAMESPACE__ . '\bFalse';
+  function bFalse()
+  {
+    return false;
+  }
+  const bTrue = __NAMESPACE__ .  '\bTrue';
+  function bTrue() {
+    return true;
+  }
+  
+  const identity = __NAMESPACE__ . '\identity';
+  function identity ($x) {
+    return $x;
+  }
+  
   /**
    * @param \ReflectionClass $reflection
    * @return array
@@ -139,8 +155,9 @@ namespace tests\PHPixme {
    * @param string $class
    * @return \ReflectionClass
    */
-  function getParent ($class) {
+  function getParent($class)
+  {
     return (new \ReflectionClass($class))->getParentClass();
   }
-  
+
 }

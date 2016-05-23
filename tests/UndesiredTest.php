@@ -10,20 +10,9 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constant()
   {
-    self::assertEquals(
-      testSubject::class
-      , testConst
-      , 'there should be some constant that points to the class with the same name'
-    );
-    self::assertTrue(
-      function_exists(P\Undesired::class)
-      , 'there should be some function existing that has the same name'
-    );
-    self::assertNotEquals(
-      (new \ReflectionClass(testSubject::class))->getParentClass()->getConstant(shortName)
-      , testSubject::shortName
-      , 'It should define its own shortName'
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
+    self::assertNotEquals(getParent(testSubject::class)->getConstant(shortName), testSubject::shortName);
   }
 
   public function test_companion($value = 1)
@@ -33,31 +22,24 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
 
   public function test_merge_and_constructor($value = 1)
   {
-    self::assertTrue((new testSubject($value))->merge() === $value);
+    self::assertSame($value, (new testSubject($value))->merge());
   }
 
   public function test_applicative($value = 1)
   {
     $disjunction = testSubject::of($value);
+
     self::assertInstanceOf(testSubject::class, $disjunction);
-    self::assertTrue($disjunction->merge() === $value);
+    self::assertSame($value, $disjunction->merge());
   }
 
   public function test_traits()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
-    self::assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
-    self::assertTrue(
-      false !== array_search(P\LeftHandedTrait::class, $traits)
-      , 'should be left handed'
-    );
-    self::assertTrue(
-      false !== array_search(P\NothingCollectionTrait::class, $traits)
-      , 'should be nothing'
-    );
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\LeftHandedTrait::class, $traits);
+    self::assertContains(P\NothingCollectionTrait::class, $traits);
   }
 
   public function test_patience($value = 1)
@@ -69,6 +51,7 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
   public function test_handedness($value = 1)
   {
     $disjunction = testNew($value);
+
     self::assertInstanceOf(P\LeftHandSideType::class, $disjunction);
     self::assertTrue($disjunction->isLeft());
     self::assertFalse($disjunction->isRight());
@@ -77,23 +60,25 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
   public function test_flatten_handedly($value = 1)
   {
     $disjunction = testNew($value);
-    self::assertTrue($disjunction === $disjunction->flattenRight());
-
     $sibling = testSubject::ofRight($value);
-    self::assertTrue($disjunction === testNew($disjunction)->flattenLeft());
-    self::assertTrue($sibling === testNew($sibling)->flattenLeft());
+
+    self::assertSame($disjunction, $disjunction->flattenRight());
+    self::assertSame($disjunction, testNew($disjunction)->flattenLeft());
+    self::assertSame($sibling, testNew($sibling)->flattenLeft());
   }
 
   public function test_swap($value = 1)
   {
     $displaced = testNew($value)->swap();
+
     self::assertInstanceOf(P\Preferred::class, $displaced);
-    self::assertTrue($value === $displaced->merge());
+    self::assertSame($value, $displaced->merge());
   }
 
   public function test_count($value = 1)
   {
     $subject = testNew($value);
+
     self::assertEquals(0, $subject->count());
     self::assertEquals(0, count($subject));
   }
@@ -104,6 +89,7 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     foreach (testNew($value) as $meaningless) {
       $ran += 1;
     }
+
     self::assertEquals(0, $ran, 'should be considered empty');
   }
 
@@ -115,10 +101,11 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
   public function test_toUnbiasedDisjunction($value = 1)
   {
     $disjunction = testNew($value)->toUnbiasedDisjunctionInterface();
+
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $disjunction);
     self::assertInstanceOf(P\LeftHandSideType::class, $disjunction);
     self::assertTrue($disjunction->isLeft());
     self::assertFalse($disjunction->isRight());
-    self::assertTrue($value === $disjunction->merge());
+    self::assertSame($value, $disjunction->merge());
   }
 }
