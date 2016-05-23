@@ -33,7 +33,7 @@ namespace tests\PHPixme {
   const doNotRun = __NAMESPACE__ . '\doNotRun';
   function doNotRun()
   {
-    throw new \Exception('should not run.');
+    throw new \Exception('Callback should of not ran.');
   }
 
   const noop = __NAMESPACE__ . '\noop';
