@@ -31,6 +31,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   public function test_applicative($value = false)
   {
     $subject = testSubject::of($value);
+    
     self::assertInstanceOf(P\ApplicativeInterface::class, $subject);
     self::assertInstanceOf(testSubject::class, $subject);
     self::assertEquals(new testSubject($value), $subject);
@@ -39,6 +40,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   public function test_traits()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    
     self::assertContains(P\ClosedTrait::class, $traits);
     self::assertContains(P\ImmutableConstructorTrait::class, $traits);
     self::assertContains(P\RightHandedTrait::class, $traits);
@@ -66,7 +68,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
    */
   public function test_get($value)
   {
-    self::assertSame($value, (testNew($value)->get()));
+    self::assertSame($value, testNew($value)->get());
   }
 
   public function test_getOrElse($value = true, $default = false)
@@ -77,26 +79,29 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   public function test_orElse($value = true)
   {
     $subject = testNew($value);
-    $result = ($subject->orElse(function () use ($value) {
-      P\toss($value);
-    }));
-    self::assertSame($subject, $result);
+
+    self::assertSame($subject, $subject->orElse(doNotRun));
   }
 
   public function test_filter_callback($value = true)
   {
     $ran = 0;
-    $success = testNew($value);
-
-    $success->filter(function () use ($value, $success, &$ran) {
+    $subject = testNew($value);
+    $test = function () use ($value, $subject, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
+
       self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertSame($success, $t);
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return true;
-    });
+    };
+
+    // Apply and release any captured assertions
+    $subject->filter($test)->get();
+
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
@@ -111,21 +116,14 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
     self::assertInstanceOf(oppositeSubject::class, $failureThrown);
     self::assertSame($thrownValue, $failureThrown->merge());
-
   }
 
   public function test_filter_return($value = true)
   {
     $success = testNew($value);
-    $trueResult = $success->filter(function () {
-      return true;
-    });
-    $falseResult = $success->filter(function () {
-      return false;
-    });
 
-    self::assertSame($success, $trueResult);
-    self::assertInstanceOf(oppositeSubject::class, $falseResult);
+    self::assertSame($success, $success->filter(bTrue));
+    self::assertInstanceOf(oppositeSubject::class, $success->filter(bFalse));
   }
 
   function test_flatMap_callback($value = true)
@@ -133,18 +131,21 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     $ran = 0;
     $contents = testNew($value);
     $subject = testNew($contents);
-    $results = $subject->flatMap(function () use ($subject, $contents, &$ran) {
+    $test = function () use ($subject, $contents, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
 
       self::assertSame($contents, $v);
       self::assertEquals(0, $k);
       self::assertSame($subject, $t);
+
       $ran += 1;
       return $v;
-    });
+    };
 
-    self::assertSame($contents, $results, 'it should of not ate a assertion');
+    // Apply and release any captured assertions
+    $subject->flatMap($test)->get();
+
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
@@ -167,12 +168,9 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   {
     $lhsContents = testSubject::ofLeft(new \Exception());
     $rhsContents = testNew(1);
-    $flatten = function ($value) {
-      return $value;
-    };
 
-    self::assertSame($rhsContents, (testSubject::of($rhsContents)->flatMap($flatten)));
-    self::assertSame($lhsContents, (testSubject::of($lhsContents)->flatMap($flatten)));
+    self::assertSame($rhsContents, testSubject::of($rhsContents)->flatMap(identity));
+    self::assertSame($lhsContents, testSubject::of($lhsContents)->flatMap(identity));
   }
 
   function test_flatten_contract_broken()
@@ -209,9 +207,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   function test_failed($value = true)
   {
-    $result = testNew($value)->failed();
-
-    self::assertInstanceOf(oppositeSubject::class, $result);
+    self::assertInstanceOf(oppositeSubject::class, testNew($value)->failed());
   }
 
   public function getProvider()
@@ -233,6 +229,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->map(function () use ($subject, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
@@ -250,25 +247,26 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   function test_map_return($value = true)
   {
     $success = testNew($value);
-    $one = function () {
-      return 'one';
-    };
-    $result = $success->map($one);
+
+    $result = $success->map(identity);
 
     self::assertInstanceOf(testSubject::class, $result);
     self::assertNotSame($success, $result);
-    self::assertSame($one($value), ($result->get()));
+    self::assertEquals($success, $result);
+
   }
 
   public function test_recover($value = true)
   {
     $success = testNew($value);
+
     self::assertSame($success, $success->recover(doNotRun));
   }
 
   public function test_recoverWith($value = true)
   {
     $success = testNew($value);
+
     self::assertSame($success, $success->recoverWith(doNotRun));
   }
 
@@ -281,10 +279,11 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
 
-      self::assertTrue($startValue === $s);
-      self::assertTrue($value === $v);
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject,  $t);
+
       $ran += 1;
       return $s;
     }, $startValue);
@@ -310,10 +309,11 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       self::assertEquals(4, func_num_args());
       list($s, $v, $k, $t) = func_get_args();
 
-      self::assertTrue($startValue === $s);
-      self::assertTrue($value === $v);
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertTrue($subject === $t);
+      self::assertSame($subject,  $t);
+
       $ran += 1;
       return $s;
     }, $startValue);
@@ -350,21 +350,19 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   }
 
 
-  function test_forAll_return($value = 'once', $notValue = 'and for ALL!')
+  function test_forAll_return($value = 'once')
   {
     $success = testNew($value);
-    self::assertTrue($success->forAll(function ($x) use ($value) {
-      return $x === $value;
-    }));
-    self::assertFalse($success->forAll(function ($x) use ($notValue) {
-      return $x === $notValue;
-    }));
+
+    self::assertTrue($success->forAll(bTrue));
+    self::assertFalse($success->forAll(bFalse));
   }
 
   function test_forNone_callback($value = true)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->forNone(function () use ($subject, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
@@ -379,21 +377,19 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   }
 
 
-  function test_forNone_return($value = 'once', $notValue = 'and for ALL!')
+  function test_forNone_return($value = 'once')
   {
     $success = testNew($value);
-    self::assertFalse($success->forNone(function ($x) use ($value) {
-      return $x === $value;
-    }));
-    self::assertTrue($success->forNone(function ($x) use ($notValue) {
-      return $x === $notValue;
-    }));
+
+    self::assertFalse($success->forNone(bTrue));
+    self::assertTrue($success->forNone(bFalse));
   }
 
   function test_forSome_callback($value = true)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $subject->forSome(function () use ($subject, $value, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
@@ -408,15 +404,12 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   }
 
 
-  function test_forSome_return($value = 'once', $notValue = 'and for ALL!')
+  function test_forSome_return($value = 'once')
   {
     $success = testNew($value);
-    self::assertTrue($success->forSome(function ($x) use ($value) {
-      return $x === $value;
-    }));
-    self::assertFalse($success->forSome(function ($x) use ($notValue) {
-      return $x === $notValue;
-    }));
+
+    self::assertTrue($success->forSome(bTrue));
+    self::assertFalse($success->forSome(bFalse));
   }
 
   public function test_toArray($value = true)
@@ -463,18 +456,14 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   }
 
 
-  function test_find_return($value = 'once', $notValue = 'and for ALL!')
+  function test_find_return($value = 'once')
   {
     $subject = testNew($value);
-    $found = $subject->find(function ($v) use ($value) {
-      return $value === $v;
-    });
-    $missing = $subject->find(function ($v) use ($notValue) {
-      return $notValue === $v;
-    });
+    $found = $subject->find(bTrue);
+    $missing = $subject->find(bFalse);
 
     self::assertInstanceOf(P\Some::class, $found);
-    self::assertTrue($value === $found->get());
+    self::assertSame($value, $found->get());
     self::assertInstanceOf(P\None::class, $missing);
   }
 
@@ -488,11 +477,13 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
       self::assertSame($value, $v);
       self::assertSame($subject, $t);
+
       $ran += 1;
       return $subject;
     };
 
-    $subject->transform($test, doNotRun);
+    // Apply and release any captured assertions
+    $subject->transform($test, doNotRun)->get();
 
     self::assertSame(1, $ran, 'the callback should of ran');
   }

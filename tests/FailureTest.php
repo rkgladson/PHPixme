@@ -56,6 +56,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   public function test_is_status()
   {
     $subject = testNew(valueE());
+
     self::assertFalse($subject->isSuccess());
     self::assertTrue($subject->isFailure());
     self::assertTrue($subject->isEmpty());
@@ -90,15 +91,15 @@ class FailureTest extends \PHPUnit_Framework_TestCase
 
   public function test_orElse_return()
   {
-    $subject = testNew(valueE());
     $success = new oppositeSubject(null);
-    $failure = testNew(valueE());
     $toSuccess = function () use ($success) {
       return $success;
     };
+    $failure = testNew(valueE());
     $keepFailing = function () use ($failure) {
       return $failure;
     };
+    $subject = testNew(valueE());
 
     self::assertSame($success, $subject->orElse($toSuccess));
     self::assertSame($failure, $subject->orElse($keepFailing));
@@ -318,13 +319,16 @@ class FailureTest extends \PHPUnit_Framework_TestCase
 
       self::assertSame($value, $v);
       self::assertSame($subject, $t);
+
       $ran += 1;
-      return $subject;
+      // Convert to a success so we can catch assertions
+      return new oppositeSubject($subject);
     };
 
-    $subject->transform(doNotRun, $test);
+    // Apply and release any captured assertions
+    $subject->transform(doNotRun, $test)->get();
 
-    self::assertSame(1, $ran, 'the callback should of ran');
+    self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
   public function test_transform_contract_broken()
