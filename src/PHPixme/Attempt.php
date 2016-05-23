@@ -111,6 +111,15 @@ abstract class Attempt implements
 
 
   /**
+   * Convert a Success into a failure based on the result of the callback
+   * If the return is true or the container is Failure, it will return an identity
+   * If the callback throws or returns false, it will produce a new Failure with the exception.
+   * @param callable $hof ($value, $key, $container)-> boolean
+   * @return Attempt
+   */
+  abstract public function filter(callable $hof);
+  
+  /**
    * Returns an array with the value at the { @see static::shortName ::shortName } offset
    * @return array
    */
