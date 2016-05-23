@@ -2,60 +2,64 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use PHPixme\Right as testSubject;
 use function PHPixme\Right as testNew;
+use const PHPixme\Right as testConst;
+use PHPixme\Left as oppositeSubject;
 
 class RightTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constants()
   {
-    self::assertTrue(
-      P\Right::class === P\Right
-      , 'The constant for the class and the function should be equal'
-    );
-    self::assertTrue(
-      function_exists(P\Right)
-      , 'The companion function should exist'
-    );
-    self::assertInstanceOf(
-      P\Right::class
-      , P\Right(true)
-      , 'The static companion should return the Class of its namesake'
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
   }
 
-  public function test_closed_trait()
+  public function test_trait()
   {
-    $traits = getAllTraits(new \ReflectionClass(P\Right::class));
-    self::assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\RightHandedTrait::class, $traits);
   }
 
-  public function test_patience(){
+  public function test_patience()
+  {
     $this->expectException(P\exception\MutationException::class);
-    (new P\Right(0))->__construct(1);
+    (new testSubject(0))->__construct(1);
   }
 
-  public function test_static_of($value = true)
+  public function test_companion($value = 1)
   {
-    self::assertInstanceOf(P\Right::class, P\Right::of($value));
+    $results = testNew($value);
+
+    self::assertInstanceOf(testSubject::class, $results);
+    self::assertEquals(new testSubject($value), $results);
+  }
+
+  public function test_applicative($value = true)
+  {
+    $results = testSubject::of($value);
+
+    self::assertInstanceOf(testSubject::class, $results);
+    self::assertEquals(new testSubject($value), $results);
   }
 
   public function test_handedness($value = true)
   {
-    $right = P\Right($value);
-    self::assertTrue($right->isRight());
-    self::assertFalse($right->isLeft());
-    self::assertInstanceOf(P\Some::class, $right->right());
-    self::assertTrue($value === $right->right()->get());
-    self::assertInstanceOf(P\None::class, $right->left());
+    $subject = testNew($value);
+
+    self::assertTrue($subject->isRight());
+    self::assertFalse($subject->isLeft());
+    self::assertInstanceOf(P\Some::class, $subject->right());
+    self::assertSame($value, $subject->right()->get());
+    self::assertInstanceOf(P\None::class, $subject->left());
   }
 
   public function test_fold_callback($value = true)
   {
     $ran = 0;
     $subject = testNew($value);
+
     $test = function () use ($value, $subject, &$ran) {
       self::assertEquals(2, func_num_args());
       list ($v, $t) = func_get_args();
@@ -74,47 +78,44 @@ class RightTest extends \PHPUnit_Framework_TestCase
 
   public function test_fold_return($value = true)
   {
-    $right = P\Right($value);
-    self::assertEquals(
-      $value
-      , $right->fold(P\toss, P\I)
-      , 'a fold of the identity should return the value'
-    );
+    self::assertSame($value, testNew($value)->fold(doNotRun, identity));
   }
 
   public function test_swap($value = true)
   {
-    $left = P\Right($value)->swap();
-    self::assertInstanceOf(P\Left::class, $left);
-    self::assertTrue($value === $left->merge());
+    $result = testNew($value)->swap();
+
+    self::assertInstanceOf(oppositeSubject::class, $result);
+    self::assertSame($value, $result->merge());
   }
 
   public function test_flattenLeft($value = true)
   {
-    $right = P\Right($value);
-    self::assertTrue(
-      $right === $right->flattenLeft()
-      , 'When called on its opposite, it should return itself.'
-    );
+    $subject = testNew($value);
+    self::assertSame($subject, $subject->flattenLeft());
   }
 
   public function test_flattenRight($value = true)
   {
-    $left = P\Left($value);
-    $right = P\Right($value);
-    $rightLeft = P\Right($left);
-    $rightRight = P\Right($right);
-    self::assertTrue(
-      $left === $rightLeft->flattenRight()
-      , 'When containing a left, it should return that left'
-    );
-    self::assertTrue(
-      $right === $rightRight->flattenRight()
-      , 'When containing a right, it should return that right'
-    );
+    $left = oppositeSubject::of($value);
+    $right = testSubject::of($value);
+
+    self::assertSame($left, testNew($left)->flattenRight());
+    self::assertSame($right, testNew($right)->flattenRight());
   }
-  public function test_flattenRight_contract_violated () {
+
+  public function test_flattenRight_contract_violated()
+  {
     $this->expectException(\UnexpectedValueException::class);
-    P\Right(true)->flattenRight();
+    testNew(null)->flattenRight();
+  }
+
+  public function test_toBiasedDisJunctionInterface($value = true)
+  {
+    $result = testSubject::of($value)->toBiasedDisJunctionInterface();
+
+    self::assertInstanceOf(P\BiasedDisjunctionInterface::class, $result);
+    self::assertInstanceOf(P\RightHandSideType::class, $result);
+    self::assertSame($value, $result->merge());
   }
 }

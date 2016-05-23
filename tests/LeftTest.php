@@ -11,8 +11,8 @@ class LeftTest extends \PHPUnit_Framework_TestCase
 {
   public function test_constants()
   {
-    self::assertSame(testSubject::class, P\Left);
-    self::assertTrue(function_exists(P\Left));
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
   }
 
   public function test_companion($value = null)
@@ -22,7 +22,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new testSubject($value), $result);
   }
 
-  public function test_static_of($value = true)
+  public function test_applicative($value = true)
   {
     $result = testSubject::of($value);
     self::assertInstanceOf(testSubject::class, $result);
@@ -32,6 +32,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_attributes()
   {
     $reflection = new \ReflectionClass(testSubject::class);
+
     self::assertTrue($reflection->implementsInterface(P\LeftHandSideType::class));
   }
 
@@ -53,10 +54,11 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_handedness($value = true)
   {
     $Left = testNew($value);
+
     self::assertTrue($Left->isLeft());
     self::assertFalse($Left->isRight());
     self::assertInstanceOf(P\Some::class, $Left->left());
-    self::assertTrue($value === $Left->left()->get());
+    self::assertSame($value, $Left->left()->get());
     self::assertInstanceOf(P\None::class, $Left->right());
   }
 
@@ -95,6 +97,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_swap($value = true)
   {
     $result = testNew($value)->swap();
+
     self::assertInstanceOf(oppositeSubject::class, $result);
     self::assertSame($value, $result->merge());
   }
@@ -102,23 +105,31 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_flattenRight($value = true)
   {
     $subject = testNew($value);
+
     self::assertSame($subject, $subject->flattenRight());
   }
 
   public function test_flattenLeft($value = true)
   {
-    $left = testNew($value);
-    $right = P\Right($value);
-    $leftLeft = testNew($left);
-    $leftRight = testNew($right);
+    $left = testSubject::of($value);
+    $right = oppositeSubject::of($value);
 
-    self::assertSame($left, $leftLeft->flattenLeft());
-    self::assertSame($right, $leftRight->flattenLeft());
+
+    self::assertSame($left, testNew($left)->flattenLeft());
+    self::assertSame($right, testNew($right)->flattenLeft());
   }
 
   public function test_flattenLeft_contract_violated()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(true)->flattenLeft();
+  }
+
+  public function test_toBiasedDisJunctionInterface($value = true) {
+    $result = testSubject::of($value)->toBiasedDisJunctionInterface();
+
+    self::assertInstanceOf(P\BiasedDisjunctionInterface::class, $result);
+    self::assertInstanceOf(P\LeftHandSideType::class, $result);
+    self::assertSame($value, $result->merge());
   }
 }
