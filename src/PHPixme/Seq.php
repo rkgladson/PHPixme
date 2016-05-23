@@ -90,6 +90,7 @@ class Seq implements
 
   /**
    * @inheritdoc
+   * @return Seq
    */
   public static function of($head = null, ...$tail)
   {
