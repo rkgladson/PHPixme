@@ -29,12 +29,13 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    */
   public function test_applicative($value)
   {
-    $expected = is_array($value) ? array_values($value): iterator_to_array($value, false);
+    // PHP's 'unpack' operator cannot handle keys :(
+    $source = is_array($value) ? array_values($value): iterator_to_array($value, false);
 
-    $results = testSubject::of(...$value);
+    $results = testSubject::of(...$source);
 
     self::assertInstanceOf(testSubject::class, $results);
-    self::assertEquals((new testSubject($expected)), $results);
+    self::assertEquals((new testSubject($source)), $results);
   }
 
   /**
