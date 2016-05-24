@@ -24,17 +24,17 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(testSubject::class, $results);
     self::assertEquals(new testSubject($value), $results);
   }
-
   /**
    * @dataProvider seqSourceProvider
    */
   public function test_applicative($value)
   {
-    $source = is_array($value) ? array_values($value) : [$value];
-    $results = call_user_func_array([testSubject::class, 'of'], $source);
+    $expected = is_array($value) ? array_values($value): iterator_to_array($value, false);
+
+    $results = testSubject::of(...$value);
 
     self::assertInstanceOf(testSubject::class, $results);
-    self::assertEquals((new testSubject($source)), $results);
+    self::assertEquals((new testSubject($expected)), $results);
   }
 
   /**
