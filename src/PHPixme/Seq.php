@@ -53,22 +53,15 @@ class Seq implements
    */
   protected static function arrayLikeToArray($arrayLike)
   {
-    if (is_array($arrayLike)) {
-      return $arrayLike;
-    }
-    // Of course PHP doesn't have a standard way of returning a array object, so we have to check
-    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
-      return $arrayLike->toArray();
-    }
-    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
-      return $arrayLike->getArrayCopy();
-    }
-
-    $output = [];
-    foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
-      $output[$key] = $value;
-    }
-    return $output;
+    return is_array($arrayLike) 
+      ? $arrayLike
+      : (($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray)
+        ? $arrayLike->toArray()
+        : (($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator)
+          ? $arrayLike->getArrayCopy()
+          : iterator_to_array(__PRIVATE__::copyTransversable($arrayLike), true)
+        )
+      );
   }
 
   /**
