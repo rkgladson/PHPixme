@@ -24,7 +24,7 @@ interface CollectionInterface extends
   /**
    * Map across the container
    * @param callable $hof ($value, $key, $container): mixed
-   * @return static
+   * @return self
    * @sig (($value, $key, $container) -> x) -> static(x)
    */
   public function map(callable $hof);
@@ -48,7 +48,7 @@ interface CollectionInterface extends
 
   /**
    * @param callable $hof ($value, $key, $container):static
-   * @return static
+   * @return self
    * @throws \Exception - if the data type returned by callback wasn't its kind
    * @sig (($value, $key, $container) -> static ) -> static
    */

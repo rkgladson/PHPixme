@@ -106,8 +106,7 @@ class Seq implements
   {
     return static::keyDefined($offset, $this->hash) ? $this->hash[$offset] : null;
   }
-
-
+  
   /**
    * @inheritdoc
    */
@@ -160,7 +159,7 @@ class Seq implements
   {
     if (static::keyDefined($offset, $this->hash)) {
       $output = $this->hash;
-      $output[$offset] = call_user_func($fn, $this->hash[$offset]);
+      $output[$offset] = call_user_func($fn, $this->hash[$offset], $offset, $this);
       return new static($output);
     }
     return $this;
@@ -559,7 +558,7 @@ class Seq implements
 
   /**
    * Unzips the values from the keys and returns it as a Seq
-   * @return static
+   * @return self
    */
   public function values()
   {
@@ -568,7 +567,7 @@ class Seq implements
 
   /**
    * Unzips the keys from the values and returns it as a Seq
-   * @return static
+   * @return self
    */
   public function keys()
   {

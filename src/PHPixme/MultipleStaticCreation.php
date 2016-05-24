@@ -19,14 +19,14 @@ interface MultipleStaticCreation
    * Take a series of arguments, and represent each value into itself
    * @param $head
    * @param array ...$tail
-   * @return static
+   * @return self
    */
   public static function of($head, ...$tail);
 
   /**
    * Takes a transversable item and represent each value into itself
    * @param $transversable
-   * @return static
+   * @return self
    */
   public static function from($transversable);
 }

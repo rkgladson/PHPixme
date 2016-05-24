@@ -55,7 +55,7 @@ class VacuousOffsetException extends \OutOfBoundsException
   /**
    * Passes a single item value into a new instance of itself.
    * @param $offset
-   * @return static
+   * @return self
    */
   public static function of($offset)
   {

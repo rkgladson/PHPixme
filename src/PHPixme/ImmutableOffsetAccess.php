@@ -51,7 +51,7 @@ interface ImmutableOffsetAccess
    * When $offset is null, it will push the value to the end of the copied collection.
    * @param mixed $offset
    * @param mixed $value
-   * @return static
+   * @return self
    */
   public function offsetSet($offset, $value);
 
@@ -61,15 +61,15 @@ interface ImmutableOffsetAccess
    * Use this instead of trying to modify a return reference from offsetGet.
    * If the offset does not exist, it returns itself, not executing the function
    * @param mixed $offset
-   * @param callable $fn (mixed $value)-> mixed $z
-   * @return static
+   * @param callable $fn (mixed $value, mixed $key, self $container)-> mixed $z
+   * @return self
    */
   public function offsetApply($offset, callable $fn);
 
   /**
    * Unset the offset on a copy of the collection and returns the omitting collection.
    * @param mixed $offset
-   * @return static
+   * @return self
    */
   public function offsetUnset($offset);
 

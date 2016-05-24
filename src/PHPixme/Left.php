@@ -24,7 +24,7 @@ class Left extends Either implements LeftHandSideType
 
   /**
    * @inheritdoc
-   * @return static
+   * @return self
    */
   public static function of($value) {
     return new static($value);

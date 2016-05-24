@@ -13,7 +13,7 @@ trait AssertTypeTrait
   /**
    * Helper for return value checking.
    * @param mixed $unknown
-   * @return static
+   * @return self
    * @throws \UnexpectedValueException when it is not a kind of self
    */
   static public function assertType($unknown)

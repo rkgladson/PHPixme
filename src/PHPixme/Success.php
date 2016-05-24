@@ -87,7 +87,7 @@ class Success extends Attempt implements
   
   /**
    * @inheritdoc
-   * @return static
+   * @return self
    */
   public function flatten()
   {

@@ -70,7 +70,7 @@ abstract class Exclusive implements
   /**
    * @inheritdoc
    * @see Preferred::flatten
-   * @return static
+   * @return self
    */
   final public function flattenRight()
   {

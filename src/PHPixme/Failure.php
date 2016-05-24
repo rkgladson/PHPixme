@@ -120,7 +120,7 @@ class Failure extends Attempt implements
   /**
    * @inheritdoc
    * @param \Exception $value
-   * @return static
+   * @return self
    */
   static public function of($value)
   {

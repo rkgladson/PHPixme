@@ -171,7 +171,7 @@ abstract class Attempt implements
   /**
    * @inheritdoc
    * An alias for flatten
-   * @return static
+   * @return self
    */
   final public function flattenRight()
   {
