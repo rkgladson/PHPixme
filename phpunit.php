@@ -118,6 +118,7 @@ namespace tests\PHPixme {
     public function rewind()
     {
       reset($this->data);
+      $this->valid = !!count($this->data);
     }
 
     public function __construct(array $data)
