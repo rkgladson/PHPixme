@@ -1,5 +1,6 @@
 <?php
 namespace PHPixme;
+use PHPixme\exception\InvalidContentsException;
 
 /**
  * Class __PRIVATE__
@@ -78,7 +79,7 @@ class __PRIVATE__
    * @return CollectionInterface
    * @throws \UnexpectedValueException
    */
-  static function assertCollection($unknown)
+  static function assertReturnIsCollection($unknown)
   {
     if ($unknown instanceof CollectionInterface) {
       return $unknown;
@@ -116,6 +117,58 @@ class __PRIVATE__
       return $arrayLike;
     }
     throw new \InvalidArgumentException('argument must be a Traversable or array');
+  }
+
+  /**
+   * Checks the return of a callback to be of the expected type
+   * @param string $classPath
+   * @param mixed $returnValue
+   * @return mixed
+   * @throws \UnexpectedValueException
+   */
+  static function assertReturnIs($classPath, $returnValue)
+  {
+    if (is_subclass_of($returnValue, $classPath)) {
+      return $returnValue;
+    }
+    throw new \UnexpectedValueException(
+      __PRIVATE__::getDescriptor($returnValue) . ' is not a kind of ' . $classPath
+    );
+  }
+
+  /**
+   * A contract that specifies the content must be of a specific type.
+   * @param string $classPath
+   * @param mixed $contents
+   * @return mixed
+   * @throws InvalidContentsException
+   */
+  static function assertContentIsA($classPath, $contents)
+  {
+    if (is_subclass_of($contents, $classPath)) {
+      return $contents;
+    }
+    throw new InvalidContentsException(
+      $contents
+      , 'expected to contain' . $classPath . ' but got ' . __PRIVATE__::getDescriptor($contents)
+    );
+  }
+
+  /**
+   * A contract that specifies the contents must be a callable
+   * @param callable $contents
+   * @return callable
+   * @throws InvalidContentsException
+   */
+  static function assertContentIsCallable($contents)
+  {
+    if (is_callable($contents)) {
+      return $contents;
+    }
+    throw new InvalidContentsException(
+      $contents
+      , 'expected to contain callable, but got ' . __PRIVATE__::getDescriptor($contents)
+    );
   }
 
   /**
@@ -353,7 +406,7 @@ class __PRIVATE__
         // Technically \Closure is covered by \ReflectionMethod __invoke, however, doesn't cover all that Closure is
         ? new \ReflectionFunction($target)
         : new \ReflectionMethod($target, '__invoke')
-      // PHP you make me sad
+        // PHP you make me sad
       );
   }
 

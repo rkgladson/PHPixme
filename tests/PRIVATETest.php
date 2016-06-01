@@ -472,7 +472,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
       , 'serious problem if this is not true. Failing because of None!'
     );
     $this->assertTrue(
-      $collection === internal::assertCollection($collection)
+      $collection === internal::assertReturnIsCollection($collection)
       , 'it should return the collection identity if no error is thrown'
     );
   }
@@ -480,7 +480,7 @@ class PRIVATETest extends \PHPUnit_Framework_TestCase
   public function test_assertCollection_exception()
   {
     $this->expectException(\UnexpectedValueException::class);
-    internal::assertCollection(new \stdClass());
+    internal::assertReturnIsCollection(new \stdClass());
   }
 
   /**

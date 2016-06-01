@@ -252,7 +252,7 @@ class Seq implements
         'array_merge'
         , array_map(
           function ($value) {
-            return (is_array($value) ? $value : __PRIVATE__::assertCollection($value)->toArray());
+            return (is_array($value) ? $value : __PRIVATE__::assertReturnIsCollection($value)->toArray());
           }
           , $this->hash
         )
