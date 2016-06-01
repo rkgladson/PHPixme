@@ -7,6 +7,7 @@
  */
 
 namespace PHPixme;
+
 use PHPixme\exception\VacuousOffsetException;
 
 /**
@@ -53,23 +54,26 @@ class Seq implements
    */
   protected static function arrayLikeToArray($arrayLike)
   {
-    return is_array($arrayLike) 
-      ? $arrayLike
-      : (($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray)
-        ? $arrayLike->toArray()
-        : (($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator)
-          ? $arrayLike->getArrayCopy()
-          : iterator_to_array(__PRIVATE__::copyTransversable($arrayLike), true)
-        )
-      );
+    if (is_array($arrayLike)) {
+      return $arrayLike;
+    }
+    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
+      return $arrayLike->toArray();
+    }
+    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
+      return ($arrayLike->getArrayCopy());
+    }
+    return iterator_to_array(__PRIVATE__::copyTransversable($arrayLike), true);
   }
+
 
   /**
    * @param string|int $key
    * @param array $hash
    * @return bool
    */
-  protected static function keyDefined($key, array &$hash) {
+  protected static function keyDefined($key, array &$hash)
+  {
     return isset($hash[$key]) || array_key_exists($key, $hash);
   }
 
@@ -99,7 +103,7 @@ class Seq implements
   {
     return static::keyDefined($offset, $this->hash) ? $this->hash[$offset] : null;
   }
-  
+
   /**
    * @inheritdoc
    */
@@ -401,7 +405,8 @@ class Seq implements
   /**
    * @inheritdoc
    */
-  public function headMaybe() {
+  public function headMaybe()
+  {
     return $this->isEmpty() ? None() : Some($this->hash[$this->keyR[0]]);
   }
 
@@ -561,7 +566,7 @@ class Seq implements
   {
     return static::from($this->keyR);
   }
-  
+
   /**
    * @inheritdoc
    */
