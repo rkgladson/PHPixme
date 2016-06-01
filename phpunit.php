@@ -93,7 +93,6 @@ namespace tests\PHPixme {
   class JustAIterator implements \Iterator
   {
     private $data = [];
-    private $valid = true;
 
     public function current()
     {
@@ -102,7 +101,7 @@ namespace tests\PHPixme {
 
     public function next()
     {
-      $this->valid = false !== each($this->data);
+      next($this->data);
     }
 
     public function key()
@@ -112,13 +111,12 @@ namespace tests\PHPixme {
 
     public function valid()
     {
-      return $this->valid;
+      return null === key($this->data);
     }
 
     public function rewind()
     {
       reset($this->data);
-      $this->valid = !!count($this->data);
     }
 
     public function __construct(array $data)
