@@ -8,6 +8,12 @@ namespace PHPixme;
  */
 abstract class Either implements
   UnaryApplicativeInterface
+  , UnbiasedDisjunctionInterface
+  , UnaryApplicativeLeftDisjunctionInterface
+  , FlattenLeftInterface
+  , UnaryApplicativeRightDisjunctionInterface
+  , FlattenRightInterface
+  , SwappableDisjunctionInterface
 {
   use AssertTypeTrait, ClosedTrait;
   // Note: Either should not implement ::of on its own, and should leave it to its children
@@ -18,13 +24,14 @@ abstract class Either implements
    */
   abstract public function merge();
 
+
   /**
    * @inheritdoc
    */
   abstract public function fold(callable $leftFn, callable $rightFn);
 
   /**
-   * Converts a Left to a Right, or a Right to a left
+   * @inheritdoc
    * @return Either
    */
   abstract public function swap();
@@ -34,7 +41,7 @@ abstract class Either implements
    * Returns Some if Either is subclass Left, none if subclass Right
    * @return Maybe
    */
-   abstract public function left();
+  abstract public function left();
 
   /**
    * Projects the Either into a Maybe
@@ -42,28 +49,46 @@ abstract class Either implements
    * @return Maybe
    */
   abstract public function right();
-  
+
   /**
-   * Returns True if the type is a Left
-   * @return boolean
+   * @inheritdoc
+   * @return Left
    */
-  abstract public function isLeft();
+  public static function ofLeft($value)
+  {
+    return Left::of($value);
+  }
 
   /**
    * Flatten the contents if the class is Left
    * @return Either
    */
   abstract public function flattenLeft();
-  
+
+
   /**
-   * Returns true if the type is a Right
-   * @return boolean
+   * @inheritdoc
+   * @return Right
    */
-  abstract public function isRight();
+  public static function ofRight($value)
+  {
+    return Right::of($value);
+  }
 
   /**
    * Flattens the contents if the Class is right.
    * @return Either
    */
   abstract public function flattenRight();
+
+  /**
+   * converts the contained track to a Exclusive left or right
+   * @return Exclusive
+   */
+  public function toBiasedDisJunctionInterface()
+  {
+    return $this->isLeft()
+      ? Exclusive::ofLeft($this->merge())
+      : Exclusive::ofRight($this->merge());
+  }
 }

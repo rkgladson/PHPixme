@@ -30,35 +30,35 @@ interface ListInterface
 
   /**
    * Returns a collection of itself containing all elements that are not its head
-   * @return static
+   * @return self
    */
   public function tail();
 
   /**
    * Returns a new ListInterface with the given remaining number elements dropped from the front of the ListInterface
    * @param int $number
-   * @return static
+   * @return self
    */
   public function drop($number);
 
   /**
    * Returns a new ListInterface with the given remaining number of elements dropped from the back of the ListInterface
    * @param int $number
-   * @return static
+   * @return self
    */
   public function dropRight($number);
 
   /**
    * Returns a new ListInterface with only the remaining given number of elements from the front of the ListInterface.
    * @param int $number
-   * @return static
+   * @return self
    */
   public function take($number);
 
   /**
    * Returns a new ListInterface with only the remaining number of elements from the back of the ListInterface
    * @param int $number
-   * @return static
+   * @return self
    */
   public function takeRight($number);
   

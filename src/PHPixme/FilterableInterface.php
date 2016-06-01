@@ -18,14 +18,14 @@ interface FilterableInterface
   /**
    * Filters the contents if the application of $hof returns false
    * @param callable $hof ($value, $key, $container): boolean
-   * @return static
+   * @return self
    */
   public function filter(callable $hof);
 
   /**
    * Filters the contents if the application of $hof returns true
    * @param callable $hof ($value, $key, $container): boolean
-   * @return static
+   * @return self
    */
   public function filterNot(callable $hof);
 

@@ -28,7 +28,7 @@ function Success($value)
 
 const Failure = __NAMESPACE__.'\Failure';
 /**
- * @param $exception - The failure value
+ * @param \Exception $exception - The failure value
  * @return Failure
  */
 function Failure ($exception) {

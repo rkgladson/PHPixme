@@ -14,9 +14,12 @@ namespace PHPixme;
  * Contains the results of a successful Attempt block, allowing for successful
  * behaviors prior to the block to be executed.
  */
-class Success extends Attempt
+class Success extends Attempt implements
+  RightHandSideType
+
 {
-  use ImmutableConstructorTrait;
+  use RightHandedTrait
+    , ImmutableConstructorTrait;
   private $value = null;
   const shortName = 'success';
 
@@ -50,6 +53,14 @@ class Success extends Attempt
   /**
    * @inheritdoc
    */
+  public function merge()
+  {
+    return $this->value;
+  }
+
+  /**
+   * @inheritdoc
+   */
   public function filter(callable $hof)
   {
     try {
@@ -67,7 +78,7 @@ class Success extends Attempt
   public function flatMap(callable $hof)
   {
     try {
-      $result = $hof($this->value);
+      $result = $hof($this->value, 0 , $this);
     } catch (\Exception $e) {
       return Failure($e);
     }
@@ -76,7 +87,7 @@ class Success extends Attempt
   
   /**
    * @inheritdoc
-   * @return static
+   * @return self
    */
   public function flatten()
   {

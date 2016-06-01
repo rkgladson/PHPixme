@@ -27,6 +27,20 @@ namespace tests\PHPixme {
   use PHPixme\AssertTypeTrait;
   use PHPixme\ClosedTrait;
   const Closure = \Closure::class;
+  // To reduce the amount of pain caused by using reflection if there is a refactor.
+  const shortName = 'shortName';
+
+  const doNotRun = __NAMESPACE__ . '\doNotRun';
+  function doNotRun()
+  {
+    throw new \Exception('Callback should of not ran.');
+  }
+
+  const noop = __NAMESPACE__ . '\noop';
+  function noop()
+  {
+    // This space is intentionally left blank
+  }
 
   function getArgs()
   {
@@ -79,7 +93,6 @@ namespace tests\PHPixme {
   class JustAIterator implements \Iterator
   {
     private $data = [];
-    private $valid = true;
 
     public function current()
     {
@@ -88,7 +101,7 @@ namespace tests\PHPixme {
 
     public function next()
     {
-      $this->valid = false !== each($this->data);
+      next($this->data);
     }
 
     public function key()
@@ -98,7 +111,7 @@ namespace tests\PHPixme {
 
     public function valid()
     {
-      return $this->valid;
+      return null === key($this->data);
     }
 
     public function rewind()
@@ -112,8 +125,38 @@ namespace tests\PHPixme {
     }
   }
 
+
+  const bFalse = __NAMESPACE__ . '\bFalse';
+  function bFalse()
+  {
+    return false;
+  }
+  const bTrue = __NAMESPACE__ .  '\bTrue';
+  function bTrue() {
+    return true;
+  }
+  
+  const identity = __NAMESPACE__ . '\identity';
+  function identity ($x) {
+    return $x;
+  }
+  
+  /**
+   * @param \ReflectionClass $reflection
+   * @return array
+   */
   function getAllTraits(\ReflectionClass $reflection)
   {
     return array_merge($reflection->getTraitNames(), $reflection->getParentClass() !== false ? getAllTraits($reflection->getParentClass()) : []);
   }
+
+  /**
+   * @param string $class
+   * @return \ReflectionClass
+   */
+  function getParent($class)
+  {
+    return (new \ReflectionClass($class))->getParentClass();
+  }
+
 }

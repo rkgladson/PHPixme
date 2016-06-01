@@ -53,22 +53,15 @@ class Seq implements
    */
   protected static function arrayLikeToArray($arrayLike)
   {
-    if (is_array($arrayLike)) {
-      return $arrayLike;
-    }
-    // Of course PHP doesn't have a standard way of returning a array object, so we have to check
-    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
-      return $arrayLike->toArray();
-    }
-    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
-      return $arrayLike->getArrayCopy();
-    }
-
-    $output = [];
-    foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
-      $output[$key] = $value;
-    }
-    return $output;
+    return is_array($arrayLike) 
+      ? $arrayLike
+      : (($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray)
+        ? $arrayLike->toArray()
+        : (($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator)
+          ? $arrayLike->getArrayCopy()
+          : iterator_to_array(__PRIVATE__::copyTransversable($arrayLike), true)
+        )
+      );
   }
 
   /**
@@ -90,6 +83,7 @@ class Seq implements
 
   /**
    * @inheritdoc
+   * @return Seq
    */
   public static function of($head = null, ...$tail)
   {
@@ -105,8 +99,7 @@ class Seq implements
   {
     return static::keyDefined($offset, $this->hash) ? $this->hash[$offset] : null;
   }
-
-
+  
   /**
    * @inheritdoc
    */
@@ -159,7 +152,7 @@ class Seq implements
   {
     if (static::keyDefined($offset, $this->hash)) {
       $output = $this->hash;
-      $output[$offset] = call_user_func($fn, $this->hash[$offset]);
+      $output[$offset] = call_user_func($fn, $this->hash[$offset], $offset, $this);
       return new static($output);
     }
     return $this;
@@ -425,12 +418,7 @@ class Seq implements
    */
   public function tail()
   {
-    if ($this->length > 1) {
-      $tail = $this->hash;
-      array_shift($tail);
-      return $this::from($tail);
-    }
-    return $this::from([]);
+    return $this::from(array_slice($this->hash, 1, null, true));
   }
 
   /**
@@ -558,7 +546,7 @@ class Seq implements
 
   /**
    * Unzips the values from the keys and returns it as a Seq
-   * @return static
+   * @return self
    */
   public function values()
   {
@@ -567,7 +555,7 @@ class Seq implements
 
   /**
    * Unzips the keys from the values and returns it as a Seq
-   * @return static
+   * @return self
    */
   public function keys()
   {
@@ -620,14 +608,13 @@ class Seq implements
   }
 
   /**
-   * Take the order of the Seq, and return the reverse order
+   * Take the order of the Seq, and return the reverse order and preserves keys to data.
    * @return Seq
    */
   public function reverse()
   {
     return $this::from(array_reverse($this->hash, true));
   }
-
 
   /**
    * Returns a clone that represents the hash as an ArrayIterator

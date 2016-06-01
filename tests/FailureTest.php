@@ -1,531 +1,396 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/7/2016
- * Time: 4:03 PM
- */
-
 namespace tests\PHPixme;
 
 use PHPixme as P;
-
+use PHPixme\Failure as testSubject;
+use function PHPixme\Failure as testNew;
+use const PHPixme\Failure as testConst;
+use PHPixme\Success as oppositeSubject;
 
 class FailureTest extends \PHPUnit_Framework_TestCase
 {
-  public function test_Failure_constants()
+  public function test_constants()
   {
-    $this->assertTrue(
-      P\Failure::class === P\Failure
-      , 'The constant for the Class and Function should be equal to the Class Path'
-    );
-    $this->assertTrue(
-      function_exists(P\Failure::class)
-      , 'The companion function exists for the class.'
+    self::assertSame(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
+    self::assertNotEquals(
+      getParent(testSubject::class)->getConstant(shortName)
+      , testSubject::shortName
+      , 'It should define its own'
     );
   }
 
-  public function test_Failure_companion()
+  public function test_companion()
   {
-    $this->assertInstanceOf(
-      P\Failure::class
-      , P\Failure(new \Exception('Test Exception'))
-      , 'It should return failure instances'
-    );
+    $contents = valueE();
+
+    $subject = testNew($contents);
+
+    self::assertInstanceOf(P\Failure::class, $subject);
+    self::assertEquals(new testSubject($contents), $subject);
   }
 
-  public function test_static_creation () {
+  public function test_applicative()
+  {
     $ofMade = P\Failure::of(new \Exception());
-    $this->assertInstanceOf(P\ApplicativeInterface::class, $ofMade);
-    $this->assertInstanceOf(P\Failure::class, $ofMade);
+    self::assertInstanceOf(P\ApplicativeInterface::class, $ofMade);
+    self::assertInstanceOf(P\Failure::class, $ofMade);
   }
 
-  public function test_closed_trait()
+  public function test_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(P\Failure::class));
-    $this->assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\LeftHandedTrait::class, $traits);
+    self::assertContains(P\NothingCollectionTrait::class, $traits);
   }
 
-  public function test_patience(){
+  public function test_patience()
+  {
     $this->expectException(P\exception\MutationException::class);
-    $exception = new \Exception();
-    (new P\Failure($exception))->__construct($exception);
+    (new testSubject(valueE()))->__construct(valueE());
   }
 
   public function test_is_status()
   {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertTrue(
-      $failure->isFailure()
-      , 'Failure->isFailure should be true'
-    );
-    $this->assertFalse(
-      $failure->isSuccess()
-      , 'Failure->isSuccess should be false'
-    );
-    $this->assertTrue(
-      $failure->isEmpty()
-      , 'Failure->isEmpty should be true'
-    );
+    $subject = testNew(valueE());
+
+    self::assertFalse($subject->isSuccess());
+    self::assertTrue($subject->isFailure());
+    self::assertTrue($subject->isEmpty());
+    self::assertTrue($subject->isLeft());
+    self::assertFalse($subject->isRight());
   }
 
-  /**
-   * @expectedException \Exception
-   * @expectedExceptionMessage Test Message
-   */
   public function test_failure_get()
   {
-    P\Failure(new \Exception('Test Message'))->get();
+    $exception = valueE();
+    $subject = testNew($exception);
+    try {
+      $subject->get();
+    } catch (\Exception $e) {
+      self::assertSame($exception, $e);
+    }
   }
 
   public function test_getOrElse($default = 10)
   {
-    $this->assertTrue(
-      $default === (P\Failure(new \Exception('Test'))->getOrElse($default))
-      , 'Failure->getOrElse should return the default value'
-    );
+    $subject = testNew(valueE());
+
+    self::assertSame($default, $subject->getOrElse($default));
   }
 
 
-  public function test_orElse_scenario_substitute_success($value = '$yay')
-  {
-    $failure = P\Failure(new \Exception('Test'));
-    $default = P\Success($value);
-    $getDefault = function () use ($default) {
-      return $default;
-    };
-    $this->assertTrue(
-      $default === ($failure->orElse($getDefault))
-      , 'Failure->orElse should select the default, even if it returns a Success'
-    );
-  }
-
-  public function test_orElse_scenario_substitute_failure()
-  {
-    $default = P\Failure(new \Exception('Test2'));
-    $failure = P\Failure(new \Exception('Test1'));
-    $getDefault = function () use ($default) {
-      return $default;
-    };
-    $this->assertTrue(
-      $default === ($failure->orElse($getDefault))
-      , 'Failure->orElse should be the default, even if it returns a Failure'
-    );
-  }
-
-  public function test_orElse_scenario_recover_thrown_exception()
-  {
-    $exception = new \Exception('test');
-    $initialFailure = P\Failure(new \Exception('^_^'));
-    $thrownFailure = $initialFailure->orElse(function () use ($exception) {
-      throw $exception;
-    });
-    $this->assertInstanceOf(
-      P\Failure
-      , $thrownFailure
-      , 'Failure->orElse should return an error on thrown'
-    );
-    $this->assertTrue(
-      $initialFailure !== $thrownFailure
-      , 'Failure->orElse on thrown should not be an identity'
-    );
-    $this->assertTrue(
-      $thrownFailure->failed()->get() === $exception
-      , 'Failure->orElse returned failure should contain the Exception thrown'
-    );
-  }
-
-  /**
-   * Assure the contract of Failure->orElse is maintained
-   * @expectedException \UnexpectedValueException
-   */
   public function test_orElse_contract_broken()
   {
-    P\Failure(new \Exception('test'))->orElse(function () {
-    });
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(valueE())->orElse(noop);
+  }
+
+  public function test_orElse_return()
+  {
+    $success = new oppositeSubject(null);
+    $toSuccess = function () use ($success) {
+      return $success;
+    };
+    $failure = testNew(valueE());
+    $keepFailing = function () use ($failure) {
+      return $failure;
+    };
+    $subject = testNew(valueE());
+
+    self::assertSame($success, $subject->orElse($toSuccess));
+    self::assertSame($failure, $subject->orElse($keepFailing));
+  }
+
+  public function test_orElse_throw()
+  {
+    $exception = valueE();
+    $subject = testNew(valueE());
+    $throw = function () use ($exception) {
+      throw $exception;
+    };
+
+    $results = $subject->orElse($throw);
+
+    self::assertInstanceOf(testSubject::class, $results);
+    self::assertSame($exception, $results->merge());
   }
 
   public function test_filter()
   {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertTrue(
-      $failure === ($failure->filter(function () {
-        return true;
-      }))
-      , 'Failure->filter is an identity'
-    );
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->filter(doNotRun));
   }
 
   public function test_flatMap()
   {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertTrue(
-      $failure === ($failure->flatMap(function () {
-        return P\Success(true);
-      }))
-      , 'Failure->flatMap is an identity'
-    );
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->flatMap(doNotRun));
   }
 
   public function test_flatten()
   {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertTrue(
-      $failure === ($failure->flatten())
-      , 'Failure->flatten is an identity'
-    );
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->flatten());
+  }
+
+  public function test_flattenRight()
+  {
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->flattenRight());
   }
 
   public function test_failed()
   {
-    $origErr = new \Exception('test');
-    $failure = P\Failure($origErr);
-    $success = $failure->failed();
-    $this->assertInstanceOf(
-      P\Success
-      , $success
-      , 'Failure->failed should result in a Success'
-    );
-    $this->assertTrue(
-      $origErr === ($success->get())
-      , 'Failure->failed resultant Success  should contain the original error'
-    );
+    $value = valueE();
+    $failure = testNew($value);
+
+    $result = $failure->failed();
+
+    self::assertInstanceOf(oppositeSubject::class, $result);
+    self::assertSame($value, $result->merge());
   }
 
   public function test_map()
   {
-    $failure = P\Failure(new \Exception());
-    $this->assertTrue(
-      $failure === ($failure->map(function () {
-        return 1;
-      }))
-      , 'Failure->map is an identity'
-    );
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->map(doNotRun));
   }
 
   public function test_fold($value = true)
   {
-    $this->assertEquals(
-      $value
-      , P\Failure(new \Exception('test'))
-      ->fold(
-        function () {
-          throw new \Exception('Should never run.');
-        }
-        , $value
-      )
-    );
+    self::assertSame($value, testNew(valueE())->fold(doNotRun, $value));
   }
+
   public function test_foldRight($value = true)
   {
-    $this->assertEquals(
-      $value
-      , P\Failure(new \Exception('test'))
-      ->foldRight(
-        function () {
-          throw new \Exception('Should never run.');
-        }
-        , $value
-      )
-    );
+    self::assertSame($value, testNew(valueE())->foldRight(doNotRun, $value));
   }
 
   public function test_recover_callback()
   {
-    $exc = new \Exception('test');
-    $failure = P\Failure($exc);
-    $failure->recover(function () use ($exc, $failure) {
-      $this->assertTrue(
-        2 === func_num_args()
-        , 'Failure->recover callback should be passed two arguments'
-      );
-      $this->assertTrue(
-        $exc === func_get_arg(0)
-        , 'Failure->recover callback $value be its contents'
-      );
-      $this->assertTrue(
-        $failure === func_get_arg(1)
-        , 'Failure->recover callback $container should be itself'
-      );
-      return $exc;
+    $value = valueE();
+    $ran = 0;
+    $subject = testNew($value);
+
+    $subject->recover(function () use ($value, $subject, &$ran) {
+      self::assertEquals(2, func_num_args());
+      list($v, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $value;
     });
+    self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
-  /**
-   * @depends test_failed
-   */
-  public function test_recover_success()
+  public function test_recover_throw()
   {
-    $failure = P\Failure(new \Exception('test'));
-
-    $results = $failure->recover(function () {
-      return true;
-    });
-    $this->assertInstanceOf(
-      P\Success
-      , $results
-      , 'Failure->recover callback who returns should be a success'
-    );
-    $this->assertTrue(
-      $results->get()
-      , 'Failure->recover results should contain the value that was returned by the callback'
-    );
-  }
-
-  /**
-   * @depends test_failed
-   */
-  public function test_recover_failure()
-  {
-    $failure = P\Failure(new \Exception('^_^'));
-    $excTest = new \Exception('Test');
-    $throwTest = function () use ($excTest) {
-      throw $excTest;
+    $exception = valueE();
+    $throwTest = function () use ($exception) {
+      throw $exception;
     };
-    $results = $failure->recover($throwTest);
-    $this->assertInstanceOf(
-      P\Failure
-      , $results
-      , 'Failure->recover should result in a failure if the callback throws'
-    );
-    $this->assertTrue(
-      $excTest === ($results->failed()->get())
-      , 'Failure->recover returned failure should contain the exception thrown'
-    );
+    $subject = testSubject::of(valueE());
+
+    $results = $subject->recover($throwTest);
+
+    $this->assertInstanceOf(testSubject::class, $results);
+    $this->assertSame($exception, $results->merge());
   }
 
 
-  public function test_recoverWith_contract()
+  public function test_recover_return()
   {
+    $recoveryValue = new \stdClass();
+    $recoverFn = function () use ($recoveryValue) {
+      return $recoveryValue;
+    };
+    $subject = testNew(valueE());
 
-    $exc = new \Exception('test');
-    $failure = P\Failure($exc);
-    $failure->recover(function () use ($exc, $failure) {
-      $this->assertTrue(
-        2 === func_num_args()
-        , 'Failure->recoverWith callback should be passed two arguments'
-      );
-      $this->assertTrue(
-        $exc === func_get_arg(0)
-        , 'Failure->recoverWith callback $value be its contents'
-      );
-      $this->assertTrue(
-        $failure === func_get_arg(1)
-        , 'Failure->recoverWith callback $container should be itself'
-      );
-      return $failure;
-    });
+    $results = $subject->recover($recoverFn);
+
+    self::assertInstanceOf(oppositeSubject::class, $results);
+    self::assertSame($recoveryValue, $results->merge());
   }
 
-  /**
-   * Ensure the contract is maintained that if the type is broken, it throws an exception
-   * @expectedException \UnexpectedValueException
-   */
+
+  public function test_recoverWith_callback()
+  {
+    $value = valueE();
+    $ran = 0;
+    $subject = testNew($value);
+    $subject->recover(function () use ($value, $subject, &$ran) {
+      self::assertEquals(2, func_num_args());
+      list ($v, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $subject;
+    });
+    self::assertEquals(1, $ran);
+  }
+
   public function test_recoverWith_contract_broken()
   {
-    P\Failure(new \Exception('test'))
-      ->recoverWith(function () {
-        return '^_^';
-      });
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(valueE())->recoverWith(noop);
   }
 
-  public function test_recoverWith_success($value = true)
+  public function test_recoverWith_throw()
   {
-    $success = P\Success($value);
-    $determination = function () use ($success) {
+    $exception = valueE();
+    $throw = function () use ($exception) {
+      throw $exception;
+    };
+    $subject = testSubject::of(valueE());
+
+    self::assertEquals(testSubject::of($exception), $subject->recoverWith($throw));
+  }
+
+  public function test_recoverWith_return()
+  {
+    $subject = testNew(valueE());
+    $success = oppositeSubject::of(null);
+    $failure = testSubject::of(valueE());
+    $swapWithSuccess = function () use ($success) {
       return $success;
     };
-    $results = P\Failure(new \Exception('Test'))->recoverWith($determination);
-    $this->assertTrue(
-      $results === $success
-      , 'Failure->recoverWith should be able to recoverWith a Success value'
-    );
-  }
-
-  public function test_recoverWith_failure()
-  {
-    $failure = new \Exception('^_^');
-    $failRecover = function () use ($failure) {
-      throw $failure;
+    $swapWithFailure = function () use ($failure) {
+      return $failure;
     };
 
-    $results = P\Failure(new \Exception('Test'))->recoverWith($failRecover);
-    $this->assertInstanceOf(
-      P\Failure
-      , $results
-      , 'On a thrown value, the resultant will always return a failure type'
-    );
-    $this->assertTrue(
-      $results->failed()->get() === $failure
-      , 'Failure->recoverWith should pass the excpetion thrown within it to a Failure'
-    );
+    self::assertSame($success, $subject->recoverWith($swapWithSuccess));
+    self::assertSame($failure, $subject->recoverWith($swapWithFailure));
   }
 
 
   public function test_toArray()
   {
-    $err = new \Exception('test');
-    $result = P\Failure($err)->toArray();
-    $this->assertTrue(
-      is_array($result)
-      , 'Failure->toArray should result in array'
-    );
-    $this->assertTrue(
-      $err === $result[P\Failure::shortName]
-      , 'Failure->toArray should return contain "failure"=>Exception'
-    );
-    $this->assertNotTrue(
-      array_key_exists(P\Success::shortName, $result)
-      , 'Failure->toArray should not contain a "success" key'
-    );
+    $value = valueE();
+    self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
+  }
+
+  public function test_toUnbiasedDisjunctionInterface () {
+    $value = valueE();
+    $subject = testNew($value);
+
+    $result = $subject->toUnbiasedDisjunctionInterface();
+
+    self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
+    self::assertInstanceOf(P\LeftHandSideType::class, $result);
+    self::assertEquals($subject->isLeft(), $result->isLeft());
+    self::assertEquals($subject->isRight(), $result->isRight());
+    self::assertSame($value, $result->merge());
   }
 
   public function test_toMaybe()
   {
-    $this->assertInstanceOf(
-      P\None
-      , P\Failure(new \Exception('test'))->toMaybe()
-      , 'Failure->toMaybe should result in None'
-    );
+    self::assertInstanceOf(P\None::class, testNew(valueE())->toMaybe());
   }
 
   public function test_find()
   {
-    $this->assertInstanceOf(
-      P\None::class
-      , P\Failure(new \Exception('test'))->find(function () {
-      throw new \Exception('should never run');
-    })
-      , 'Failure->find should return the instance of None'
-    );
+    self::assertInstanceOf(P\None::class, testNew(valueE())->find(doNotRun));
   }
 
   public function test_for_all_none_some()
   {
-    $doNotRun = function () {
-      throw new \Exception('should never run');
+    $failure = testNew(valueE());
+    self::assertTrue($failure->forAll(doNotRun));
+    self::assertTrue($failure->forNone(doNotRun));
+    self::assertFalse($failure->forSome(doNotRun));
+  }
+
+  public function test_transform_callback()
+  {
+    $value = valueE();
+    $ran = 0;
+    $subject = testNew($value);
+    $test = function () use ($value, $subject, &$ran) {
+      self::assertEquals(2, func_num_args());
+      list($v, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      // Convert to a success so we can catch assertions
+      return new oppositeSubject($subject);
     };
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertTrue(
-      $failure->forAll($doNotRun)
-      , '->forAll should return true on empty'
-    );
-    $this->assertTrue(
-      $failure->forNone($doNotRun)
-      , '->forNone should return true on empty'
-    );
-    $this->assertFalse(
-      $failure->forSome($doNotRun)
-      , '->forSome should return false on empty'
-    );
+
+    // Apply and release any captured assertions
+    $subject->transform(doNotRun, $test)->get();
+
+    self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
-  public function test_transform_callback($value = 'test')
-  {
-    $exc = new \Exception($value);
-    $fail = P\Failure($exc);
-    P\Failure(new \Exception($value))->transform(function () {
-      throw new \Exception('This should not be run!');
-    }, function () use ($exc, $fail) {
-      $this->assertTrue(
-        2 === func_num_args()
-        , 'Failure->transform  callback receive two arguments'
-      );
-      $this->assertTrue(
-        $exc === func_get_arg(0)
-        , 'Failure->transform callback $value should be its contents'
-      );
-      $this->assertTrue(
-        $fail === func_get_arg(1)
-        , 'Failure->transform callback $container should be itself'
-      );
-      return $fail;
-    });
-  }
-
-  /**
-   * @param string $value
-   */
-  public function test_transform_scenario_to_success($value = 'test')
-  {
-    $fail = P\Failure(new \Exception($value));
-    $this->assertTrue(
-      $value === ($fail->transform(
-        function () {
-        },
-        function (\Exception $value) {
-          return P\Success($value->getMessage());
-        }
-      )->get())
-      , 'Failure->transform through the failure callback can become a Success'
-    );
-  }
-
-  public function test_transform_scenario_to_failure()
-  {
-    $fail = P\Failure(new \Exception('Test'));
-    $secondFailure = P\Failure(new \Exception('Test'));
-    $this->assertTrue(
-      $secondFailure === ($fail->transform(
-        function () {
-        },
-        function () use ($secondFailure) {
-          return $secondFailure;
-        }
-      ))
-      , 'Failure->transform through the failure callback can remain a Failure'
-    );
-  }
-
-  /**
-   * @expectedException \UnexpectedValueException
-   */
   public function test_transform_contract_broken()
   {
-    $bad = function () {
-    };
-    P\Failure(new \Exception())->transform($bad, $bad);
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(valueE())->transform(noop, noop);
   }
+
+  public function test_transform_return()
+  {
+    $subject = testNew(valueE());
+    $success = oppositeSubject::of(null);
+    $failure = testNew(valueE());
+    $switchToSuccess = function () use ($success) {
+      return $success;
+    };
+    $switchToFailure = function () use ($failure) {
+      return $failure;
+    };
+
+    self::assertSame($success, $subject->transform(doNotRun, $switchToSuccess));
+    self::assertSame($failure, $subject->transform(doNotRun, $switchToFailure));
+  }
+
+  public function test_transform_throw()
+  {
+    $exception = valueE();
+    $throw = function () use ($exception) {
+      throw $exception;
+    };
+
+    $result = testNew(valueE())->transform(doNotRun, $throw);
+
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertSame($exception, $result->merge());
+  }
+
 
   public function test_walk()
   {
-    $notRun = function () {
-      throw new \Exception('Failure->walk callback should not be run!');
-    };
-    P\Failure(new \Exception())->walk($notRun);
+    $subject = testNew(valueE());
+    self::assertSame($subject, $subject->walk(doNotRun));
   }
 
   public function test_count()
   {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertInstanceOf(
-      \Countable::class
-      , $failure
-    );
-    $this->assertTrue(
-      0 === count($failure)
-      , 'count(Failure) should return 0'
-    );
-    $this->assertTrue(
-      0 === $failure->count()
-      , 'failure->count() should return 0'
-    );
+    $subject = testNew(valueE());
+    self::assertEquals(0, count($subject));
+    self::assertEquals(0, $subject->count());
   }
 
-  public function test_transversable() {
-    $failure = P\Failure(new \Exception('test'));
-    $this->assertInstanceOf(
-      \IteratorAggregate::class
-      , $failure
-      , 'It should implement a Iterator Aggregate'
-    );
+  public function test_transversable()
+  {
     $count = 0;
-    foreach($failure as $value){
-      $count +=1;
+    foreach (testNew(valueE()) as $value) {
+      $count += 1;
     }
-    $this->assertEquals(0, $count);
+    self::assertEquals(0, $count);
   }
 }
+
+function valueE()
+{
+  return new \Exception(microtime());
+} 

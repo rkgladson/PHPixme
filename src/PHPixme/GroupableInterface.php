@@ -19,7 +19,7 @@ interface GroupableInterface
    * Groups the n sized collection into groups returned by groupKey, not preserving keys
    * eg, Seq("groupKey"=>Seq(value1, value 2))
    * @param callable $fn ($value, $key, $container) -> $groupKey
-   * @return static
+   * @return self
    */
   public function group(callable $fn);
 
@@ -28,7 +28,7 @@ interface GroupableInterface
    * returning them together as an array in the order of Key, Value
    * eg, Seq(groupKey=>Seq([Key1, Value1], [Key2, Value2]))
    * @param callable $fn ($value, $key, $container) -> $groupKey
-   * @return static
+   * @return self
    */
   public function groupWithKey(callable $fn);
 
@@ -36,7 +36,7 @@ interface GroupableInterface
    * Group the n sized collection into a group of true and false, not preserving keys
    * eg, Seq("true"=>Seq(value1), "false"=>Seq(value2))
    * @param callable $fn ($value, $key, $container) -> boolean
-   * @return static
+   * @return self
    */
   public function partition(callable $fn);
 
@@ -45,7 +45,7 @@ interface GroupableInterface
    * returning them together as an array in the order of Key, Value
    * eg, Seq("true"=>Seq([key1, value1]), "false"=>Seq([key1, value2]))
    * @param callable $fn ($value, $key, $container) -> boolean
-   * @return static
+   * @return self
    */
   public function partitionWithKey(callable $fn);
   

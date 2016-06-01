@@ -6,9 +6,10 @@ namespace PHPixme;
  * The right hand side of the unbiased disjunction Either
  * @package PHPixme
  */
-class Right extends Either
+class Right extends Either implements RightHandSideType
 {
-  use RightHandedTrait, ImmutableConstructorTrait;
+  use RightHandedTrait
+    , ImmutableConstructorTrait;
   private $value;
 
   /**
@@ -71,7 +72,7 @@ class Right extends Either
    */
   public function fold(callable $leftFn, callable $rightFn)
   {
-    return $rightFn($this->value);
+    return $rightFn($this->value, $this);
   }
 
   /**

@@ -6,9 +6,10 @@ namespace PHPixme;
  * The left hand side of the Either disjunction
  * @package PHPixme
  */
-class Left extends Either 
+class Left extends Either implements LeftHandSideType
 {
-  use LeftHandedTrait, ImmutableConstructorTrait;
+  use LeftHandedTrait
+    , ImmutableConstructorTrait;
   private $value;
 
   /**
@@ -23,7 +24,7 @@ class Left extends Either
 
   /**
    * @inheritdoc
-   * @return static
+   * @return self
    */
   public static function of($value) {
     return new static($value);
@@ -37,7 +38,7 @@ class Left extends Either
   {
     return new Some($this->value);
   }
-    
+  
   /**
    * @inheritdoc
    * @return Either
@@ -71,7 +72,7 @@ class Left extends Either
    */
   public function fold(callable $leftFn, callable $rightFn)
   {
-    return $leftFn($this->value);
+    return $leftFn($this->value, $this);
   }
 
   /**

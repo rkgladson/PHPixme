@@ -8,177 +8,118 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
+use PHPixme\Some as testSubject;
+use function PHPixme\Some as testNew;
+use const PHPixme\Some as testConst;
+use PHPixme\None as oppositeSubject;
 
 class SomeTest extends \PHPUnit_Framework_TestCase
 {
   public function test_Some_constants()
   {
-    $this->assertTrue(
-      P\Some::class === P\Some
-      , 'The constant for the Class and Function should be equal to the Class Path'
-    );
-    $this->assertTrue(
-      function_exists(P\Some)
-      , 'The companion function exists for the class.'
-    );
-  }
-
-  public function test_Some_companion($value = true)
-  {
-    $this->assertStringEndsWith(
-      '\Some'
-      , P\Some
-      , 'Ensure the constant ends with the function/class name'
-    );
-    $this->assertInstanceOf(
-      P\Some,
-      P\Some($value)
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
   }
 
   public function test_closed_trait()
   {
-    $traits = getAllTraits(new \ReflectionClass(P\Some::class));
-    $this->assertTrue(
-      false !== array_search(P\ClosedTrait::class, $traits)
-      , 'should be closed'
-    );
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+
+    self::assertContains(P\ClosedTrait::class, $traits);
   }
 
   public function test_patience()
   {
     $this->expectException(P\exception\MutationException::class);
-    (new P\Some(1))->__construct(null);
+    (new testSubject(1))->__construct(null);
   }
 
-  public function test_Some_static_of($value = true)
+  public function test_companion($value = true)
   {
-    $this->assertInstanceOf(
-      P\Some,
-      P\Some::of($value)
-    );
+    $result = testNew($value);
+
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertEquals(new testSubject($value), $result);
+  }
+
+  public function test_applicative($value = true)
+  {
+    $result = testSubject::of($value);
+
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertEquals(new testSubject($value), $result);
   }
 
   public function test_contains($value = true, $notValue = false)
   {
-    $some = P\Some($value);
-    $this->assertTrue(
-      $some->contains($value)
-      , 'Some->contains should contain the value'
-    );
-    $this->assertFalse(
-      $some->contains($notValue)
-      , 'Some->contains should not contain anything other than itself'
-    );
+    $subject = testNew($value);
+
+    self::assertTrue($subject->contains($value));
+    self::assertFalse($subject->contains($notValue));
   }
 
   public function test_exists($value = true)
   {
-    $getValue = function ($x) use ($value) {
-      return $x === $value;
-    };
-    $getNotValue = function ($x) use ($value) {
-      return $x !== $value;
-    };
-    $some = P\Some($value);
-    $this->assertTrue(
-      $some->exists($getValue)
-      , 'Some->exists should return true if the predicate returned true'
-    );
-    $this->assertFalse(
-      $some->exists($getNotValue)
-      , 'Some->exists should return false if the predicate returned false'
-    );
+    $subject = testNew($value);
+
+    self::assertTrue($subject->exists(bTrue));
+    self::assertFalse($subject->exists(bFalse));
   }
 
   public function test_get($value = true)
   {
-    $this->assertTrue(
-      $value === (P\Some($value)->get())
-      , 'Some->get should return its contents'
-    );
+    self::assertSame($value, testNew($value)->get());
   }
 
   public function test_getOrElse($value = true, $default = false)
   {
-    $this->assertTrue(
-      $value === (P\Some($value)->getOrElse($default))
-      , 'Some->getOrElse should return its contents and ignore the default'
-    );
+    self::assertSame($value, testNew($value)->getOrElse($default));
   }
 
   public function test_isDefined($value = true)
   {
-    $this->assertTrue(
-      P\Some($value)->isDefined()
-      , 'Some->isDefined should return true'
-    );
+    self::assertTrue(testNew($value)->isDefined());
   }
 
   public function test_orNull($value = true)
   {
-    $contained = P\Some($value)->orNull();
-    if (is_null($value)) {
-      $this->assertNull(
-        $contained
-        , 'Some->orNull when containing null should return null'
-      );
-    } else {
-      $this->assertNotNull(
-        $contained
-        , 'Some->orNull should return its contents'
-      );
-    }
+    self::assertSame($value, testNew($value)->orNull());
   }
 
   public function test_orElse($value = true)
   {
-    $some = P\Some($value);
-    $this->assertTrue(
-      $some === ($some->orElse(function () {
-        throw new \Exception('Some->orElse callback should never run');
-      }))
-      , 'Some->orElse is an identity'
-    );
+    $subject = testNew($value);
+    
+    self::assertEquals($subject, $subject->orElse(doNotRun));
   }
 
   public function test_toSeq($value = true)
   {
-    $this->assertInstanceOf(
-      P\Seq
-      , P\Some($value)->toSeq()
-      , 'Some->toSeq should produce a Sequence'
-    );
+    $result = testNew($value)->toSeq();
+
+    self::assertInstanceOf(P\Seq::class, $result);
+    self::assertEquals(new P\Seq([$value]), $result);
   }
 
 
   public function test_fold_callback($value = true, $startValue = null)
   {
-    $some = P\Some($value);
-    $some->fold(function ($lastVal) use ($startValue, $value, $some) {
-      $this->assertTrue(
-        4 === func_num_args()
-        , 'Some->fold callback should receive four arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $startValue
-        , 'Some->fold callback $prevVal should be the $startValue'
-      );
-      $this->assertTrue(
-        func_get_arg(1) === $value
-        , 'Some->fold callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(2)
-        , 'Some->fold callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(3) === $some
-        , 'Some->fold callback $container should be itself'
-      );
+    $ran = 0;
+    $subject = testNew($value);
+    
+    $subject->fold(function () use ($subject, $value, $startValue, &$ran) {
+      self::assertEquals(4, func_num_args());
+      list($s, $v, $k, $t) = func_get_args();
 
-      return $lastVal;
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject,  $t);
+      
+      $ran += 1;
+      return $s;
     }, $startValue);
+    self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
   public function test_fold_scenario_add($value = 1, $startVal = 1)
@@ -186,39 +127,28 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     $add = function ($x, $y) {
       return $x + $y;
     };
-    $this->assertTrue(
-      ($value + $startVal) === (P\Some($value)->fold($add, $startVal))
-      , 'The fold should be able to preform a simple add on a single length item'
-    );
+    
+    self::assertEquals($add($startVal, $value), testNew($value)->fold($add, $startVal));
   }
 
   public function test_foldRight_callback($value = true, $startValue = null)
   {
-    $some = P\Some($value);
-    $some->foldRight(function ($lastVal) use ($startValue, $value, $some) {
-      $this->assertTrue(
-        4 === func_num_args()
-        , 'Some->foldRight callback should receive four arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $startValue
-        , 'Some->foldRight callback $prevVal should be the $startValue'
-      );
-      $this->assertTrue(
-        func_get_arg(1) === $value
-        , 'Some->foldRight callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(2)
-        , 'Some->foldRight callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(3) === $some
-        , 'Some->foldRight callback $container should be itself'
-      );
+    $ran = 0;
+    $subject = testNew($value);
+    
+    $subject->foldRight(function () use ($subject, $value, $startValue, &$ran) {
+      self::assertEquals(4, func_num_args());
+      list($s, $v, $k, $t) = func_get_args();
 
-      return $lastVal;
+      self::assertSame($startValue, $s);
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject,  $t);
+
+      $ran += 1;
+      return $s;
     }, $startValue);
+    self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
   public function test_foldRight_scenario_add($value = 1, $startVal = 1)
@@ -226,482 +156,317 @@ class SomeTest extends \PHPUnit_Framework_TestCase
     $add = function ($x, $y) {
       return $x + $y;
     };
-    $this->assertTrue(
-      ($value + $startVal) === (P\Some($value)->foldRight($add, $startVal))
-      , 'The fold should be able to preform a simple add on a single length item'
-    );
+
+    self::assertEquals($add($startVal, $value), (testNew($value)->foldRight($add, $startVal)));
   }
 
 
   public function test_reduce($value = true)
   {
-    $this->assertTrue(
-      $value === (P\Some($value)->reduce(function () {
-        throw new \Exception('Some->reduce callback should never run!');
-      }))
-      , 'Some->reduce should produce its contents'
-    );
+    self::assertSame($value, testNew($value)->reduce(doNotRun));
   }
 
   public function test_reduceRight($value = true)
   {
-    $this->assertTrue(
-      $value === (P\Some($value)->reduceRight(function () {
-        throw new \Exception('Some->reduceRight callback should never run!');
-      }))
-      , 'Some->reduce should produce its contents'
-    );
+    self::assertSame($value, testNew($value)->reduceRight(doNotRun));
   }
 
   public function test_map_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->map(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->map callback should receive three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->map callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->map callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->map callback $container should be itself'
-      );
+    $subject = testNew($value);
+
+    $subject->map(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
   public function test_map($value = true)
   {
-    $original = P\Some($value);
-    $duplicate = $original->map(function ($value) {
-      return $value;
-    });
-    $this->assertInstanceOf(
-      P\Some
-      , $duplicate
-      , 'Some->map function should remain a Some'
-    );
-    $this->assertTrue(
-      $original !== $duplicate
-      , 'Some->map should return an different Some'
-    );
+    $subject = testNew($value);
+
+    $result = $subject->map(identity);
+
+    self::assertInstanceOf(testSubject::class, $result);
+    self::assertNotSame($subject, $result);
+    self::assertEquals($subject, $result);
   }
 
   public function test_flatMap_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->flatMap(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->flatMap callback should receive three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->flatMap callback $value should its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->flatMap callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->flatMap callback $container should be itself'
-      );
-      return P\Some($value);
+    $contents = testNew($value);
+    $subject = testNew($contents);
+
+    $subject->flatMap(function () use ($subject, $contents, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($contents, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  /**
-   * Ensure the contract is help for flatmap that the container returned will be what was contained
-   * @expectedException \UnexpectedValueException
-   */
-  public function test_flatMap_contract_broken($value = true)
+  public function test_flatMap_contract_broken()
   {
-    P\Some($value)->flatMap(function ($value) {
-      return $value;
-    });
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(null)->flatMap(identity);
   }
 
   public function test_flatMap($value = true)
   {
-    $some2 = P\Maybe($value);
-    $some1 = P\Some($some2);
+    $some = testSubject::of($value);
+    $none = oppositeSubject::of($value);
 
-    $this->assertTrue(
-      $some2 === ($some1->flatMap(function ($value) {
-        return $value;
-      }))
-      , 'Some->flatMap ran with the identity function return its contents of a Maybe type'
-    );
+    self::assertSame($some, testNew($some)->flatMap(identity));
+    self::assertSame($none, testNew($none)->flatMap(identity));
   }
 
   public function test_flatten($value = true)
   {
-    $some2 = P\Maybe($value);
-    $some1 = P\Some($some2);
-    $this->assertTrue(
-      ($some1->flatten()) === $some2
-      , 'Some->flatten should return its contents of Maybe'
-    );
+    $some = testSubject::of($value);
+    $none = oppositeSubject::of($value);
+
+    self::assertSame($some, testNew($some)->flatten());
+    self::assertSame($none, testNew($none)->flatten());
   }
 
-  /**
-   * @expectedException \UnexpectedValueException
-   */
   public function test_flatten_contract_broken()
   {
-    P\Some(true)->flatten();
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(null)->flatten();
   }
 
   public function test_filter_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->filter(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->filter callback should receive three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->filter callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->filter callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->filter callback $container should be itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->filter(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  public function test_filter_scenario_isArray($value = true, $expected = P\None)
-  {
-    $some = P\Some($value);
-    $results = $some->filter(function ($val) {
-      return is_array($val);
-    });
-    $this->assertInstanceOf(
-      $expected
-      , $results
-      , 'Some->filter application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
-    );
-    if ($expected === P\Some) {
-      $this->assertTrue(
-        $some === $results
-        , 'Some->filter where callback results are true is an identity'
-      );
-    }
+  public function test_filter_return($value = 1) {
+    $subject = testSubject::of($value);
+
+    self::assertSame($subject, $subject->filter(bTrue));
+    self::assertSame(oppositeSubject::of($value), $subject->filter(bFalse));
   }
 
   public function test_filterNot_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->filterNot(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->filterNot callback should have three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->filter callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->filterNot $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->filterNot $contents should be itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->filterNot(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  public function test_filterNot_scenario_isArray($value = true, $expected = P\Some)
+  public function test_filterNot_return($value = true)
   {
-    $some = P\Some($value);
-    $results = $some->filterNot(function ($val) {
-      return is_array($val);
-    });
-    $this->assertInstanceOf(
-      $expected
-      , $results
-      , 'Some->filterNot application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
-    );
-    if ($expected === P\Some) {
-      $this->assertTrue(
-        $some === $results
-        , 'Some->filterNot callback is unsuccessful, the result is an identity'
-      );
-    }
+    $subject = testSubject::of($value);
+
+    self::assertSame($subject, $subject->filterNot(bFalse));
+    self::assertSame(oppositeSubject::of($value), $subject->filterNot(bTrue));
   }
 
   public function test_forAll_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->forAll(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->forAll callback receives three augments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->forAll callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->forAll callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->forAll callback $container is itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->forAll(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  public function test_forAll_scenario_isArray($value = true, $expected = false)
-  {
-    $isArray = function ($value) {
-      return is_array($value);
-    };
-    $this->assertTrue(
-      $expected === P\Some($value)->forAll($isArray)
-      , 'Some->forAll application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
-    );
+  public function test_forAll_return ($value = 1) {
+    $subject = testNew($value);
+
+    self::assertTrue($subject->forAll(bTrue));
+    self::assertFalse($subject->forAll(bFalse));
   }
 
   public function test_forNone_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->forNone(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->forNone callback should receive three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->forNone callback $value should its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->forNone callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->forNone callback $container should be itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->forNone(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  public function test_forNone_scenario_isArray($value = true, $expected = true)
+  public function test_forNone_return($value = true)
   {
-    $isArray = function ($value) {
-      return is_array($value);
-    };
-    $this->assertTrue(
-      $expected === P\Some($value)->forNone($isArray)
-      , 'Some->forNone application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
-    );
+    $subject = testNew($value);
+
+    self::assertFalse($subject->forNone(bTrue));
+    self::assertTrue($subject->forNone(bFalse));
   }
 
   public function test_forSome_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->forSome(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->forSome callback should receive three arguments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->forSome callback $value its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->forSome callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->forSome callback $container should be itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->forSome(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-  public function test_forSome_scenario_isArray($value = true, $expected = false)
+  public function test_forSome_return($value = true)
   {
-    $isArray = function ($value) {
-      return is_array($value);
-    };
-    $this->assertTrue(
-      $expected === P\Some($value)->forSome($isArray)
-      , 'Some->forSome application of is_array on ' . json_encode($value) . ' should of been ' . json_encode($expected)
-    );
+    $subject = testNew($value);
+
+    self::assertTrue($subject->forSome(bTrue));
+    self::assertFalse($subject->forSome(bFalse));
   }
 
 
   public function test_walk_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->walk(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->walk callback should receive three augments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->walk callback $value should be its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->walk callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->walk callback $container should be itself'
-      );
+    $subject = testNew($value);
+
+    $subject->walk(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
   public function test_walk($value = true)
   {
-    $run = 0;
-    $instance = P\Some($value);
-    $this->assertTrue(
-      $instance === $instance->walk(function () use (&$run) {
-        $run += 1;
-      })
-      , 'P\some->walk should return its own instance'
-    );
-    $this->assertTrue(
-      $run === 1
-      , 'P\some->walk should run its callback'
-    );
+    $subject = testNew($value);
+    self::assertSame($subject, $subject->walk(noop));
   }
 
   public function test_toArray($value = true)
   {
-    $arr = P\Some($value)->toArray();
-    $this->assertTrue(
-      is_array($arr)
-      , 'Some->toArray should yield an array'
-    );
-    $this->assertTrue(
-      1 === count($arr)
-      , 'Some->toArray results should be one long'
-    );
-    $this->assertTrue(
-      $value === $arr[0]
-      , 'Some->toArray result contents should be the same as itself'
-    );
+    self::assertEquals([$value], testNew($value)->toArray());
   }
 
   public function test_toLeft($value = true)
   {
-    $doNotRun = function () {
-      throw new \Exception('should not run');
-    };
-    $left = P\Some($value)->toLeft($doNotRun);
-    $this->assertInstanceOf(P\Left::class, $left);
-    $this->assertTrue($value === $left->merge());
+    $left = testNew($value)->toLeft(doNotRun);
+    self::assertInstanceOf(P\Left::class, $left);
+    self::assertSame($value, $left->merge());
   }
 
   public function test_toRight($value = true)
   {
-    $doNotRun = function () {
-      throw new \Exception('should not run');
-    };
-    $right = P\Some($value)->toRight($doNotRun);
-    $this->assertInstanceOf(P\Right::class, $right);
-    $this->assertTrue($value === $right->merge());
+    $right = testNew($value)->toRight(doNotRun);
+    self::assertInstanceOf(P\Right::class, $right);
+    self::assertSame($value, $right->merge());
   }
 
   public function test_find_callback($value = true)
   {
-    $some = P\Some($value);
-    $some->find(function () use ($value, $some) {
-      $this->assertTrue(
-        func_num_args() === 3
-        , 'Some->find callback should receive three arugments'
-      );
-      $this->assertTrue(
-        func_get_arg(0) === $value
-        , 'Some->find callback $value should be equal to its contents'
-      );
-      $this->assertNotFalse(
-        func_get_arg(1)
-        , 'Some->find callback $key should be defined'
-      );
-      $this->assertTrue(
-        func_get_arg(2) === $some
-        , 'Some->find callback $container should be itself'
-      );
-      return true;
+    $subject = testNew($value);
+
+    $subject->find(function () use ($subject, $value, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($value, $v);
+      self::assertEquals(0, $k);
+      self::assertSame($subject, $t);
+
+      $ran += 1;
+      return $v;
     });
+    self::assertSame(1, $ran, 'the callback should of ran');
   }
 
   public function test_find($value = true)
   {
-    $some = P\Some($value);
-    $positiveResult = $some->find(function ($x) use ($value) {
-      return $x === $value;
-    });
-    $negativeResult = $some->find(function ($x) use ($value) {
-      return $x !== $value;
-    });
+    $subject = testNew($value);
 
-    $this->assertInstanceOf(
-      P\Some
-      , $positiveResult
-      , 'Some->Find on a true callback should return a Some'
-    );
-    $this->assertTrue(
-      $positiveResult === $some
-      , 'Some->find on a truly returning callback should yield an identity'
-    );
-    $this->assertInstanceOf(
-      P\None
-      , $negativeResult
-      , 'Some->find a falsely returning callback yields a None'
-    );
-
+    self::assertSame($subject, $subject->find(bTrue));
+    self::assertInstanceOf(oppositeSubject::class, $subject->find(bFalse));
   }
 
   function test_forEach($value = true)
   {
-    $iter = P\Some($value);
-    $run = 0;
-    foreach ($iter as $key => $val) {
-      $run += 1;
-      $this->assertTrue(
-        $value === $val
-        , 'The current of Some should result its contents. Expected ' . json_encode($value) . ' but got ' . json_encode($val)
-      );
+    $ran = 0;
+    $subject = testNew($value);
+
+    foreach ($subject as $key => $val) {
+      self::assertSame($value, $val);
+      self::assertEquals($ran, $key);
+
+      $ran += 1;
     }
 
-    $this->assertTrue(
-      $run === 1
-      , 'Some should always have one value to iterate over before halting. Ran ' . $run . ' times.'
-    );
+    self::assertEquals(1, $ran);
   }
 
   public function test_count($value = true)
   {
-    $this->assertEquals(
-      1
-      , P\Some($value)->count()
-      , 'Some->count should always equal 1'
-    );
+    $subject = testNew($value);
+
+    self::assertEquals(1, count($subject));
+    self::assertEquals(1, $subject->count());
   }
 }

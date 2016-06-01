@@ -18,7 +18,7 @@ interface UnaryApplicativeInterface extends ApplicativeInterface
   /**
    * Passes a single item value into a new instance of itself.
    * @param $item
-   * @return static
+   * @return self
    */
   public static function of($item);
 }

@@ -19,8 +19,11 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Attempt implements
-  CollectionInterface
+  BiasedDisjunctionInterface
   , UnaryApplicativeInterface
+  , UnaryApplicativeLeftDisjunctionInterface
+  , UnaryApplicativeRightDisjunctionInterface
+  , FlattenRightInterface
   , \Countable
 {
   use AssertTypeTrait, ClosedTrait;
@@ -33,6 +36,25 @@ abstract class Attempt implements
   public static function of($value)
   {
     return Attempt($value);
+  }
+
+  /**
+   * @inheritdoc
+   * @param \Throwable|\Exception $item
+   * @return Failure
+   */
+  public static function ofLeft($item)
+  {
+    return new Failure($item);
+  }
+
+  /**
+   * @inheritdoc
+   * @return Success
+   */
+  public static function ofRight($item)
+  {
+    return new Success($item);
   }
 
   /**
@@ -50,6 +72,12 @@ abstract class Attempt implements
    * @throws mixed - throws the value on failure
    */
   abstract public function get();
+
+  /**
+   * Returns the value contained on either part of the Attempt Disjunction
+   * @return mixed
+   */
+  abstract public function merge();
 
   /**
    * @param $default
@@ -77,7 +105,6 @@ abstract class Attempt implements
     }
     return Attempt::assertType($result);
   }
-
 
   /**
    * Changes a Failure to a success.
@@ -142,6 +169,16 @@ abstract class Attempt implements
   }
 
   /**
+   * @inheritdoc
+   * An alias for flatten
+   * @return self
+   */
+  final public function flattenRight()
+  {
+    return $this->flatten();
+  }
+
+  /**
    * Transforms a success or failure given the criteria presented,
    *      able to change the internal value or container from one Attempt to another
    * @param callable $success ($value, Success $container): Attempt
@@ -157,6 +194,14 @@ abstract class Attempt implements
    * @return $this
    */
   abstract public function walk(callable $hof);
-  
+
+  /**
+   * Converts a Failure to a Left, and Success to a Right
+   * @return Left|Right
+   */
+  public function toUnbiasedDisjunctionInterface()
+  {
+    return $this->isLeft() ? Either::ofLeft($this->merge()) : Either::ofRight($this->merge());
+  }
 }
 
