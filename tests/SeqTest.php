@@ -128,7 +128,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    */
   public function test_reverse($value)
   {
-    self::assertEquals(testNew(array_reverse(self::toArray($value))), testNew($value)->reverse());
+    self::assertEquals(testNew(array_reverse(self::toArray($value), true)), testNew($value)->reverse());
   }
 
   /**
@@ -259,7 +259,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     $ran = 0;
     $subject = testNew($value);
 
-    $subject->map(function () use ($subject, &$ran) {
+    $subject->flatMap(function () use ($subject, &$ran) {
       self::assertEquals(3, func_num_args());
       list($v, $k, $t) = func_get_args();
 
@@ -320,6 +320,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $startVal = new \stdClass();
+
     $subject->fold(function () use ($subject, $startVal, &$ran) {
       self::assertEquals(4, func_num_args());
       list($p, $v, $k, $t) = func_get_args();
@@ -355,6 +356,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   {
     $ran = 0;
     $startVal = new \stdClass();
+
     $subject->foldRight(function () use ($subject, $startVal, &$ran) {
       self::assertEquals(4, func_num_args());
       list($p, $v, $k, $t) = func_get_args();
@@ -514,7 +516,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider nonEmptySubjectProvider
    */
-  public function test_reduce_callback(P\Seq $subject)
+  public function test_reduce_callback(testSubject $subject)
   {
     $ran = 1; // Start off with 1 already consumed
     $head = $subject->head();
@@ -537,7 +539,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   public function test_reduce_contract_broken()
   {
     $this->expectException(\LengthException::class);
-    testSubject::of()->reduce(noop);
+    testNew([])->reduce(noop);
   }
 
   /**
@@ -579,7 +581,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   public function test_reduceRight_contract_broken()
   {
     $this->expectException(\LengthException::class);
-    testSubject::of()->reduceRight(noop);
+    testNew([])->reduceRight(noop);
   }
 
   public function test_reduceRight_direction()
@@ -596,7 +598,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider numericSubjectProvider
    */
-  public function test_reduceRight_return(P\Seq $subject)
+  public function test_reduceRight_return(testSubject $subject)
   {
     if (!$subject->isEmpty()) {
       $add2 = function ($a, $b) {
@@ -609,11 +611,11 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider unionDataProvider
    */
-  public function test_union(P\Seq $seq, $arrayLikeN, $expected)
+  public function test_union(testSubject $subject, $arrayLikeN, $expected)
   {
     self::assertEquals(
       $expected
-      , call_user_func_array([$seq, 'union'], $arrayLikeN)
+      , call_user_func_array([$subject, 'union'], $arrayLikeN)
       , 'Seq->union is expected to join the data with itself and the passed array likes'
     );
   }
@@ -650,11 +652,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @dataProvider walkProvider
-   * @param $subject \PHPixme\Seq
-   * @param int $length
+   * @dataProvider subjectProvider
    */
-  public function test_walk_callback(P\Seq $subject, $length)
+  public function test_walk_callback(testSubject $subject)
   {
     $ran = 0;
 
@@ -668,31 +668,36 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
       $ran += 1;
     });
-    self::assertEquals($length, $ran);
+    self::assertEquals(count($subject), $ran);
   }
 
   /**
-   * @dataProvider walkProvider
-   * @param $subject \PHPixme\Seq
+   * @dataProvider subjectProvider
    */
-  public function test_walk(P\Seq $subject)
+  public function test_walk(testSubject $subject)
   {
     self::assertSame($subject, $subject->walk(noop));
   }
 
   /**
-   * @dataProvider headProvider
+   * @dataProvider subjectProvider
    */
-  public function test_head(P\Seq $subject, $expects)
+  public function test_head(testSubject $subject)
   {
+    $headKeyR = array_slice($subject->keys()->toArray(), 0, 1, false);
+    $expects = empty($headKeyR) ? null : $subject->toArray()[$headKeyR[0]];
+
     self::assertEquals($expects, $subject->head());
   }
 
   /**
-   * @dataProvider headMaybeProvider
+   * @dataProvider subjectProvider
    */
-  public function test_headMaybe(P\Seq $subject, $expects)
+  public function test_headMaybe(testSubject $subject)
   {
+    $headKeyR = array_slice($subject->keys()->toArray(), 0, 1, false);
+    $expects = empty($headKeyR) ? P\None() : P\Some($subject->toArray()[$headKeyR[0]]);
+
     $result = $subject->headMaybe();
 
     self::assertInstanceOf(P\Maybe::class, $result);
@@ -700,17 +705,19 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @dataProvider tailProvider
+   * @dataProvider subjectProvider
    */
-  public function test_tail(P\Seq $seq, $expects)
+  public function test_tail(testSubject $subject)
   {
-    self::assertEquals($expects, $seq->tail());
+    $expects = testNew(array_slice($subject->toArray(), 1, null, true));
+
+    self::assertEquals($expects, $subject->tail());
   }
 
   /**
    * @dataProvider indexOfProvider
    */
-  public function test_indexOf(P\Seq $haystack, $needle, $expected)
+  public function test_indexOf(testSubject $haystack, $needle, $expected)
   {
     self::assertEquals(
       $expected
@@ -722,7 +729,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider partitionProvider
    */
-  public function test_partition_callback(P\Seq $subject)
+  public function test_partition_callback(testSubject $subject)
   {
     $ran = 0;
 
@@ -743,11 +750,11 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider partitionProvider
    */
-  public function test_partition(P\Seq $seq, $hof, $expected)
+  public function test_partition(testSubject $subject, $hof, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->partition($hof)
+      , $subject->partition($hof)
       , 'Seq->partition should separate as expected the results of the $hof based on its Seq("false"=>Seq(value),"true"=>Seq(value)) value'
     );
   }
@@ -755,44 +762,31 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider partitionWithKeyProvider
    */
-  public function test_partitionWithKey_callback(P\Seq $seq)
+  public function test_partitionWithKey_callback(testSubject $subject)
   {
     $ran = 0;
-    $seq->partitionWithKey(function () use ($seq, &$ran) {
-      self::assertTrue(
-        3 === func_num_args()
-        , 'callback should receive three arguments'
-      );
-      $value = func_get_arg(0);
-      $key = func_get_arg(1);
-      $container = func_get_arg(2);
+    $subject->partitionWithKey(function () use ($subject, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
 
-      self::assertTrue(
-        ($seq($key)) === $value
-        , 'callback $value should be equal to the value at $key'
-      );
-      self::assertNotFalse(
-        $key
-        , 'callback $key should be defined'
-      );
-      self::assertTrue(
-        $seq === $container
-        , 'callback $container should be itself'
-      );
+      self::assertSame($subject($k), $v);
+      self::assertTrue(is_int($k) || is_string($k));
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return true;
     });
-    self::assertEquals(count($seq), $ran, 'it should of ran on every entry');
+    self::assertEquals(count($subject), $ran, 'it should of ran on every entry');
   }
 
   /**
    * @dataProvider partitionWithKeyProvider
    */
-  public function test_partitionWithKey(P\Seq $seq, $hof, $expected)
+  public function test_partitionWithKey(testSubject $subject, $hof, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->partitionWithKey($hof)
+      , $subject->partitionWithKey($hof)
       , 'should separate as expected the results of the $hof based on its Seq("false"=>Seq([key, value]),"true"=>Seq([key, value])) value'
     );
   }
@@ -800,44 +794,32 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider groupProvider
    */
-  public function test_group_callback(P\Seq $seq)
+  public function test_group_callback(testSubject $subject)
   {
     $ran = 0;
-    $seq->group(function () use ($seq, &$ran) {
-      self::assertTrue(
-        3 === func_num_args()
-        , 'callback should receive three arguments'
-      );
-      $value = func_get_arg(0);
-      $key = func_get_arg(1);
-      $container = func_get_arg(2);
 
-      self::assertTrue(
-        ($seq($key)) === $value
-        , 'callback $value should be equal to the value at $key'
-      );
-      self::assertNotFalse(
-        $key
-        , 'callback $key should be defined'
-      );
-      self::assertTrue(
-        $seq === $container
-        , 'callback $container should be itself'
-      );
+    $subject->group(function () use ($subject, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($subject($k), $v);
+      self::assertTrue(is_int($k) || is_string($k));
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return true;
     });
-    self::assertEquals(count($seq), $ran, 'it should of ran on every entry');
+    self::assertEquals(count($subject), $ran, 'it should of ran on every entry');
   }
 
   /**
    * @dataProvider groupProvider
    */
-  public function test_group(P\Seq $seq, $hof, $expected)
+  public function test_group(testSubject $subject, $hof, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->group($hof)
+      , $subject->group($hof)
       , 'applied to the key values given by the hof, should be a nested sequence of expected Seq'
     );
   }
@@ -845,44 +827,32 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider groupWithKeyProvider
    */
-  public function test_groupWithKey_callback(P\Seq $seq)
+  public function test_groupWithKey_callback(testSubject $subject)
   {
     $ran = 0;
-    $seq->groupWithKey(function () use ($seq, &$ran) {
-      self::assertTrue(
-        3 === func_num_args()
-        , 'callback should receive three arguments'
-      );
-      $value = func_get_arg(0);
-      $key = func_get_arg(1);
-      $container = func_get_arg(2);
 
-      self::assertTrue(
-        ($seq($key)) === $value
-        , 'callback $value should be equal to the value at $key'
-      );
-      self::assertNotFalse(
-        $key
-        , 'callback $key should be defined'
-      );
-      self::assertTrue(
-        $seq === $container
-        , 'callback $container should be itself'
-      );
+    $subject->groupWithKey(function () use ($subject, &$ran) {
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $t) = func_get_args();
+
+      self::assertSame($subject($k), $v);
+      self::assertTrue(is_int($k) || is_string($k));
+      self::assertSame($subject, $t);
+
       $ran += 1;
       return true;
     });
-    self::assertEquals(count($seq), $ran, 'it should of ran on every entry');
+    self::assertEquals(count($subject), $ran, 'it should of ran on every entry');
   }
 
   /**
    * @dataProvider groupWithKeyProvider
    */
-  public function test_groupWithKey(P\Seq $seq, $hof, $expected)
+  public function test_groupWithKey(testSubject $subject, $hof, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->groupWithKey($hof)
+      , $subject->groupWithKey($hof)
       , 'applied to the key values given by the hof, should be a nested sequence of expected Seq'
     );
   }
@@ -890,11 +860,11 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider dropProvider
    */
-  public function test_drop(P\Seq $seq, $number, $expected)
+  public function test_drop(testSubject $subject, $number, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->drop($number)
+      , $subject->drop($number)
       , 'Seq->drop of amount results are functionally equivilent to expected'
     );
   }
@@ -902,84 +872,54 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /**
    * @dataProvider dropRightProvider
    */
-  public function test_dropRight($seq, $amount, $expected)
+  public function test_dropRight(testSubject $subject, $amount, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->dropRight($amount)
+      , $subject->dropRight($amount)
       , 'Seq->dropRight of amount should produce the Sequence expected'
     );
   }
-
-  public function takeProvider()
-  {
-    return [
-      'S[]->takeRight(5)' => [
-        testSubject::of(), 5, testSubject::of()
-      ]
-      , 'S[1,2,3,4,5,6]->takeRight(2)' => [
-        testSubject::of(1, 2, 3, 4, 5, 6), 2, testSubject::from([0 => 1, 1 => 2])
-      ]
-    ];
-  }
-
   /**
    * @dataProvider takeProvider
    */
-  public function test_take($seq, $amount, $expected)
+  public function test_take(testSubject $subject, $amount, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->take($amount)
+      , $subject->take($amount)
       , 'Seq->take of amount should yield expected'
     );
-  }
-
-  public function takeRightProvider()
-  {
-    return [
-      'S[]->takeRight(5)' => [
-        testSubject::of(), 5, testSubject::of()
-      ]
-      , 'S[1,2,3,4,5,6]->takeRight(2)' => [
-        testSubject::of(1, 2, 3, 4, 5, 6), 2, testSubject::from([4 => 5, 5 => 6])
-      ]
-    ];
   }
 
   /**
    * @dataProvider takeRightProvider
    */
-  public function test_takeRight(P\Seq $seq, $amount, $expected)
+  public function test_takeRight(testSubject $subject, $amount, $expected)
   {
     self::assertEquals(
       $expected
-      , $seq->takeRight($amount)
+      , $subject->takeRight($amount)
       , 'Seq->takeRight of amount should yield expected'
     );
   }
 
   /**
-   * @dataProvider toStringProvider
+   * @dataProvider valueProvider
    */
-  public function test_toString($array, $glue)
+  public function test_toString($value)
   {
-    self::assertEquals(
-      implode($glue, $array)
-      , testSubject::from($array)->toString($glue)
-    );
+    $glue = '!';
+
+    self::assertEquals(implode($glue, self::toArray($value)), testSubject::from($value)->toString($glue));
   }
 
   /**
-   * @dataProvider toJsonProvider
+   * @dataProvider valueProvider
    */
-  public function test_toJson($array)
+  public function test_toJson($value)
   {
-    self::assertEquals(
-      json_encode($array)
-      , testSubject::from($array)->toJson()
-      , 'Seq->toJson should be functionally equivalent to json_encode(Seq->toArray)'
-    );
+    self::assertEquals(json_encode(self::toArray($value)), testSubject::from($value)->toJson());
   }
 
   /**
@@ -1082,7 +1022,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       list($v, $k, $t) = func_get_args();
 
       self::assertSame($subject($offset), $v);
-      self::assertTrue(is_int($k)||is_string($k));
+      self::assertTrue(is_int($k) || is_string($k));
       self::assertSame($subject, $t);
 
       $ran += 1;
@@ -1183,13 +1123,36 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     ];
   }
 
-
   public function numericSubjectProvider()
   {
     return [
       'empty' => [testSubject::from([])]
       , 'one' => [testSubject::of(1)]
       , 'from 1 to 9' => [testSubject::of(1, 2, 3, 4, 5, 6, 7, 8, 9)]
+    ];
+  }
+
+  public function takeProvider()
+  {
+    return [
+      'S[]->takeRight(5)' => [
+        testSubject::of(), 5, testSubject::of()
+      ]
+      , 'S[1,2,3,4,5,6]->takeRight(2)' => [
+        testSubject::of(1, 2, 3, 4, 5, 6), 2, testSubject::from([0 => 1, 1 => 2])
+      ]
+    ];
+  }
+
+  public function takeRightProvider()
+  {
+    return [
+      'S[]->takeRight(5)' => [
+        testSubject::of(), 5, testSubject::of()
+      ]
+      , 'S[1,2,3,4,5,6]->takeRight(2)' => [
+        testSubject::of(1, 2, 3, 4, 5, 6), 2, testSubject::from([4 => 5, 5 => 6])
+      ]
     ];
   }
 
@@ -1221,6 +1184,32 @@ class SeqTest extends \PHPUnit_Framework_TestCase
         testSubject::of(1, 2, 3, 4)
         , 3
         , testSubject::from([0 => 1])
+      ]
+    ];
+  }
+
+  public function groupProvider()
+  {
+    return [
+      '' => [
+        testSubject::of(1, '2', 3, P\Some(4), 5, '6', 7)
+        , function ($value) {
+          if (is_string($value)) {
+            return 'string';
+          }
+          if (is_numeric($value)) {
+            return 'number';
+          }
+          if (is_object($value)) {
+            return 'object';
+          }
+          return 'donno';
+        }
+        , testSubject::from([
+          'number' => testSubject::of(1, 3, 5, 7)
+          , 'string' => testSubject::of('2', 6)
+          , 'object' => testSubject::of(P\Some(4))
+        ])
       ]
     ];
   }
@@ -1313,105 +1302,6 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     ];
   }
 
-  public function groupProvider()
-  {
-    return [
-      '' => [
-        testSubject::of(1, '2', 3, P\Some(4), 5, '6', 7)
-        , function ($value) {
-          if (is_string($value)) {
-            return 'string';
-          }
-          if (is_numeric($value)) {
-            return 'number';
-          }
-          if (is_object($value)) {
-            return 'object';
-          }
-          return 'donno';
-        }
-        , testSubject::from([
-          'number' => testSubject::of(1, 3, 5, 7)
-          , 'string' => testSubject::of('2', 6)
-          , 'object' => testSubject::of(P\Some(4))
-        ])
-      ]
-    ];
-  }
-
-  public function headProvider()
-  {
-    return [
-      'keyless' => [
-        testSubject::of(1, 2, 3)
-        , 1
-      ]
-      , 'keyed' => [
-        testSubject::from([
-          'one' => 1
-          , 'two' => 2
-          , 'three' => 3
-        ])
-        , 1
-      ]
-      , 'empty' => [
-        testSubject::of()
-        , null
-      ]
-    ];
-  }
-
-  public function headMaybeProvider()
-  {
-    return [
-      'keyless' => [
-        testSubject::of(1, 2, 3)
-        , P\Some(1)
-      ]
-      , 'keyed' => [
-        testSubject::from([
-          'one' => 1
-          , 'two' => 2
-          , 'three' => 3
-        ])
-        , P\Some(1)
-      ]
-      , 'some null head ' => [
-        testSubject::of(null)
-        , P\Some(null)
-      ]
-      , 'empty' => [
-        testSubject::of()
-        , P\None()
-      ]
-    ];
-  }
-
-  public function tailProvider()
-  {
-    return [
-      'keyless' => [
-        testSubject::of(1, 2, 3)
-        , testSubject::of(2, 3)
-      ]
-      , 'keyed' => [
-        testSubject::from([
-          'one' => 1
-          , 'two' => 2
-          , 'three' => 3
-        ])
-        , testSubject::from([
-          'two' => 2
-          , 'three' => 3
-        ])
-      ]
-      , 'empty' => [
-        testSubject::of()
-        , testSubject::of()
-      ]
-    ];
-  }
-
   public function indexOfProvider()
   {
     $none = P\None();
@@ -1448,44 +1338,6 @@ class SeqTest extends \PHPUnit_Framework_TestCase
         , $some1
         , $none
       ]
-    ];
-  }
-
-  public function walkProvider()
-  {
-    return [
-      'from 1 to 9' => [
-        testSubject::of(1, 2, 3, 4, 5, 6, 7, 8, 9), 9
-      ]
-      , 'Nothing' => [
-        testSubject::of(), 0
-      ]
-    ];
-  }
-
-  public function reverseProvider()
-  {
-    return [
-      'S[1,2,3]' => [testSubject::of(1, 2, 3), testSubject::from([2 => 3, 1 => 2, 0 => 1])]
-    ];
-  }
-
-  public function toStringProvider()
-  {
-    return [
-      '[]' => [[], '']
-      , 'S[integer]' => [[1, 2, 3, 4, 5], '!']
-      , 'S[string]' => [['a', 'b', 'c', 'd'], ';']
-      , 'S[string => integer]' => [['one' => 1, 'two' => 2], ', ']
-    ];
-  }
-
-  public function toJsonProvider()
-  {
-    return ['empty' => [[]]
-      , 'S{integer}' => [[1, 2, 3, 4, 5]]
-      , 'S{string}' => [['a', 'b', 'c', 'd']]
-      , 'Keyed S{integer}' => [['one' => 1, 'two' => 2]]
     ];
   }
 

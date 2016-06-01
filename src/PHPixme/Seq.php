@@ -418,12 +418,7 @@ class Seq implements
    */
   public function tail()
   {
-    if ($this->length > 1) {
-      $tail = $this->hash;
-      array_shift($tail);
-      return $this::from($tail);
-    }
-    return $this::from([]);
+    return $this::from(array_slice($this->hash, 1, null, true));
   }
 
   /**
@@ -613,14 +608,13 @@ class Seq implements
   }
 
   /**
-   * Take the order of the Seq, and return the reverse order
+   * Take the order of the Seq, and return the reverse order and preserves keys to data.
    * @return Seq
    */
   public function reverse()
   {
     return $this::from(array_reverse($this->hash, true));
   }
-
 
   /**
    * Returns a clone that represents the hash as an ArrayIterator
