@@ -111,7 +111,7 @@ namespace tests\PHPixme {
 
     public function valid()
     {
-      return null === key($this->data);
+      return null !== key($this->data);
     }
 
     public function rewind()

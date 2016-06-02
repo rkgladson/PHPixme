@@ -46,11 +46,11 @@ class callWithTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @expectedException  \InvalidArgumentException
    * @dataProvider returnProvider
    */
   public function test_contract_broken($container)
   {
+    $this->expectException(P\exception\InvalidCompositionException::class);
     P\callWith('404', $container)->__invoke(1, 2, 3, 4);
   }
 

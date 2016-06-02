@@ -7,19 +7,22 @@ namespace PHPixme;
  * @return \Closure|mixed
  * @sig (Callable (a, b) -> a) -> a -> \Traversable [b] -> a
  */
-function foldRight(callable $hof = null, $startVal = null, $traversable = null)
+function foldRight($hof = null, $startVal = null, $traversable = null)
 {
   return call_user_func_array(__PRIVATE__::$instance[foldRight], func_get_args());
 }
 const foldRight = __NAMESPACE__ . '\foldRight';
-__PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callable $hof, $startVal, $arrayLike) {
-  __PRIVATE__::assertCallable($hof);
+__PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
+  __CONTRACT__::argIsACallable($hof);
+  __CONTRACT__::argIsATraversable($arrayLike, 2);
+  
   if ($arrayLike instanceof CollectionInterface) {
     return $arrayLike->foldRight($hof, $startVal);
-  } elseif (is_array($arrayLike)) {
+  }
+  
+  $array = __PRIVATE__::getArrayFrom($arrayLike);
+  if ($array !== null) {
     $output = $startVal;
-    // Make a new copy of the array to avoid contaminating the internal pointer
-    $array = $arrayLike;
     end($array);
     while (!is_null($key = key($array))) {
       $output = call_user_func($hof, $output, current($array), $key, $arrayLike);
@@ -27,6 +30,7 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function (callabl
     }
     return $output;
   }
+  
   $pairs = [];
   foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
     array_unshift($pairs, [$key, $value]);

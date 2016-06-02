@@ -1,6 +1,6 @@
 <?php
 namespace PHPixme;
-use PHPixme\exception\InvalidContentsException;
+use PHPixme\exception\InvalidContentException;
 
 /**
  * Class __PRIVATE__
@@ -59,128 +59,36 @@ class __PRIVATE__
       );
   }
 
-  /**
-   * Asserts that the input can be used in some way by user_call_function_array
-   * @param $callable
-   * @return mixed
-   * @throws \InvalidArgumentException
-   * @sig x->x
-   */
-  static function assertCallable($callable)
-  {
-    if (is_callable($callable)) {
-      return $callable;
-    }
-    throw new \InvalidArgumentException('callback must be a callable function');
-  }
 
   /**
-   * @param $unknown
-   * @return CollectionInterface
-   * @throws \UnexpectedValueException
-   */
-  static function assertReturnIsCollection($unknown)
-  {
-    if ($unknown instanceof CollectionInterface) {
-      return $unknown;
-    }
-    throw new \UnexpectedValueException(
-      __PRIVATE__::getDescriptor($unknown) . ' is not a kind of ' . CollectionInterface::class
-    );
-  }
-
-  /**
-   * Asserts the value is a number
-   * @param $number
-   * @return mixed
-   * @throws \InvalidArgumentException
-   * @sig x -> x
-   */
-  static function assertPositiveOrZero($number)
-  {
-    if (is_integer($number) && -1 < $number) {
-      return $number;
-    }
-    throw new \InvalidArgumentException('argument must be a integer 0 or greater');
-  }
-
-  /**
-   * Asserts that the input is Traversable
+   * Tries to obtain an array from things that have a direct array output.
+   * Currently does this from arrays, \SplFixedArrays, CollectionInterface, \ArrayObject, and \ArrayIterator
+   * Otherwise it returns null.
    * @param $arrayLike
-   * @return mixed
-   * @throws \InvalidArgumentException
-   * @sig x -> x
+   * @return array|null
    */
-  public static function assertTraversable($arrayLike)
+  public static function getArrayFrom($arrayLike)
   {
-    if (is_array($arrayLike) || $arrayLike instanceof \Traversable) {
+    if (is_array($arrayLike)) {
       return $arrayLike;
     }
-    throw new \InvalidArgumentException('argument must be a Traversable or array');
-  }
-
-  /**
-   * Checks the return of a callback to be of the expected type
-   * @param string $classPath
-   * @param mixed $returnValue
-   * @return mixed
-   * @throws \UnexpectedValueException
-   */
-  static function assertReturnIs($classPath, $returnValue)
-  {
-    if (is_subclass_of($returnValue, $classPath)) {
-      return $returnValue;
+    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
+      return $arrayLike->toArray();
     }
-    throw new \UnexpectedValueException(
-      __PRIVATE__::getDescriptor($returnValue) . ' is not a kind of ' . $classPath
-    );
-  }
-
-  /**
-   * A contract that specifies the content must be of a specific type.
-   * @param string $classPath
-   * @param mixed $contents
-   * @return mixed
-   * @throws InvalidContentsException
-   */
-  static function assertContentIsA($classPath, $contents)
-  {
-    if (is_subclass_of($contents, $classPath)) {
-      return $contents;
+    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
+      return $arrayLike->getArrayCopy();
     }
-    throw new InvalidContentsException(
-      $contents
-      , 'expected to contain' . $classPath . ' but got ' . __PRIVATE__::getDescriptor($contents)
-    );
+    return null;
   }
-
+  
+  
+  
   /**
-   * A contract that specifies the contents must be a callable
-   * @param callable $contents
-   * @return callable
-   * @throws InvalidContentsException
-   */
-  static function assertContentIsCallable($contents)
-  {
-    if (is_callable($contents)) {
-      return $contents;
-    }
-    throw new InvalidContentsException(
-      $contents
-      , 'expected to contain callable, but got ' . __PRIVATE__::getDescriptor($contents)
-    );
-  }
-
-  /**
-   * @param array|\Traversable $traversable
+   * @param \Traversable $traversable
    * @return array|\Traversable
    */
-  static function copyTransversable($traversable)
+  static public function copyTransversable($traversable)
   {
-    static::assertTraversable($traversable);
-    if (is_array($traversable)) {
-      return $traversable;
-    }
     // Allow for generators to be used once. Better than always throwing an error.
     // Best to assume the user knows how to use Generators correctly,
     // and might even be sending an empty iterator
@@ -194,6 +102,30 @@ class __PRIVATE__
     return $traversable instanceof \IteratorAggregate
       ? $traversable->getIterator()
       : clone $traversable;
+  }
+
+  /**
+   * Handles protecting a forEach from unknown traversable mutability
+   * @param array|\Traversable $traversable
+   * @return array|\Traversable
+   */
+  static public function protectTraversable($traversable) {
+    return is_array($traversable) ? $traversable : static::copyTransversable($traversable);
+  }
+
+  /**
+   * A helper function to assist conversion of Collection and Traversable to arrays.
+   * It also is the identity function on an array
+   * @internal
+   * @param \Traversable|array $arrayLike
+   * @return array
+   */
+  public static function traversableToArray($arrayLike)
+  {
+    $array = static::getArrayFrom($arrayLike);
+    return $array !== null
+      ? $array
+      : iterator_to_array(static::copyTransversable($arrayLike), true);
   }
 
 

@@ -13,8 +13,8 @@ function pipe(callable $hofFirst = null, callable $hofSecond = null)
 const pipe = __NAMESPACE__ . '\pipe';
 __PRIVATE__::$instance[pipe] = __PRIVATE__::curryGiven([], 2, function ($x) {
   $pipe = func_get_args();
-  foreach ($pipe as $value) {
-    __PRIVATE__::assertCallable($value);
+  foreach ($pipe as $index => $value) {
+    __CONTRACT__::argIsACallable($value, $index);
   }
   $pipeTail = array_splice($pipe, 1);
   return function () use ($x, $pipeTail) {

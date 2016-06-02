@@ -13,13 +13,13 @@ function fold($hof = null, $startVal = null, $traversable = null)
 }
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
-  __PRIVATE__::assertCallable($hof);
+  __CONTRACT__::argIsACallable($hof);
   if ($arrayLike instanceof CollectionInterface) {
     return $arrayLike->fold($hof, $startVal);
   }
-
+  
   $output = $startVal;
-  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
+  foreach (__PRIVATE__::protectTraversable($arrayLike) as $key => $value) {
     $output = call_user_func($hof, $output, $value, $key, $arrayLike);
   }
   return $output;

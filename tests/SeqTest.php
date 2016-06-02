@@ -309,7 +309,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   public function test_flatten_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(P\exception\InvalidContentException::class);
     testSubject::of(null)->flatten();
   }
 

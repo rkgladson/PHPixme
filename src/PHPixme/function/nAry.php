@@ -21,8 +21,8 @@ function nAry($arity = null, callable $hof = null)
 }
 const nAry = __NAMESPACE__ . '\nAry';
 __PRIVATE__::$instance[nAry] = __PRIVATE__::curryExactly2(function ($number = 0, $hof = null) {
-  __PRIVATE__::assertPositiveOrZero($number);
-  __PRIVATE__::assertCallable($hof);
+  __CONTRACT__::argIsAPositiveOrZeroInt($number);
+  __CONTRACT__::argIsACallable($hof, 1);
   return function () use ($number, $hof) {
     $args = func_get_args();
     return call_user_func_array($hof, array_slice($args, 0, $number));

@@ -39,31 +39,10 @@ class Seq implements
   public function __construct($arrayLike)
   {
     $this->assertOnce();
-    $this->hash = static::arrayLikeToArray($arrayLike);
+    $this->hash = __PRIVATE__::traversableToArray(__CONTRACT__::argIsATraversable($arrayLike));
     $this->keyR = array_keys($this->hash);
     $this->keyRBackwards = array_reverse($this->keyR);
     $this->length = count($this->hash);
-  }
-
-  /**
-   * A helper function to assist conversion of Collection and Traversable to arrays.
-   * It also is the identity function on an array
-   * @internal
-   * @param $arrayLike
-   * @return array
-   */
-  protected static function arrayLikeToArray($arrayLike)
-  {
-    if (is_array($arrayLike)) {
-      return $arrayLike;
-    }
-    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
-      return $arrayLike->toArray();
-    }
-    if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
-      return ($arrayLike->getArrayCopy());
-    }
-    return iterator_to_array(__PRIVATE__::copyTransversable($arrayLike), true);
   }
 
 
@@ -79,6 +58,7 @@ class Seq implements
 
   /**
    * @inheritdoc
+   * @return Seq
    */
   public static function from($arrayLike)
   {
@@ -225,39 +205,49 @@ class Seq implements
   /**
    * Maps over a Seq who's $hof function returns a CollectionInterface or array and flattens the result
    * into a single sequence.
-   * @param callable $hof ($value, $key, $this) -> CollectionInterface|array
+   * @param callable $hof ($value, $key, $this) -> CollectionInterface|SplFixedArray|ArrayObject|ArrayIterator|array
    * @return Seq
    */
   public function flatMap(callable $hof)
   {
-    return $this->map($hof)->flatten();
+
+    $output = [];
+    foreach (I($this->hash) as $key => $value) {
+      $intermediate = call_user_func($hof, $value, $key, $this);
+
+      $array = __PRIVATE__::getArrayFrom($intermediate);
+      $output[] = $array !== null
+        ? $array
+        // Because of self::getArrayFrom, this will ALWAYS throw its error
+        : __CONTRACT__::returnIsA(CollectionInterface::class, $intermediate);
+    }
+    return static::from(call_user_func_array('array_merge', $output));
   }
 
   /**
-   * Takes a Seq of nested Collection or array, and flattens it to a new Sequence
+   * Takes a Seq of nested CollectionInterface, SplFixedArray, ArrayObject, ArrayIterator or array, and flattens
+   * it to a new Sequence
    * Note: This is a slight deviation from the CollectionInterface spec, as flatten should always receive the
    * the same type as itself. However this has been relaxed in this case, as we know that Seq is
    * can always hold more than one value. Therefor converting single collections into a sequence is
-   * safe. As arrays are simply unwrapped seq, we can also safely accept them for flattening.
+   * safe. As arrays are simply unwrapped Seq, we can also safely accept them for flattening.
    * The outcome will always be the expected result, even with the relaxation of the rules:
    * A de-nested Seq.
    * We do not, however, know if a traversable will ever terminate, so we will not attempt to flatten those.
-   * If you have a nested sequence of transversable, iterate over them in ->flatMap and return an array.
+   * If you have a nested sequence of transversable, iterate over them with ->flatMap using unary('iterator_to_array').
    * @return Seq
    */
   public function flatten()
   {
-    return new static(
-      call_user_func_array(
-        'array_merge'
-        , array_map(
-          function ($value) {
-            return (is_array($value) ? $value : __PRIVATE__::assertReturnIsCollection($value)->toArray());
-          }
-          , $this->hash
-        )
-      )
-    );
+    $output = [];
+    foreach (I($this->hash) as $value) {
+      $array = __PRIVATE__::getArrayFrom($value);
+      $output[] = $array !== null
+        ? $array
+        // Because of self::getArrayFrom, this will ALWAYS throw its error
+        : __CONTRACT__::contentIsA(CollectionInterface::class, $value);
+    }
+    return static::from(call_user_func_array('array_merge', $output));
   }
 
   /**
@@ -369,10 +359,11 @@ class Seq implements
    */
   public function union(...$arrayLikeN)
   {
-    array_unshift($arrayLikeN, $this->hash);
-    return static::from(call_user_func_array('array_merge', map(function ($value) {
-      return static::arrayLikeToArray($value);
-    }, $arrayLikeN)));
+    $output = [$this->hash];
+    foreach ($arrayLikeN as $arg => $value) {
+      $output[] = __PRIVATE__::traversableToArray(__CONTRACT__::argIsATraversable($value, $arg));
+    }
+    return static::from(call_user_func_array('array_merge', $output));
   }
 
 

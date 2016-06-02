@@ -15,8 +15,8 @@ function combine(callable $hofSecond = null, callable $hofFirst = null)
 const combine = __NAMESPACE__ . '\combine';
 __PRIVATE__::$instance[combine] = __PRIVATE__::curryGiven([], 2, function () {
   $combine = func_get_args();
-  foreach ($combine as $hof) {
-    __PRIVATE__::assertCallable($hof);
+  foreach ($combine as $idx => $hof) {
+    __CONTRACT__::argIsACallable($hof, $idx);
   }
   $combineHead = end($combine);
   $combineTail = array_slice($combine, 0, -1);

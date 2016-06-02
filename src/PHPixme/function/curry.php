@@ -13,9 +13,9 @@ function curry($arity = null, callable $hof = null)
   return call_user_func_array(__PRIVATE__::$instance[curry], func_get_args());
 }
 const curry = __NAMESPACE__ . '\curry';
-__PRIVATE__::$instance[curry] = __PRIVATE__::curryExactly2(function ($arity, callable $callable) {
-  __PRIVATE__::assertPositiveOrZero($arity);
-  __PRIVATE__::assertCallable($callable);
+__PRIVATE__::$instance[curry] = __PRIVATE__::curryExactly2(function ($arity, $callable) {
+  __CONTRACT__::argIsAPositiveOrZeroInt($arity);
+  __CONTRACT__::argIsACallable($callable, 1);
   // The function is static so that is easier to recurse,
   // as it shares no state with itself outside its arguments.
   return __PRIVATE__::curryGiven([], $arity, $callable);

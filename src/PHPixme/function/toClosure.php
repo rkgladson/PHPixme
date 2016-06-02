@@ -5,13 +5,10 @@ namespace PHPixme;
  * takes an everyday callable and converts it to a Closure
  * @param callable $fn (*->x)
  * @return \Closure (*->x)
- * @throws \InvalidArgumentException
  * @sig callable (*->x) -> \Closure (*->x)
  */
-function toClosure($fn)
+function toClosure(callable $fn)
 {
-  __PRIVATE__::assertCallable($fn);
-
   return $fn instanceOf \Closure
     ? $fn
     : function () use ($fn) {

@@ -15,8 +15,8 @@ function before($decorator = null, $fn = null)
 }
 const before = __NAMESPACE__ . '\before';
 __PRIVATE__::$instance[before] = __PRIVATE__::curryExactly2(function ($decorator, $fn) {
-  __PRIVATE__::assertCallable($decorator);
-  __PRIVATE__::assertCallable($fn);
+  __CONTRACT__::argIsACallable($decorator);
+  __CONTRACT__::argIsACallable($fn, 1);
   return function () use ($decorator, $fn) {
     $args = func_get_args();
     call_user_func_array($decorator, $args);

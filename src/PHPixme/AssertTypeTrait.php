@@ -2,6 +2,7 @@
 
 namespace PHPixme;
 
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 
 /**
  * Class AssertTypeTrait
@@ -21,7 +22,8 @@ trait AssertTypeTrait
     if ($unknown instanceof static) {
       return $unknown;
     }
-    throw new \UnexpectedValueException(
+    throw new invalidReturn( 
+      $unknown, 
       __PRIVATE__::getDescriptor($unknown) . ' is not a kind of ' . static::class
     );
   }

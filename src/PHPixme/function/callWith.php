@@ -14,7 +14,8 @@ function callWith($accessor = null, $container = null)
 }
 const callWith = __NAMESPACE__ . '\callWith';
 __PRIVATE__::$instance[callWith] = __PRIVATE__::curryExactly2(function ($accessor, $container) {
-  $callable = __PRIVATE__::assertCallable(
+  
+  $callable = __CONTRACT__::composedIsACallable(
     is_array($container) ? (array_key_exists($accessor, $container) ? $container[$accessor] : null) : [$container, $accessor]
   );
   return function () use ($callable) {

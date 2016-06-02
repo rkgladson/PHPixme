@@ -12,8 +12,9 @@ function provided($decorator = null, $fn = null)
 }
 const provided = __NAMESPACE__ . '\provided';
 __PRIVATE__::$instance[provided] = __PRIVATE__::curryExactly2(function ($predicate, $fn) {
-  __PRIVATE__::assertCallable($predicate);
-  __PRIVATE__::assertCallable($fn);
+  __CONTRACT__::argIsACallable($predicate);
+  __CONTRACT__::argIsACallable($fn, 1);
+  
   return function () use ($predicate, $fn) {
     $args = func_get_args();
     return call_user_func_array($predicate, $args)
