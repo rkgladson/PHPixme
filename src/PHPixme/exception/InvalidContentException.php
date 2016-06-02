@@ -14,12 +14,12 @@ use PHPixme\ImmutableConstructorTrait;
 use PHPixme\Pot;
 
 /**
- * Class InvalidContentsException
+ * Class InvalidContentException
  * Represents the error of the contents (or lack there of) of a container being inappropriate for
  * the action taken.
  * @package PHPixme\exception
  */
-class InvalidContentsException extends \Exception implements CollectibleExceptionInterface
+class InvalidContentException extends \Exception implements CollectibleExceptionInterface
 {
   use ImmutableConstructorTrait, ClosedTrait;
   private $content;
