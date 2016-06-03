@@ -47,7 +47,7 @@ class InvalidArgumentException extends \InvalidArgumentException implements Coll
    * Return the violation
    * @return mixed
    */
-  public function getArgument()
+  public function get()
   {
     return $this->argument;
   }
