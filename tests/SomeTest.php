@@ -102,6 +102,9 @@ class SomeTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @coversNothing 
+   */
   public function test_fold_callback($value = true, $startValue = null)
   {
     $ran = 0;

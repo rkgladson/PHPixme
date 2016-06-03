@@ -158,4 +158,12 @@ class None extends Maybe
   {
     return new \EmptyIterator();
   }
+
+  /**
+   * @inheritdoc
+   */
+  public function apply(FunctorInterface $functor)
+  {
+    __PRIVATE__::assertContentsCallable(null);
+  }
 }

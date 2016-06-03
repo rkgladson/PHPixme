@@ -176,6 +176,27 @@ class Seq implements
 
   /**
    * @inheritdoc
+   * Yet another deviation form description.
+   * While it keeps the contract, a Functor return, it requires $functor to be a MultipleStaticCreation implementor
+   * in order to stay true to the Functor Type. Otherwise it substitutes itself, which can be seen as a Semigroup
+   * of Monads
+   * @return MultipleStaticCreation
+   */
+  public function apply(FunctorInterface $functor) {
+    $output = [];
+    foreach (I($this->hash) as $hof) {
+      foreach(($functor->map(__CONTRACT__::contentIsACallable($hof))) as $value) {
+        $output[] = $value;
+      }
+    }
+
+    return $functor instanceof MultipleStaticCreation
+      ? $functor::from($output)
+      : new static($output);
+  }
+
+  /**
+   * @inheritdoc
    */
   public function filter(callable $hof)
   {

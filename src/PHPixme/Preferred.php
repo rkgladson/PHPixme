@@ -94,6 +94,14 @@ class Preferred extends Exclusive implements
 
   /**
    * @inheritdoc
+   */
+  public function apply(FunctorInterface $functor)
+  {
+    return $functor->map(__CONTRACT__::contentIsACallable($this->value));
+  }
+
+  /**
+   * @inheritdoc
    * @return Exclusive
    */
   public function flatMap(callable $hof)

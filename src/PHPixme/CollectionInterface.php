@@ -16,6 +16,7 @@ namespace PHPixme;
 interface CollectionInterface extends
   // We make no assumption about the kind of static creation it will have, rather that it will have it
   ApplicativeInterface
+  , ApplyInterface
   , FunctorInterface
   , FlatMapInterface
   // Collections should not store their own iteration state, but rather delegate it to another object

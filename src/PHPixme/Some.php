@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/4/2016
- * Time: 10:20 AM
- */
-
 namespace PHPixme;
 
 /**
@@ -206,5 +199,13 @@ class Some extends Maybe
   public function getIterator()
   {
     return new \ArrayIterator([$this->x]);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function apply(FunctorInterface $functor)
+  {
+    return $functor->map(__PRIVATE__::assertContentsCallable($this->x));
   }
 }

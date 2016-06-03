@@ -9,8 +9,9 @@
 namespace PHPixme;
 
 /**
- * Interface StaticCreation
+ * Interface ApplicativeInterface
  * Denotes that the class implements some kind of **of** static method
+ * In scalaZ this is known as point.
  * @package PHPixme
  */
 interface ApplicativeInterface

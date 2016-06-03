@@ -129,6 +129,14 @@ class Success extends Attempt implements
   /**
    * @inheritdoc
    */
+  public function apply(FunctorInterface $functor)
+  {
+    return $functor->map(__CONTRACT__::contentIsACallable($this->value));
+  }
+
+  /**
+   * @inheritdoc
+   */
   public function recover(callable $rescueException)
   {
     return $this;

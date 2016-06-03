@@ -72,13 +72,31 @@ class Pot extends \Exception implements
   }
 
   /**
+   * A short hand for modifying the contents of the pot without modifying the state of the pot
+   * @param $value
+   * @return static
+   */
+  protected function newContents($value) {
+    return new static($value, $this->message, $this->code, $this->getPrevious());
+  }
+
+  /**
    * Map across the container
    * @param callable $hof ($value, $key, $container): mixed
    * @return Pot
    */
   public function map(callable $hof)
   {
-    return static::of(call_user_func($hof, $this->contents, 0, $this));
+    return $this->newContents(call_user_func($hof, $this->contents, 0, $this));
+  }
+
+  /**
+   * @inheritdoc
+   * Warning: May not return a \Throwable
+   */
+  public function apply(FunctorInterface $functor)
+  {
+    return $functor->map(__CONTRACT__::contentIsACallable($this->contents));
   }
 
   /**
@@ -119,7 +137,7 @@ class Pot extends \Exception implements
    */
   public function flatten()
   {
-    return Pot::assertType($this->contents);
+    return __CONTRACT__::contentIsA(self::class, $this->contents);
   }
 
   /**
