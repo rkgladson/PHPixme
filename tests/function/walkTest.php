@@ -3,98 +3,78 @@ namespace tests\PHPixme;
 
 use PHPixme as P;
 
+/**
+ * Class walkTest
+ * @package tests\PHPixme
+ */
 class walkTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_constant()
   {
-    $this->assertStringEndsWith(
-      '\walk'
-      , P\walk
-      , 'Ensure the constant is assigned to its function name'
-    );
-    $this->assertTrue(
-      function_exists(P\walk)
-      , 'Ensure the constant points to an existing function.'
-    );
+    self::assertStringEndsWith('\walk', P\walk);
+    self::assertTrue(function_exists(P\walk));
   }
 
   /**
+   * @coversNothing
    * @dataProvider callbackProvider
    */
   public function test_callback($arrayLike, $expVal, $expKey)
   {
     $ran = 0;
     P\walk(function () use ($arrayLike, $expVal, $expKey, &$ran) {
-      $this->assertTrue(
-        3 === func_num_args()
-        , 'callback should receive three arguments'
-      );
-      $this->assertEquals(
-        $expVal
-        , func_get_arg(0)
-        , 'callback $value should be equal to the value expected'
-      );
-      $this->assertEquals(
-        $expKey
-        , func_get_arg(1)
-        , 'callback $key should be defined'
-      );
+      self::assertEquals(3, func_num_args());
+      list($v, $k, $c) = func_get_args();
 
-      $this->assertTrue(
-        $arrayLike === func_get_arg(2)
-        , 'callback $container should be the same as the source data being operated upon'
-      );
+      self::assertSame($expVal, $v);
+      self::assertSame($expKey, $k);
+      self::assertSame($arrayLike, $c);
+
       $ran += 1;
     }, $arrayLike);
-    $this->assertTrue($ran > 0, 'the callback should of ran');
+    self::assertTrue($ran > 0, 'the callback should of ran');
   }
 
-  public function test_return($array = [1, 2, 3])
+  /**
+   * todo: figure out how to get phpunit to cover the closure only
+   */
+  public function test_return()
   {
+    $array = [1, 2, 3];
+    $jai = new JustAnIterator($array);
+    $seq = new P\Seq($array);
+    $subject = P\walk(noop);
 
-    $this->assertInstanceOf(
-      Closure
-      , P\walk(P\I)
-      , 'map when partially applied should return a closure'
-    );
-    $result = P\walk(P\I)->__invoke($array);
-    $this->assertTrue(
-      $array === $result
-      , 'applied should produce a the same as what was passed into it.'
-    );
-
+    self::assertInstanceOf(\Closure::class, $subject);
+    self::assertEquals($seq, $subject($seq));
+    self::assertEquals($array, $subject($array));
+    self::assertEquals($jai, $subject($jai));
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_iterator_immutability()
   {
-    $test = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $test = new JustAnIterator([1, 2, 3, 4, 5]);
     $test->next();
     $prevKey = $test->key();
-    P\walk(P\I, $test);
-    $this->assertTrue(
-      $prevKey === $test->key()
-      , 'The function must not alter the state of an iterator.'
-    );
+    P\walk(identity, $test);
+    self::assertEquals($prevKey, $test->key());
   }
 
   public function callbackProvider()
   {
+    $source = [1];
     return [
-      '[1]' => [
-        [1], 1, 0
-      ]
-      , 'S[1]' => [
-        P\Seq::of(1), 1, 0
-      ]
-      , 'Some(1)' => [
-        P\Some::of(1), 1, 0
-      ]
-      , 'ArrayIterator[1]' => [
-        new \ArrayIterator([1]), 1, 0
-      ]
-      , 'ArrayObject[1]' => [
-        new \ArrayObject([1]), 1, 0
-      ]
+      'array callback' => [$source, $source[0], 0]
+      , 'iterator aggregate callback' => [new \ArrayObject($source), $source[0], 0]
+      , 'iterator callback' => [new \ArrayIterator($source), $source[0], 0]
+      , 'natural interface callback' => [P\Seq($source), $source[0], 0]
+      , 'just an iterator' => [new JustAnIterator($source), $source[0], 0]
     ];
   }
 }

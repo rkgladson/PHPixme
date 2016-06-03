@@ -1088,7 +1088,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       , 'Array({one:1, two: 2})' => [['one' => 1, 'two' => 2]]
       , 'ArrayObject({one:1, two: 2})' => [new \ArrayObject(['one' => 1, 'two' => 2])]
       , 'ArrayIterator({one:1, two: 2})' => [new \ArrayIterator(['one' => 1, 'two' => 2])]
-      , 'JustAIterator({one:1, two: 2})' => [new JustAIterator(['one' => 1, 'two' => 2])]
+      , 'JustAIterator({one:1, two: 2})' => [new JustAnIterator(['one' => 1, 'two' => 2])]
       , 'S[]' => [testNew([])]
       , 'S[1,2,3]' => [testNew([1, 2, 3])]
     ];

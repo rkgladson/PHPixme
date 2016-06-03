@@ -90,7 +90,7 @@ namespace tests\PHPixme {
     }
   }
 
-  class JustAIterator implements \Iterator
+  class JustAnIterator implements \Iterator
   {
     private $data = [];
 

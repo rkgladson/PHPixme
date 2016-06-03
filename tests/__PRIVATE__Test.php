@@ -103,7 +103,7 @@ class __PRIVATE__Test extends \PHPUnit_Framework_TestCase
   public function test_protectTraversable()
   {
     $subjectR = [1, 2, 3];
-    $subjectI = new JustAIterator($subjectR);
+    $subjectI = new JustAnIterator($subjectR);
 
     $resultI = internal::protectTraversable($subjectI);
 
@@ -666,7 +666,7 @@ class __PRIVATE__Test extends \PHPUnit_Framework_TestCase
       $this->wellKnownContainers()
       , [
         'EmptyIterator' => [new \EmptyIterator(), []]
-        , 'JustAnIterator' => [new JustAIterator($filled), $filled]
+        , 'JustAnIterator' => [new JustAnIterator($filled), $filled]
       ]
     );
   }

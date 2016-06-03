@@ -15,29 +15,19 @@ const foldRight = __NAMESPACE__ . '\foldRight';
 __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
   __CONTRACT__::argIsACallable($hof);
   __CONTRACT__::argIsATraversable($arrayLike, 2);
-  
+
   if ($arrayLike instanceof CollectionInterface) {
     return $arrayLike->foldRight($hof, $startVal);
   }
-  
-  $array = __PRIVATE__::getArrayFrom($arrayLike);
-  if ($array !== null) {
-    $output = $startVal;
-    end($array);
-    while (!is_null($key = key($array))) {
-      $output = call_user_func($hof, $output, current($array), $key, $arrayLike);
-      prev($array);
-    }
-    return $output;
-  }
-  
-  $pairs = [];
-  foreach (__PRIVATE__::copyTransversable($arrayLike) as $key => $value) {
-    array_unshift($pairs, [$key, $value]);
-  }
+
+  // Use traversableToArray, because right is non-lazy on \Traversable
+  $array = __PRIVATE__::traversableToArray($arrayLike);
+
   $output = $startVal;
-  foreach ($pairs as $kp) {
-    $output = call_user_func($hof, $output, $kp[1], $kp[0], $arrayLike);
+  end($array);
+  while (!is_null($key = key($array))) {
+    $output = call_user_func($hof, $output, current($array), $key, $arrayLike);
+    prev($array);
   }
   return $output;
 });
