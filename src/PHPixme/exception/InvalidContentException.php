@@ -42,7 +42,7 @@ class InvalidContentException extends \Exception implements CollectibleException
    * Returns the inappropriate content
    * @return mixed
    */
-  public function getContent() {
+  public function get() {
     return $this->content;
   }
 
