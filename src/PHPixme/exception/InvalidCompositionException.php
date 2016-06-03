@@ -33,7 +33,7 @@ class InvalidCompositionException extends \Exception implements CollectibleExcep
   /**
    * @return mixed
    */
-  public function getComposition() {
+  public function get() {
     return $this->composition;
   }
 
