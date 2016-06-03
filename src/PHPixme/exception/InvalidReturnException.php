@@ -31,7 +31,7 @@ class InvalidReturnException extends \UnexpectedValueException implements Collec
   /**
    * @return string
    */
-  public function getReturn()
+  public function get()
   {
     return $this->return;
   }
