@@ -16,19 +16,14 @@ namespace PHPixme;
 interface CollectionInterface extends
   // We make no assumption about the kind of static creation it will have, rather that it will have it
   ApplicativeInterface
+  , FunctorInterface
+  , FlatMapInterface
   // Collections should not store their own iteration state, but rather delegate it to another object
-  , \IteratorAggregate
+  
 {
 
   // -- application --
-  /**
-   * Map across the container
-   * @param callable $hof ($value, $key, $container): mixed
-   * @return self
-   * @sig (($value, $key, $container) -> x) -> static(x)
-   */
-  public function map(callable $hof);
-
+  
   /**
    * Fold across this class
    * @param callable $hof ($prevVal, $value, $key, $container): mixed
@@ -45,14 +40,6 @@ interface CollectionInterface extends
    * @return mixed - whatever the last cycle of $hof returns
    */
   public function foldRight(callable $hof, $startVal);
-
-  /**
-   * @param callable $hof ($value, $key, $container):static
-   * @return self
-   * @throws \Exception - if the data type returned by callback wasn't its kind
-   * @sig (($value, $key, $container) -> static ) -> static
-   */
-  public function flatMap(callable $hof);
 
 
   /**
@@ -110,17 +97,7 @@ interface CollectionInterface extends
   public function forSome(callable $predicate);
 
   // == Query ==
-
-  // -- Iteration --
-  /**
-   * Preform $hof over the container
-   * @param callable $hof ($value, $key, $container) : null
-   * @return $this
-   * @sig (($value $key $container) -> null) -> $this
-   */
-  public function walk(callable $hof);
-  // -- Iteration --
-
+  
   // -- Conversion --
   /**
    * Converts the container to an array, in any structure that is appropriate within that array

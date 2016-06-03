@@ -16,7 +16,7 @@ __PRIVATE__::$instance[map] = __PRIVATE__::curryExactly2(function ($hof, $traver
   __CONTRACT__::argIsACallable($hof);
   __CONTRACT__::argIsATraversable($traversable, 1);
   
-  if ($traversable instanceof CollectionInterface) {
+  if ($traversable instanceof FunctorInterface) {
     return $traversable->map($hof);
   }
   
