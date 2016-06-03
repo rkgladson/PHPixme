@@ -95,8 +95,8 @@ class __CONTRACT__Test extends \PHPUnit_Framework_TestCase
   }
 
   /**
- * @covers ::contentIsA
- */
+   * @covers ::contentIsA
+   */
   public function test_contentIsA()
   {
     $subject = new \stdClass();
@@ -112,6 +112,26 @@ class __CONTRACT__Test extends \PHPUnit_Framework_TestCase
     $this->expectException(invalidContent::class);
     contract::contentIsA(\stdClass::class, function () {
     });
+
+  }
+
+  /**
+   * @covers ::contentIsACallable
+   * @dataProvider callableProvider
+   */
+  public function test_contentIsACallable($subject)
+  {
+    self::assertSame($subject, contract::contentIsACallable($subject));
+  }
+
+  /**
+   * @covers ::contentIsACallable
+   * @dataProvider notCallableProvider
+   */
+  public function test_contentIsACallable_exception($notCallable)
+  {
+    $this->expectException(invalidContent::class);
+    contract::contentIsACallable($notCallable);
 
   }
 

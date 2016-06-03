@@ -84,6 +84,17 @@ abstract class __CONTRACT__
     }
     throw new invalidContent($contents, "content was not of a $classPath type");
   }
+  /**
+   * @param mixed $contents
+   * @return callable
+   * @throws invalidContent
+   */
+  static public function contentIsACallable($contents) {
+    if (is_callable($contents)) {
+      return $contents;
+    }
+    throw new invalidContent($contents, "content was not a callable");
+  }
   
   /**
    * Checks the return of a callback to be of the expected type
