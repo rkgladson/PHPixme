@@ -10,11 +10,14 @@ namespace PHPixme;
 
 /**
  * Class NothingCollectionTrait
- * A boilerplate for { @see CollectionInterface } that are a perceived nothing by the interface.
+ * A boilerplate for implementors of { @see CollectionInterface } that are a perceived nothing
  * @package PHPixme
  */
 trait NothingCollectionTrait
 {
+  use NothingFunctorTrait
+    , NothingApplyTrait
+    , NothingFlatMapTrait;
   /**
    * @inheritdoc
    * @see CollectionInterface::isEmpty
@@ -24,40 +27,6 @@ trait NothingCollectionTrait
   final public function isEmpty()
   {
     return true;
-  }
-
-  /**
-   * @inheritdoc
-   * @see FunctorInterface::map
-   * This is a no-op on perceived nothings
-   * @return $this
-   */
-  final public function map(callable $hof)
-  {
-    return $this;
-  }
-
-  /**
-   * Nothing should return itself, as a 'Nothing' is not a run-time error, but a stand in
-   * for a no operation step.
-   * @param FunctorInterface $functor
-   * @return $this
-   */
-  final public function apply(FunctorInterface $functor) {
-    return $this;
-  }
-
-
-
-  /**
-   * @inheritdoc
-   * @see CollectionInterface::flatMap
-   * This is a no-op on perceived nothings
-   * @return $this
-   */
-  final public function flatMap(callable $hof)
-  {
-    return $this;
   }
 
   /**
@@ -125,19 +94,7 @@ trait NothingCollectionTrait
   {
     return false;
   }
-
-
-  /**
-   * @inheritdoc
-   * @see CollectionInterface::walk
-   * This is a no-op on perceived nothings
-   * @return $this
-   */
-  final public function walk(callable $hof)
-  {
-    return $this;
-  }
-
+  
   /**
    * @inheritdoc
    * @see CollectionInterface::find
