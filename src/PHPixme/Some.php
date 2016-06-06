@@ -206,6 +206,6 @@ class Some extends Maybe
    */
   public function apply(FunctorInterface $functor)
   {
-    return $functor->map(__PRIVATE__::assertContentsCallable($this->x));
+    return $functor->map(__CONTRACT__::contentIsACallable($this->x));
   }
 }
