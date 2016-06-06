@@ -188,6 +188,32 @@ class PotTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @coversNothing
+   */
+  public function test_apply_contract() {
+    $this->expectException(P\exception\InvalidContentException::class);
+    testNew(null)->apply(testNew(null));
+  }
+
+  /**
+   * @covers ::apply
+   */
+  public function test_apply() {
+    $ran = 0;
+    $expect = 1;
+    $testFn = function () use (&$ran, $expect) {
+      $ran +=1;
+      return $expect;
+    };
+    $functor = testNew(null);
+
+    $result = testNew($testFn)->apply($functor);
+
+    self::assertGreaterThan(0, $ran);
+    self::assertEquals($functor->map($testFn), $result);
+  }
+
+  /**
+   * @coversNothing
    * @dataProvider foldCallbackProvider
    */
   public function test_fold_callback($value, $startValue)
