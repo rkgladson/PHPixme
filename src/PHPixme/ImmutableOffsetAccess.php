@@ -64,7 +64,7 @@ interface ImmutableOffsetAccess
    * @param callable $fn (mixed $value, mixed $key, self $container)-> mixed $z
    * @return self
    */
-  public function offsetApply($offset, callable $fn);
+  public function offsetAdjust($offset, callable $fn);
 
   /**
    * Unset the offset on a copy of the collection and returns the omitting collection.

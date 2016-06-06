@@ -6,16 +6,64 @@ use PHPixme\Seq as testSubject;
 use function PHPixme\Seq as testNew;
 use const PHPixme\Seq as testConst;
 
+/**
+ * Class SeqTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Seq
+ */
 class SeqTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_Seq_constants()
   {
     self::assertEquals(testSubject::class, testConst);
     self::assertTrue(function_exists(testSubject::class));
   }
 
+  /** @coversNothing  */
+  public function test_trait()
+  {
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+  }
+
+  /**
+   * @coversNothing
+   */
+  public function test_constructor_iterator_immutability()
+  {
+    $value = new \ArrayIterator([1, 2, 3, 4, 5]);
+    $value->next();
+    $prevKey = $value->key();
+
+    new testSubject($value);
+
+    self::assertSame($prevKey, $value->key());
+  }
+
+  /** @coversNothing  */
+  public function test_patience()
+  {
+    $this->expectException(P\exception\MutationException::class);
+    (new testSubject([]))->__construct([1]);
+  }
+
+  /**
+   * @covers ::__construct
+   * @dataProvider valueProvider
+   */
+  public function test_new($value) {
+    $result = new testSubject($value);
+    self::assertAttributeSame(self::toArray($value), 'hash', $result);
+  }
+
   /**
    * @dataProvider valueProvider
+   * @covers PHPixme\Seq
    */
   public function test_seq_companion($value)
   {
@@ -27,6 +75,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::of
    */
   public function test_applicative($value)
   {
@@ -41,6 +90,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::from
    */
   public function test_from($value)
   {
@@ -50,33 +100,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new testSubject($value), $results);
   }
 
-  public function test_constructor_iterator_immutability()
-  {
-    $value = new \ArrayIterator([1, 2, 3, 4, 5]);
-    $value->next();
-    $prevKey = $value->key();
-
-    new testSubject($value);
-
-    self::assertSame($prevKey, $value->key());
-  }
-
-  public function test_trait()
-  {
-    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
-
-    self::assertContains(P\ClosedTrait::class, $traits);
-    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
-  }
-
-  public function test_patience()
-  {
-    $this->expectException(P\exception\MutationException::class);
-    (new testSubject([]))->__construct([1]);
-  }
-
   /**
    * @dataProvider valueProvider
+   * @covers ::count
    */
   public function test_count($value)
   {
@@ -88,6 +114,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::isEmpty
    */
   public function test_isEmpty($value)
   {
@@ -99,6 +126,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::toArray
    */
   public function test_toArray($value)
   {
@@ -107,6 +135,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::values
    */
   public function test_values($value)
   {
@@ -116,6 +145,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::keys
    */
   public function test_keys($value)
   {
@@ -125,6 +155,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::reverse
    */
   public function test_reverse($value)
   {
@@ -133,6 +164,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::__invoke
    */
   public function test_magic_invoke($value)
   {
@@ -145,6 +177,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_map_callback(testSubject $subject)
   {
@@ -166,6 +199,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::map
    */
   public function test_map_return(testSubject $subject)
   {
@@ -176,7 +210,26 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
+   * @covers ::apply
+   */
+  public function test_apply() {
+    $functor = testSubject::of(1,2,3);
+    $map = function ($hof) use ($functor) {
+      return $functor->map($hof);
+    };
+    $subject = testSubject::of(identity, noop);
+
+    self::assertEquals($functor::from($subject->flatMap($map)), $subject->apply($functor));
+  }
+
+  public function test_apply_contract() {
+    $this->expectException(P\exception\InvalidContentException::class);
+    testNew([null])->apply(testSubject::of(1,2,3));
+  }
+
+  /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_filter_callback(testSubject $subject)
   {
@@ -198,6 +251,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::filter
    */
   public function test_filter(testSubject $subject)
   {
@@ -215,6 +269,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   function test_filterNot_callback(testSubject $subject)
   {
@@ -236,6 +291,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::filterNot
    */
   public function test_filterNot(testSubject $subject)
   {
@@ -253,6 +309,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider nestedValueProvider
+   * @coversNothing
    */
   public function test_flatMap_callback($value)
   {
@@ -273,6 +330,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(count($subject), $ran);
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_flatMap_contract_broken()
   {
     $this->expectException(\UnexpectedValueException::class);
@@ -281,7 +341,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider nestedValueProvider
-   * @depends      test_toArray
+   * @covers ::flatMap
    */
   public function test_flatMap_return($value, $expected)
   {
@@ -295,7 +355,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider nestedValueProvider
-   * @depends      test_toArray
+   * @covers ::flatten
    */
   public function test_flatten_return($value, $expected)
   {
@@ -307,6 +367,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(testNew($expected), $result);
   }
 
+  /** @coversNothing  */
   public function test_flatten_contract_broken()
   {
     $this->expectException(P\exception\InvalidContentException::class);
@@ -315,6 +376,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_fold_callback(testSubject $subject)
   {
@@ -338,6 +400,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider numericSubjectProvider
+   * @covers ::fold
    */
   public function test_fold_return(testSubject $subject)
   {
@@ -351,6 +414,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_foldRight_callback(testSubject $subject)
   {
@@ -374,6 +438,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::foldRight
    */
   public function test_foldRight_direction(testSubject $subject)
   {
@@ -390,6 +455,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider numericSubjectProvider
+   * @covers ::foldRight
    */
   public function test_foldRight_return(testSubject $subject)
   {
@@ -403,6 +469,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_forAll_callback(testSubject $subject)
   {
@@ -424,6 +491,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectNumericRangeProvider
+   * @covers ::forAll
    */
   public function test_forAll_return(testSubject $subject)
   {
@@ -437,6 +505,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_forNone_callback(testSubject $subject)
   {
@@ -463,6 +532,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectNumericRangeProvider
+   * @covers ::forNone
    */
   public function test_forNone_scenario_positive(testSubject $subject)
   {
@@ -476,6 +546,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_forSome_callback(testSubject $subject)
   {
@@ -502,6 +573,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectNumericRangeProvider
+   * @covers ::forSome
    */
   public function test_forSome_return(testSubject $subject)
   {
@@ -515,6 +587,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider nonEmptySubjectProvider
+   * @coversNothing
    */
   public function test_reduce_callback(testSubject $subject)
   {
@@ -536,6 +609,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(count($subject), $ran);
   }
 
+  /** @covers ::reduce  */
   public function test_reduce_contract_broken()
   {
     $this->expectException(\LengthException::class);
@@ -544,6 +618,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider numericSubjectProvider
+   * @covers ::reduce
    */
   public function test_reduce_return(testSubject $subject)
   {
@@ -557,6 +632,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider nonEmptySubjectProvider
+   * @coversNothing
    */
   public function test_reduceRight_callback(testSubject $subject)
   {
@@ -578,12 +654,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(count($subject), $ran);
   }
 
-  public function test_reduceRight_contract_broken()
-  {
-    $this->expectException(\LengthException::class);
-    testNew([])->reduceRight(noop);
-  }
-
+  /**
+   * @coversNothing
+   */
   public function test_reduceRight_direction()
   {
     $value = ['e' => 1, 'd' => 2, 'c' => 3, 'b' => 4, 5];
@@ -595,8 +668,16 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals($expected, testNew($value)->reduceRight($joinKeys));
   }
 
+  /** @covers ::reduceRight  */
+  public function test_reduceRight_contract_broken()
+  {
+    $this->expectException(\LengthException::class);
+    testNew([])->reduceRight(noop);
+  }
+
   /**
    * @dataProvider numericSubjectProvider
+   * @covers ::reduceRight
    */
   public function test_reduceRight_return(testSubject $subject)
   {
@@ -610,6 +691,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider unionDataProvider
+   * @covers ::union
    */
   public function test_union(testSubject $subject, $arrayLikeN, $expected)
   {
@@ -620,6 +702,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  /** @coversNothing  */
   public function test_find_callback()
   {
     $ran = 0;
@@ -639,6 +722,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran);
   }
 
+  /**
+   * @covers ::find
+   */
   public function test_find()
   {
     $subject = testSubject::of(1, 2, 3);
@@ -653,6 +739,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @coversNothing
    */
   public function test_walk_callback(testSubject $subject)
   {
@@ -673,6 +760,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::walk
    */
   public function test_walk(testSubject $subject)
   {
@@ -681,6 +769,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::head
    */
   public function test_head(testSubject $subject)
   {
@@ -692,6 +781,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::headMaybe
    */
   public function test_headMaybe(testSubject $subject)
   {
@@ -706,6 +796,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::tail
    */
   public function test_tail(testSubject $subject)
   {
@@ -716,6 +807,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider indexOfProvider
+   * @covers ::indexOf
    */
   public function test_indexOf(testSubject $haystack, $needle, $expected)
   {
@@ -728,6 +820,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider partitionProvider
+   * @coversNothing
    */
   public function test_partition_callback(testSubject $subject)
   {
@@ -749,6 +842,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider partitionProvider
+   * @covers ::partition
    */
   public function test_partition(testSubject $subject, $hof, $expected)
   {
@@ -761,6 +855,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider partitionWithKeyProvider
+   * @coversNothing
    */
   public function test_partitionWithKey_callback(testSubject $subject)
   {
@@ -781,6 +876,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider partitionWithKeyProvider
+   * @covers ::partitionWithKey
    */
   public function test_partitionWithKey(testSubject $subject, $hof, $expected)
   {
@@ -793,6 +889,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider groupProvider
+   * @coversNothing
    */
   public function test_group_callback(testSubject $subject)
   {
@@ -814,6 +911,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider groupProvider
+   * @covers ::group
    */
   public function test_group(testSubject $subject, $hof, $expected)
   {
@@ -826,6 +924,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider groupWithKeyProvider
+   * @coversNothing
    */
   public function test_groupWithKey_callback(testSubject $subject)
   {
@@ -847,6 +946,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider groupWithKeyProvider
+   * @covers ::groupWithKey
    */
   public function test_groupWithKey(testSubject $subject, $hof, $expected)
   {
@@ -859,6 +959,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider dropProvider
+   * @covers ::drop
    */
   public function test_drop(testSubject $subject, $number, $expected)
   {
@@ -871,6 +972,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider dropRightProvider
+   * @covers ::dropRight
    */
   public function test_dropRight(testSubject $subject, $amount, $expected)
   {
@@ -882,6 +984,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
   /**
    * @dataProvider takeProvider
+   * @covers ::take
    */
   public function test_take(testSubject $subject, $amount, $expected)
   {
@@ -894,6 +997,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider takeRightProvider
+   * @covers ::takeRight
    */
   public function test_takeRight(testSubject $subject, $amount, $expected)
   {
@@ -906,6 +1010,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::toString
    */
   public function test_toString($value)
   {
@@ -916,6 +1021,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider valueProvider
+   * @covers ::toJson
    */
   public function test_toJson($value)
   {
@@ -924,6 +1030,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider subjectProvider
+   * @covers ::getIterator
    */
   public function test_forEach(testSubject $subject)
   {
@@ -945,6 +1052,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(count($subject) ** 2, $count);
   }
 
+  /**
+   * @covers ::offsetExists
+   */
   public function test_offsetExists($value = true, $offset = '1')
   {
     $source[$offset] = $value;
@@ -955,6 +1065,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertFalse($subject->offsetExists($notOffset));
   }
 
+  /**
+   * @covers  ::offsetGet
+   */
   public function test_offsetGet($value = true, $offset = '1')
   {
     $source[$offset] = $value;
@@ -965,6 +1078,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertNull($subject->offsetGet($notOffset));
   }
 
+  /**
+   * @covers ::offsetGetMaybe
+   */
   public function test_offsetGetMaybe($value = true, $offset = '1')
   {
     $notOffset = $offset . 'nope';
@@ -978,6 +1094,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(P\None::class, $subject->offsetGetMaybe($notOffset));
   }
 
+  /**
+   * @covers ::offsetGetAttempt
+   */
   public function test_offsetGetAttempt($value = true, $offset = '1')
   {
     $source[$offset] = $value;
@@ -996,6 +1115,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(P\exception\VacuousOffsetException::class, $resultException);
   }
 
+  /**
+   * @covers ::offsetSet
+   */
   public function test_offsetSet($value = true)
   {
     $expectedInsertedAtLocation[1] = $value;
@@ -1013,7 +1135,10 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals($expectedInsertedAtEnd, $resultPush->toArray());
   }
 
-  public function test_offsetApply()
+  /**
+   * @covers ::offsetAdjust
+   */
+  public function test_offsetAdjust()
   {
     $subject = testSubject::of(1, 2, 3);
     $offset = 1;
@@ -1029,16 +1154,19 @@ class SeqTest extends \PHPUnit_Framework_TestCase
       return $v + 2;
     };
 
-    $result = $subject->offsetApply($offset, $plus2);
+    $result = $subject->offsetAdjust($offset, $plus2);
 
     self::assertEquals(1, $ran);
     self::assertInstanceOf(testSubject::class, $result);
     self::assertNotSame($subject, $result);
     self::assertEquals([1, 4, 3], $result->toArray());
 
-    self::assertSame($subject, $subject->offsetApply(null, doNotRun));
+    self::assertSame($subject, $subject->offsetAdjust(null, doNotRun));
   }
 
+  /**
+   * @covers ::offsetUnset
+   */
   public function test_offsetUnset($source = [1, 2, 3], $offset = 2)
   {
     $subject = testNew($source);
@@ -1052,6 +1180,9 @@ class SeqTest extends \PHPUnit_Framework_TestCase
     self::assertEquals($expected, $result->toArray());
   }
 
+  /**
+   * @covers ::toArrayAccess
+   */
   public function test_toArrayObject($source = [1, 2, 3])
   {
     $result = testNew($source)->toArrayAccess();

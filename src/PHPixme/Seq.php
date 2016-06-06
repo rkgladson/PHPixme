@@ -50,8 +50,9 @@ class Seq implements
    * @param string|int $key
    * @param array $hash
    * @return bool
+   * @codeCoverageIgnore
    */
-  protected static function keyDefined($key, array &$hash)
+  protected static function keyDefined(&$key, array &$hash)
   {
     return isset($hash[$key]) || array_key_exists($key, $hash);
   }
@@ -132,7 +133,7 @@ class Seq implements
   /**
    * @inheritdoc
    */
-  public function offsetApply($offset, callable $fn)
+  public function offsetAdjust($offset, callable $fn)
   {
     if (static::keyDefined($offset, $this->hash)) {
       $output = $this->hash;
@@ -178,8 +179,10 @@ class Seq implements
    * @inheritdoc
    * Yet another deviation form description.
    * While it keeps the contract, a Functor return, it requires $functor to be a MultipleStaticCreation implementor
-   * in order to stay true to the Functor Type. Otherwise it substitutes itself, which can be seen as a Semigroup
-   * of Monads
+   * in order to stay true to the Functor Type. Otherwise it substitutes itself, which can be seen as a Group
+   * of Monads. In a strict language, it would make sense to only allow apply on its own kind, however
+   * because of PHP's poor typing system, and the implications of having needlessly nested items,
+   * the result is flattened.
    * @return MultipleStaticCreation
    */
   public function apply(FunctorInterface $functor) {
