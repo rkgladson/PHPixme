@@ -14,8 +14,16 @@ use const PHPixme\Exclusive as testConst;
 use PHPixme\Undesired as lhs;
 use PHPixme\Preferred as rhs;
 
+/**
+ * Class ExclusiveTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Exclusive
+ */
 class ExclusiveTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_constants()
   {
     self::assertEquals(testSubject::class, testConst);
@@ -23,6 +31,9 @@ class ExclusiveTest extends \PHPUnit_Framework_TestCase
     self::assertSame(0, testSubject::shortName);
   }
 
+  /**
+   * @covers ::of
+   */
   public function test_applicative($value = 1)
   {
     $result = testSubject::of($value);
@@ -33,6 +44,9 @@ class ExclusiveTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(rhs::of($value), $result);
   }
 
+  /**
+   * @covers ::ofLeft
+   */
   public function test_left_applicative($value = 1)
   {
     $result = testSubject::ofLeft($value);
@@ -43,6 +57,9 @@ class ExclusiveTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(lhs::of($value), $result);
   }
 
+  /**
+   * @covers ::ofRight
+   */
   public function test_right_applicative($value = 1)
   {
     $result = testSubject::ofRight($value);
