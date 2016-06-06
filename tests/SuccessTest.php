@@ -7,9 +7,15 @@ use function PHPixme\Success as testNew;
 use const PHPixme\Success as testConst;
 use PHPixme\Failure as oppositeSubject;
 
+/**
+ * Class SuccessTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Success
+ */
 class SuccessTest extends \PHPUnit_Framework_TestCase
 {
 
+  /** @coversNothing */
   public function test_constants()
   {
     self::assertSame(testSubject::class, testConst);
@@ -21,6 +27,34 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     );
   }
 
+  /**
+   * @coversNothing
+   */
+  public function test_traits()
+  {
+    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+
+    self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\RightHandedTrait::class, $traits);
+  }
+
+  /** @covers ::__construct */
+  public function test_new($value = false)
+  {
+    $result = new testSubject($value);
+
+    self::assertAttributeSame($value, 'value', $result);
+  }
+
+  /** @coversNothing */
+  public function test_patience()
+  {
+    $this->expectException(P\exception\MutationException::class);
+    (new testSubject(1))->__construct(2);
+  }
+
+  /** @covers PHPixme\Success */
   public function test_companion($value = false)
   {
     $subject = testNew($value);
@@ -28,30 +62,23 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new testSubject($value), $subject);
   }
 
+  /** @covers ::of */
   public function test_applicative($value = false)
   {
     $subject = testSubject::of($value);
-    
+
     self::assertInstanceOf(P\ApplicativeInterface::class, $subject);
     self::assertInstanceOf(testSubject::class, $subject);
     self::assertEquals(new testSubject($value), $subject);
   }
 
-  public function test_traits()
-  {
-    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
-    
-    self::assertContains(P\ClosedTrait::class, $traits);
-    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
-    self::assertContains(P\RightHandedTrait::class, $traits);
-  }
-
-  public function test_patience()
-  {
-    $this->expectException(P\exception\MutationException::class);
-    (new testSubject(1))->__construct(2);
-  }
-
+  /**
+   * @covers ::isSuccess
+   * @covers ::isFailure
+   * @covers ::isEmpty
+   * @covers ::isLeft
+   * @covers ::isRight
+   */
   public function test_is_status($value = null)
   {
     $subject = testNew($value);
@@ -65,17 +92,29 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @dataProvider getProvider
+   * @covers ::get
    */
   public function test_get($value)
   {
     self::assertSame($value, testNew($value)->get());
   }
 
+  /**
+   * @dataProvider getProvider
+   * @covers ::merge
+   */
+  public function test_merge($value)
+  {
+    self::assertSame($value, testNew($value)->merge());
+  }
+
+  /** @covers ::getOrElse */
   public function test_getOrElse($value = true, $default = false)
   {
     self::assertSame($value, (testNew($value)->getOrElse($default)));
   }
 
+  /** @covers ::orElse */
   public function test_orElse($value = true)
   {
     $subject = testNew($value);
@@ -83,6 +122,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($subject, $subject->orElse(doNotRun));
   }
 
+  /** @coversNothing */
   public function test_filter_callback($value = true)
   {
     $ran = 0;
@@ -105,7 +145,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-
+  /** @covers ::filter */
   public function test_filter_thrown($value = true)
   {
     $success = testNew($value);
@@ -118,6 +158,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($thrownValue, $failureThrown->merge());
   }
 
+  /** @covers ::filter */
   public function test_filter_return($value = true)
   {
     $success = testNew($value);
@@ -126,6 +167,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(oppositeSubject::class, $success->filter(bFalse));
   }
 
+  /** @coversNothing */
   function test_flatMap_callback($value = true)
   {
     $ran = 0;
@@ -149,12 +191,14 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
+  /** @coversNothing */
   function test_flatMap_contract_broken()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(null)->flatMap(P\I);
   }
 
+  /** @covers ::flatMap */
   public function test_flatMap_throw()
   {
     $contents = new \Exception('test');
@@ -164,6 +208,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($contents, $results->merge());
   }
 
+  /** @covers ::flatMap */
   public function test_flatMap_return()
   {
     $lhsContents = testSubject::ofLeft(new \Exception());
@@ -173,13 +218,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($lhsContents, testSubject::of($lhsContents)->flatMap(identity));
   }
 
-  function test_flatten_contract_broken()
-  {
-    $this->expectException(\UnexpectedValueException::class);
-    testNew(null)->flatten();
-  }
-
-
+  /** @covers ::flatten */
   function test_flatten_return()
   {
     $lhsContents = testSubject::ofLeft(new \Exception());
@@ -189,13 +228,15 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($rhsContents, testNew($rhsContents)->flatten());
   }
 
-  function test_flattenRight_contract_broken()
+
+  /** @coversNothing */
+  function test_flatten_contract_broken()
   {
     $this->expectException(\UnexpectedValueException::class);
-    testNew(null)->flattenRight();
+    testNew(null)->flatten();
   }
 
-
+  /** @covers ::flattenRight */
   function test_flattenRight_return()
   {
     $lhsContents = testSubject::ofLeft(new \Exception());
@@ -205,26 +246,21 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($rhsContents, testNew($rhsContents)->flattenRight());
   }
 
+
+  /** @coversNothing */
+  function test_flattenRight_contract_broken()
+  {
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(null)->flattenRight();
+  }
+
+  /** @covers ::failed */
   function test_failed($value = true)
   {
     self::assertInstanceOf(oppositeSubject::class, testNew($value)->failed());
   }
 
-  public function getProvider()
-  {
-    return [
-      'null' => [null]
-      , 'bool' => [false]
-      , 'Object' => [new \stdClass()]
-      , 'array' => [[]]
-      , 'integer' => [100]
-      , 'float' => [100.1]
-      , 'string' => ["Hi!"]
-      , 'Left hand side' => [oppositeSubject::of(new \Exception('Test Exception'))]
-    ];
-  }
-
-
+  /** @coversNothing */
   function test_map_callback($value = true)
   {
     $ran = 0;
@@ -243,7 +279,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-
+  /** @covers ::map */
   function test_map_return($value = true)
   {
     $success = testNew($value);
@@ -253,9 +289,35 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(testSubject::class, $result);
     self::assertNotSame($success, $result);
     self::assertEquals($success, $result);
+  }
+
+  /** @covers ::apply */
+  public function test_apply($expected = 50)
+  {
+    $ran = 0;
+    $testFn = function () use (&$ran, $expected) {
+      $ran +=1;
+      return $expected;
+    };
+    $subject = testNew($testFn);
+    $functor = testNew(null);
+
+    $result = $subject->apply($functor);
+
+    self::assertGreaterThan(0, $ran);
+    self::assertEquals($functor->map($testFn), $result);
 
   }
 
+  /** @coversNothing  */
+  public function test_apply_contract()
+  {
+    $this->expectException(P\exception\InvalidContentException::class);
+    testNew(null)->apply(testNew(null));
+  }
+
+
+  /** @covers ::recover */
   public function test_recover($value = true)
   {
     $success = testNew($value);
@@ -263,6 +325,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($success, $success->recover(doNotRun));
   }
 
+  /** @covers ::recoverWith */
   public function test_recoverWith($value = true)
   {
     $success = testNew($value);
@@ -270,6 +333,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($success, $success->recoverWith(doNotRun));
   }
 
+  /** @coversNothing */
   public function test_fold_callback($value = true, $startValue = false)
   {
     $ran = 0;
@@ -282,7 +346,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       self::assertSame($startValue, $s);
       self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertSame($subject,  $t);
+      self::assertSame($subject, $t);
 
       $ran += 1;
       return $s;
@@ -290,6 +354,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
+  /** @covers ::fold */
   public function test_fold_return($value = 1, $startVal = 2)
   {
     $success = testNew($value);
@@ -300,6 +365,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals($add2($startVal, $value), $success->fold($add2, $startVal));
   }
 
+  /** @coversNothing */
   public function test_foldRight_callback($value = true, $startValue = false)
   {
     $ran = 0;
@@ -312,7 +378,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       self::assertSame($startValue, $s);
       self::assertSame($value, $v);
       self::assertEquals(0, $k);
-      self::assertSame($subject,  $t);
+      self::assertSame($subject, $t);
 
       $ran += 1;
       return $s;
@@ -320,6 +386,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
+  /** @covers ::foldRight */
   public function test_foldRight_return($value = 1, $startVal = 2)
   {
     $success = testNew($value);
@@ -330,7 +397,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals($add2($startVal, $value), $success->foldRight($add2, $startVal));
   }
 
-
+  /** @coversNothing */
   function test_forAll_callback($value = true)
   {
     $ran = 0;
@@ -349,7 +416,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');;
   }
 
-
+  /** @covers ::forAll */
   function test_forAll_return($value = 'once')
   {
     $success = testNew($value);
@@ -358,6 +425,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertFalse($success->forAll(bFalse));
   }
 
+  /** @coversNothing */
   function test_forNone_callback($value = true)
   {
     $ran = 0;
@@ -376,7 +444,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-
+  /** @covers ::forNone */
   function test_forNone_return($value = 'once')
   {
     $success = testNew($value);
@@ -385,6 +453,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertTrue($success->forNone(bFalse));
   }
 
+  /** @coversNothing */
   function test_forSome_callback($value = true)
   {
     $ran = 0;
@@ -403,7 +472,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-
+  /** @covers ::forSome */
   function test_forSome_return($value = 'once')
   {
     $success = testNew($value);
@@ -412,24 +481,29 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertFalse($success->forSome(bFalse));
   }
 
+
+  /** @covers ::toArray */
   public function test_toArray($value = true)
   {
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
-  public function test_toUnbiasedDisjunctionInterface ($value = 1) {
+  /** @covers ::toUnbiasedDisjunctionInterface */
+  public function test_toUnbiasedDisjunctionInterface($value = 1)
+  {
     $subject = testNew($value);
-    
+
     $result = $subject->toUnbiasedDisjunctionInterface();
-    
+
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
     self::assertInstanceOf(P\RightHandSideType::class, $result);
     self::assertEquals($subject->isLeft(), $result->isLeft());
     self::assertEquals($subject->isRight(), $result->isRight());
     self::assertSame($value, $result->merge());
-    
+
   }
 
+  /** @covers ::toMaybe */
   public function test_toMaybe($value = true)
   {
     $result = testNew($value)->toMaybe();
@@ -437,7 +511,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new P\Some($value), $result);
   }
 
-
+  /** @coversNothing */
   function test_find_callback($value = true)
   {
     $ran = 0;
@@ -455,7 +529,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
-
+  /** @covers ::find */
   function test_find_return($value = 'once')
   {
     $subject = testNew($value);
@@ -467,6 +541,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(P\None::class, $missing);
   }
 
+  /** @coversNothing */
   public function test_transform_callback($value = true)
   {
     $ran = 0;
@@ -488,13 +563,14 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
+  /** @coversNothing */
   public function test_transform_broken_contract()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(true)->transform(noop, noop);
   }
 
-
+  /** @covers ::transform */
   public function test_transform_return()
   {
     $subject = testNew(null);
@@ -511,6 +587,8 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($failure, $subject->transform($switchToFailure, doNotRun));
   }
 
+
+  /** @covers ::transform */
   public function test_transform_throw($value = true)
   {
     $exception = new \Exception('test');
@@ -524,7 +602,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame($exception, $result->merge());
   }
 
-
+  /** @coversNothing */
   public function test_walk_callback($value = true)
   {
     $ran = 0;
@@ -543,12 +621,14 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertSame(1, $ran, 'the callback should of ran');
   }
 
+  /** @covers ::walk */
   public function test_walk($value = true)
   {
     $subject = testNew($value);
-    self::assertTrue($subject === $subject->walk(noop));
+    self::assertSame($subject, $subject->walk(noop));
   }
 
+  /** @covers ::count */
   public function test_count($value = [])
   {
     $success = testNew($value);
@@ -556,6 +636,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $success->count());
   }
 
+  /** @covers ::getIterator */
   public function test_traversable($value = [])
   {
     $ran = 0;
@@ -567,6 +648,20 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
       $ran += 1;
     }
     self::assertEquals(1, $ran);
+  }
+
+  public function getProvider()
+  {
+    return [
+      'null' => [null]
+      , 'bool' => [false]
+      , 'Object' => [new \stdClass()]
+      , 'array' => [[]]
+      , 'integer' => [100]
+      , 'float' => [100.1]
+      , 'string' => ["Hi!"]
+      , 'Left hand side' => [oppositeSubject::of(new \Exception('Test Exception'))]
+    ];
   }
 
 }

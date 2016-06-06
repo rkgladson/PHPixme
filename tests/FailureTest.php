@@ -241,6 +241,13 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($subject, $subject->map(doNotRun));
   }
 
+  /** @covers ::apply */
+  public function test_apply() {
+    $subject = testNew(valueE());
+
+    self::assertSame($subject, $subject->apply($subject));
+  }
+
   /**
    * @covers ::fold
    */
@@ -265,17 +272,24 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     $value = valueE();
     $ran = 0;
     $subject = testNew($value);
+    $testFn = function () use ($value, $subject, &$ran) {
+      $ran += 1;
 
-    $subject->recover(function () use ($value, $subject, &$ran) {
-      self::assertEquals(2, func_num_args());
+      self::assertEquals(3, func_num_args());
       list($v, $t) = func_get_args();
 
       self::assertSame($value, $v);
       self::assertSame($subject, $t);
 
-      $ran += 1;
+
       return $value;
-    });
+    };
+
+    $result = $subject->recover($testFn);
+    // Uncatch any exceptions we may have caught
+    if ($result instanceof oppositeSubject) {
+      $result->get();
+    }
     self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
@@ -323,17 +337,23 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     $value = valueE();
     $ran = 0;
     $subject = testNew($value);
-    //FIXME: This will eat assertions
-    $subject->recover(function () use ($value, $subject, &$ran) {
+    $testFn = function () use ($value, $subject, &$ran) {
+      $ran += 1;
+
       self::assertEquals(2, func_num_args());
       list ($v, $t) = func_get_args();
 
       self::assertSame($value, $v);
       self::assertSame($subject, $t);
 
-      $ran += 1;
       return $subject;
-    });
+    };
+
+    $result = $subject->recoverWith($testFn);
+    // Un-catch any assertions
+    if ($result !== $subject) {
+      $result->get();
+    }
     self::assertEquals(1, $ran);
   }
 
@@ -453,13 +473,14 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     $ran = 0;
     $subject = testNew($value);
     $test = function () use ($value, $subject, &$ran) {
+      $ran += 1;
+
       self::assertEquals(2, func_num_args());
       list($v, $t) = func_get_args();
 
       self::assertSame($value, $v);
       self::assertSame($subject, $t);
 
-      $ran += 1;
       // Convert to a success so we can catch assertions
       return new oppositeSubject($subject);
     };
