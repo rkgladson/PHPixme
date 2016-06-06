@@ -7,18 +7,26 @@
  */
 
 namespace tests\PHPixme;
-use PHPixme as P;
 
+/**
+ * Class AssertTypeTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\AssertTypeTrait
+ */
 class AssertTypeTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @covers ::assertType
+   */
   public function test_success_contract()
   {
     $val = new AssertTypeStub();
-    $this->assertTrue($val === AssertTypeStub::assertType($val));
+    $this->assertSame($val, AssertTypeStub::assertType($val));
   }
 
   /**
    * @dataProvider brokenContractProvider
+   * @covers ::assertType
    */
   public function test_failure_contract($notType)
   {
@@ -32,7 +40,6 @@ class AssertTypeTest extends \PHPUnit_Framework_TestCase
       , [true]
       , [null]
       , [new \stdClass()]
-      , [P\Some(1)]
       , ['']
       , [1]
       , [1.0]
