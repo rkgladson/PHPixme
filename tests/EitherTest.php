@@ -7,14 +7,25 @@ use const PHPixme\Either as testConst;
 use PHPixme\Left as lhs;
 use PHPixme\Right as rhs;
 
+/**
+ * Class EitherTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Either
+ */
 class EitherTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_constants()
   {
     self::assertSame(testSubject::class, testConst);
     self::assertFalse(function_exists(testSubject::class));
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_aspects()
   {
     $subject  = new \ReflectionClass(testSubject::class);
@@ -24,11 +35,17 @@ class EitherTest extends \PHPUnit_Framework_TestCase
     self::assertTrue($subject->getMethod('of')->isAbstract());
   }
 
+  /**
+   * @covers ::ofLeft
+   */
   public function test_left_applicative($value = 1)
   {
     self::assertEquals(lhs::of($value), testSubject::ofLeft($value));
   }
 
+  /**
+   * @covers ::ofRight
+   */
   public function test_right_applicative($value = 1)
   {
     self::assertEquals(rhs::of($value), testSubject::ofRight($value));
