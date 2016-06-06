@@ -10,15 +10,26 @@ use function PHPixme\Success as rhsNew;
 use PHPixme\Failure as lhs;
 use function PHPixme\Failure as lhsNew;
 
+/**
+ * Class AttemptTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Attempt
+ */
 class AttemptTest extends \PHPUnit_Framework_TestCase
 {
 
+  /**
+   * @coversNothing
+   */
   public function test_Attempt_constants()
   {
-    self::assertTrue(testSubject::class === testConst);
+    self::assertEquals(testSubject::class, testConst);
     self::assertTrue(function_exists(testSubject::class));
   }
 
+  /**
+   * @covers PHPixme\Attempt
+   */
   public function test_companion_returns_left()
   {
     $exception = new \Exception();
@@ -31,6 +42,9 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new lhs ($exception), $thrown);
   }
 
+  /**
+   * @covers PHPixme\Attempt
+   */
   public function test_companion_returns_right()
   {
     $value = 1;
@@ -41,6 +55,9 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new rhs($value), $result);
   }
 
+  /**
+   * @covers ::of
+   */
   public function test_applicative_return_left()
   {
     $exception = new \Exception();
@@ -53,6 +70,9 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new lhs ($exception), $thrown);
   }
 
+  /**
+   * @covers ::ofRight
+   */
   public function test_right_applicative_return()
   {
     $value = 1;
@@ -63,6 +83,9 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new rhs($value), $result);
   }
 
+  /**
+   * @covers ::ofLeft
+   */
   public function test_left_applicative_return()
   {
     $exception = new \Exception();
