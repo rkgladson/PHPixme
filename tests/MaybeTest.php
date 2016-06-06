@@ -9,30 +9,58 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
-
+use PHPixme\Maybe as testSubject;
+use function PHPixme\Maybe as testNew;
+use const PHPixme\Maybe as testConst;
+use PHPixme\Some;
+use PHPixme\None;
 
 class MaybeTest extends \PHPUnit_Framework_TestCase
 {
 
+  /**
+   * @coversNothing 
+   */
   public function test_Maybe_constants()
   {
-    $this->assertTrue(
-      P\Maybe::class === P\Maybe
-      , 'The constant for the Class and Function should be equal to the Class Path'
-    );
-    $this->assertTrue(
-      function_exists(P\Maybe)
-      , 'The companion function exists for the class.'
-    );
+    self::assertEquals(testSubject::class, testConst);
+    self::assertTrue(function_exists(testSubject::class));
+  }
+  
+  /**
+   * @covers PHPixme\Maybe
+   * @dataProvider maybeEmptyProvider
+   */
+  public function test_Maybe_companion_none_result($value)
+  {
+    self::assertInstanceOf(None::class, testNew($value));
   }
 
-  public function test_Maybe_companion()
+  /**
+   * @covers PHPixme\Maybe
+   * @dataProvider maybeSomethingProvider
+   */
+  public function test_Maybe_companion_some_result($value)
   {
-    $this->assertStringEndsWith(
-      '\Maybe'
-      , P\Maybe
-      , 'Ensure the constant ends with the function name'
-    );
+    self::assertInstanceOf(Some::class, P\Maybe($value));
+  }
+
+  /**
+   * @dataProvider maybeEmptyProvider
+   * @covers PHPixme\Maybe::of
+   */
+  public function test_static_of_nothing($value)
+  {
+    self::assertInstanceOf(None::class, testSubject::of($value));
+  }
+
+  /**
+   * @dataProvider maybeSomethingProvider
+   * @covers PHPixme\Maybe::of
+   */
+  public function test_static_of_something($value)
+  {
+    self::assertInstanceOf(Some::class, testSubject::of($value));
   }
 
   public function maybeEmptyProvider()
@@ -58,56 +86,5 @@ class MaybeTest extends \PHPUnit_Framework_TestCase
       , [new \stdClass()]
       , [P\Some('')]
     ];
-  }
-
-
-  /**
-   * @dataProvider maybeEmptyProvider
-   */
-  public function test_Maybe_companion_none_result($value)
-  {
-
-    $this->assertInstanceOf(
-      P\None
-      , P\Maybe($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type None'
-    );
-  }
-
-  /**
-   * @dataProvider maybeSomethingProvider
-   */
-  public function test_Maybe_companion_some_result($value)
-  {
-    $this->assertInstanceOf(
-      P\Some
-      , P\Maybe($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type Some'
-    );
-  }
-
-  /**
-   * @dataProvider maybeEmptyProvider
-   */
-  public function test_static_of_nothing($value)
-  {
-    $this->assertInstanceOf(
-      P\None
-      , P\Maybe::of($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type Null'
-    );
-  }
-
-  /**
-   * @dataProvider maybeSomethingProvider
-   */
-  public function test_static_of_something($value)
-  {
-
-    $this->assertInstanceOf(
-      P\Some
-      , P\Maybe::of($value)
-      , 'Value ' . json_encode($value, true) . ' should be of type Some'
-    );
   }
 }
