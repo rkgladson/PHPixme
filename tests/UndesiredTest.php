@@ -6,8 +6,14 @@ use PHPixme\Undesired as testSubject;
 use function PHPixme\Undesired as testNew;
 use const PHPixme\Undesired as testConst;
 
+/**
+ * Class UndesiredTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Undesired
+ */
 class UndesiredTest extends \PHPUnit_Framework_TestCase
 {
+  /** @coversNothing */
   public function test_constant()
   {
     self::assertEquals(testSubject::class, testConst);
@@ -15,39 +21,59 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertNotEquals(getParent(testSubject::class)->getConstant(shortName), testSubject::shortName);
   }
 
-  public function test_companion($value = 1)
-  {
-    self::assertInstanceOf(testSubject::class, testNew($value));
-  }
-
-  public function test_merge_and_constructor($value = 1)
-  {
-    self::assertSame($value, (new testSubject($value))->merge());
-  }
-
-  public function test_applicative($value = 1)
-  {
-    $disjunction = testSubject::of($value);
-
-    self::assertInstanceOf(testSubject::class, $disjunction);
-    self::assertSame($value, $disjunction->merge());
-  }
-
+  /** @coversNothing */
   public function test_traits()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
 
     self::assertContains(P\ClosedTrait::class, $traits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
     self::assertContains(P\LeftHandedTrait::class, $traits);
     self::assertContains(P\NothingCollectionTrait::class, $traits);
   }
 
+  /** @coversNothing */
   public function test_patience($value = 1)
   {
     $this->expectException(P\exception\MutationException::class);
     (new testSubject($value))->__construct($value);
   }
 
+  /** @covers ::__construct */
+  public function test_new($value = 1)
+  {
+    $result = new testSubject($value);
+
+    self::assertAttributeSame($value, 'value', $result);
+  }
+
+  /** @covers PHPixme\Undesired */
+  public function test_companion($value = 1)
+  {
+    $subject = testNew($value);
+    self::assertInstanceOf(testSubject::class, $subject);
+    self::assertEquals(new testSubject($value), $subject);
+  }
+
+  /** @covers ::of */
+  public function test_applicative($value = 1)
+  {
+    $subject = testSubject::of($value);
+
+    self::assertInstanceOf(testSubject::class, $subject);
+    self::assertEquals(new testSubject($value), $subject);
+  }
+
+  /** @covers ::merge */
+  public function test_merge($value = 1)
+  {
+    self::assertSame($value, (new testSubject($value))->merge());
+  }
+
+  /**
+   * @covers ::isLeft
+   * @covers ::isRight
+   */
   public function test_handedness($value = 1)
   {
     $disjunction = testNew($value);
@@ -57,6 +83,10 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertFalse($disjunction->isRight());
   }
 
+  /**
+   * @covers ::flattenRight
+   * @covers ::flattenLeft
+   */
   public function test_flatten_handedly($value = 1)
   {
     $disjunction = testNew($value);
@@ -67,6 +97,7 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertSame($sibling, testNew($sibling)->flattenLeft());
   }
 
+  /** @covers ::swap */
   public function test_swap($value = 1)
   {
     $displaced = testNew($value)->swap();
@@ -75,6 +106,7 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertSame($value, $displaced->merge());
   }
 
+  /** @covers ::count */
   public function test_count($value = 1)
   {
     $subject = testNew($value);
@@ -83,6 +115,7 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(0, count($subject));
   }
 
+  /** @covers ::getIterator */
   public function test_iterator_interface($value = 1)
   {
     $ran = 0;
@@ -93,11 +126,13 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(0, $ran, 'should be considered empty');
   }
 
+  /** @covers ::toArray */
   public function test_toArray($value = 1)
   {
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
+  /** @covers ::toUnbiasedDisjunctionInterface */
   public function test_toUnbiasedDisjunction($value = 1)
   {
     $disjunction = testNew($value)->toUnbiasedDisjunctionInterface();
