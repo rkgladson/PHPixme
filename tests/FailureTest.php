@@ -7,8 +7,16 @@ use function PHPixme\Failure as testNew;
 use const PHPixme\Failure as testConst;
 use PHPixme\Success as oppositeSubject;
 
+/**
+ * Class FailureTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Failure
+ */
 class FailureTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_constants()
   {
     self::assertSame(testSubject::class, testConst);
@@ -20,23 +28,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     );
   }
 
-  public function test_companion()
-  {
-    $contents = valueE();
-
-    $subject = testNew($contents);
-
-    self::assertInstanceOf(P\Failure::class, $subject);
-    self::assertEquals(new testSubject($contents), $subject);
-  }
-
-  public function test_applicative()
-  {
-    $ofMade = P\Failure::of(new \Exception());
-    self::assertInstanceOf(P\ApplicativeInterface::class, $ofMade);
-    self::assertInstanceOf(P\Failure::class, $ofMade);
-  }
-
+  /**
+   * @coversNothing
+   */
   public function test_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(P\Failure::class));
@@ -47,12 +41,66 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertContains(P\NothingCollectionTrait::class, $traits);
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_patience()
   {
     $this->expectException(P\exception\MutationException::class);
     (new testSubject(valueE()))->__construct(valueE());
   }
 
+  /**
+   * @covers ::__construct
+   */
+  public function test_new() {
+    $value = valueE();
+
+    self::assertAttributeSame($value, 'err', new testSubject($value));
+  }
+
+  /**
+   * @covers PHPixme\Failure
+   */
+  public function test_companion()
+  {
+    $contents = valueE();
+
+    $subject = testNew($contents);
+
+    self::assertInstanceOf(testSubject::class, $subject);
+    self::assertEquals(new testSubject($contents), $subject);
+  }
+
+  /**
+   * @covers ::of
+   */
+  public function test_applicative()
+  {
+    $value = valueE();
+
+    $result = testSubject::of($value);
+
+    self::assertInstanceOf(P\ApplicativeInterface::class, $result);
+    self::assertEquals(new testSubject($value), $result);
+  }
+
+  /**
+   * @covers ::merge
+   */
+  public function test_merge() {
+    $value = valueE();
+
+    self::assertSame($value, testNew($value)->merge());
+  }
+
+  /**
+   * @covers ::isSuccess
+   * @covers ::isFailure
+   * @covers ::isEmpty
+   * @covers ::isLeft
+   * @covers ::isRight
+   */
   public function test_is_status()
   {
     $subject = testNew(valueE());
@@ -64,6 +112,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertFalse($subject->isRight());
   }
 
+  /**
+   * @covers ::get
+   */
   public function test_failure_get()
   {
     $exception = valueE();
@@ -75,6 +126,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     }
   }
 
+  /**
+   * @covers ::getOrElse
+   */
   public function test_getOrElse($default = 10)
   {
     $subject = testNew(valueE());
@@ -83,12 +137,18 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @coversNothing
+   */
   public function test_orElse_contract_broken()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(valueE())->orElse(noop);
   }
 
+  /**
+   * @covers ::orElse
+   */
   public function test_orElse_return()
   {
     $success = new oppositeSubject(null);
@@ -105,6 +165,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($failure, $subject->orElse($keepFailing));
   }
 
+  /**
+   * @covers ::orElse
+   */
   public function test_orElse_throw()
   {
     $exception = valueE();
@@ -119,30 +182,45 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($exception, $results->merge());
   }
 
+  /**
+   * @covers ::filter
+   */
   public function test_filter()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->filter(doNotRun));
   }
 
+  /**
+   * @covers ::flatMap
+   */
   public function test_flatMap()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->flatMap(doNotRun));
   }
 
+  /**
+   * @covers ::flatten
+   */
   public function test_flatten()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->flatten());
   }
 
+  /**
+   * @covers ::flattenRight
+   */
   public function test_flattenRight()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->flattenRight());
   }
 
+  /**
+   * @covers ::failed
+   */
   public function test_failed()
   {
     $value = valueE();
@@ -154,22 +232,34 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($value, $result->merge());
   }
 
+  /**
+   * @covers ::map
+   */
   public function test_map()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->map(doNotRun));
   }
 
+  /**
+   * @covers ::fold
+   */
   public function test_fold($value = true)
   {
     self::assertSame($value, testNew(valueE())->fold(doNotRun, $value));
   }
 
+  /**
+   * @covers ::foldRight
+   */
   public function test_foldRight($value = true)
   {
     self::assertSame($value, testNew(valueE())->foldRight(doNotRun, $value));
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_recover_callback()
   {
     $value = valueE();
@@ -189,6 +279,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
+  /**
+   * @covers ::recover
+   */
   public function test_recover_throw()
   {
     $exception = valueE();
@@ -204,6 +297,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @covers ::recover
+   */
   public function test_recover_return()
   {
     $recoveryValue = new \stdClass();
@@ -219,11 +315,15 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @coversNothing
+   */
   public function test_recoverWith_callback()
   {
     $value = valueE();
     $ran = 0;
     $subject = testNew($value);
+    //FIXME: This will eat assertions
     $subject->recover(function () use ($value, $subject, &$ran) {
       self::assertEquals(2, func_num_args());
       list ($v, $t) = func_get_args();
@@ -237,12 +337,18 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran);
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_recoverWith_contract_broken()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(valueE())->recoverWith(noop);
   }
 
+  /**
+   * @covers ::recoverWith
+   */
   public function test_recoverWith_throw()
   {
     $exception = valueE();
@@ -254,6 +360,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(testSubject::of($exception), $subject->recoverWith($throw));
   }
 
+  /**
+   * @covers ::recoverWith
+   */
   public function test_recoverWith_return()
   {
     $subject = testNew(valueE());
@@ -271,12 +380,18 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @covers ::toArray
+   */
   public function test_toArray()
   {
     $value = valueE();
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
+  /**
+   * @covers ::toUnbiasedDisjunctionInterface
+   */
   public function test_toUnbiasedDisjunctionInterface () {
     $value = valueE();
     $subject = testNew($value);
@@ -290,24 +405,48 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($value, $result->merge());
   }
 
+  /**
+   * @covers ::toMaybe
+   */
   public function test_toMaybe()
   {
     self::assertInstanceOf(P\None::class, testNew(valueE())->toMaybe());
   }
 
+  /**
+   * @covers ::find
+   */
   public function test_find()
   {
     self::assertInstanceOf(P\None::class, testNew(valueE())->find(doNotRun));
   }
 
+  /**
+   * @covers ::forAll
+   * @covers ::forNone
+   * @covers ::forSome
+   */
   public function test_for_all_none_some()
   {
-    $failure = testNew(valueE());
-    self::assertTrue($failure->forAll(doNotRun));
-    self::assertTrue($failure->forNone(doNotRun));
-    self::assertFalse($failure->forSome(doNotRun));
+    $subject = testNew(valueE());
+
+    self::assertTrue($subject->forAll(doNotRun));
+    self::assertTrue($subject->forNone(doNotRun));
+    self::assertFalse($subject->forSome(doNotRun));
   }
 
+  /**
+   * @coversNothing
+   */
+  public function test_transform_contract_broken()
+  {
+    $this->expectException(\UnexpectedValueException::class);
+    testNew(valueE())->transform(noop, noop);
+  }
+
+  /**
+   * @coversNothing
+   */
   public function test_transform_callback()
   {
     $value = valueE();
@@ -331,12 +470,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran, 'the callback should of ran');
   }
 
-  public function test_transform_contract_broken()
-  {
-    $this->expectException(\UnexpectedValueException::class);
-    testNew(valueE())->transform(noop, noop);
-  }
-
+  /**
+   * @covers ::transform
+   */
   public function test_transform_return()
   {
     $subject = testNew(valueE());
@@ -353,6 +489,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertSame($failure, $subject->transform(doNotRun, $switchToFailure));
   }
 
+  /**
+   * @covers ::transform
+   */
   public function test_transform_throw()
   {
     $exception = valueE();
@@ -367,12 +506,18 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
 
+  /**
+   * @covers ::walk
+   */
   public function test_walk()
   {
     $subject = testNew(valueE());
     self::assertSame($subject, $subject->walk(doNotRun));
   }
 
+  /**
+   * @covers ::count
+   */
   public function test_count()
   {
     $subject = testNew(valueE());
@@ -380,6 +525,9 @@ class FailureTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(0, $subject->count());
   }
 
+  /**
+   * @covers ::getIterator
+   */
   public function test_transversable()
   {
     $count = 0;
