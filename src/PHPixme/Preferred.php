@@ -115,7 +115,7 @@ class Preferred extends Exclusive implements
    */
   public function flatten()
   {
-    return Exclusive::assertType($this->value);
+    return __CONTRACT__::contentIsA(Exclusive::class, $this->value);
   }
 
   /**
