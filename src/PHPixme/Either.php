@@ -85,7 +85,7 @@ abstract class Either implements
    * converts the contained track to a Exclusive left or right
    * @return Exclusive
    */
-  public function toBiasedDisJunctionInterface()
+  public function toBiasedDisjunctionInterface()
   {
     return $this->isLeft()
       ? Exclusive::ofLeft($this->merge())

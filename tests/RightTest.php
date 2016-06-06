@@ -7,14 +7,25 @@ use function PHPixme\Right as testNew;
 use const PHPixme\Right as testConst;
 use PHPixme\Left as oppositeSubject;
 
+/**
+ * Class RightTest
+ * @package tests\PHPixme
+ * @coversDefaultClass PHPixme\Right
+ */
 class RightTest extends \PHPUnit_Framework_TestCase
 {
+  /**
+   * @coversNothing
+   */
   public function test_constants()
   {
     self::assertEquals(testSubject::class, testConst);
     self::assertTrue(function_exists(testSubject::class));
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_trait()
   {
     $traits = getAllTraits(new \ReflectionClass(testSubject::class));
@@ -22,12 +33,28 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertContains(P\RightHandedTrait::class, $traits);
   }
 
+  /**
+   * @covers ::__construct
+   */
+  public function test_new($value = null)
+  {
+    $result = new testSubject($value);
+
+    self::assertAttributeSame($value, 'value', $result);
+  }
+
+  /**
+   * @coversNothing
+   */
   public function test_patience()
   {
     $this->expectException(P\exception\MutationException::class);
     (new testSubject(0))->__construct(1);
   }
 
+  /**
+   * @covers PHPixme\Right
+   */
   public function test_companion($value = 1)
   {
     $results = testNew($value);
@@ -36,6 +63,9 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new testSubject($value), $results);
   }
 
+  /**
+   * @covers ::of
+   */
   public function test_applicative($value = true)
   {
     $results = testSubject::of($value);
@@ -44,6 +74,12 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(new testSubject($value), $results);
   }
 
+  /**
+   * @covers ::isLeft
+   * @covers ::isRight
+   * @covers ::left
+   * @covers ::right
+   */
   public function test_handedness($value = true)
   {
     $subject = testNew($value);
@@ -55,6 +91,9 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertInstanceOf(P\None::class, $subject->left());
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_fold_callback($value = true)
   {
     $ran = 0;
@@ -76,11 +115,17 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertEquals(1, $ran);
   }
 
+  /**
+   * @covers ::fold
+   */
   public function test_fold_return($value = true)
   {
     self::assertSame($value, testNew($value)->fold(doNotRun, identity));
   }
 
+  /**
+   * @covers ::swap
+   */
   public function test_swap($value = true)
   {
     $result = testNew($value)->swap();
@@ -89,12 +134,18 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertSame($value, $result->merge());
   }
 
+  /**
+   * @covers ::flattenLeft
+   */
   public function test_flattenLeft($value = true)
   {
     $subject = testNew($value);
     self::assertSame($subject, $subject->flattenLeft());
   }
 
+  /**
+   * @covers ::flattenRight
+   */
   public function test_flattenRight($value = true)
   {
     $left = oppositeSubject::of($value);
@@ -104,15 +155,21 @@ class RightTest extends \PHPUnit_Framework_TestCase
     self::assertSame($right, testNew($right)->flattenRight());
   }
 
+  /**
+   * @coversNothing
+   */
   public function test_flattenRight_contract_violated()
   {
     $this->expectException(\UnexpectedValueException::class);
     testNew(null)->flattenRight();
   }
 
-  public function test_toBiasedDisJunctionInterface($value = true)
+  /**
+   * @covers ::toBiasedDisjunctionInterface
+   */
+  public function test_toBiasedDisjunctionInterface($value = true)
   {
-    $result = testSubject::of($value)->toBiasedDisJunctionInterface();
+    $result = testSubject::of($value)->toBiasedDisjunctionInterface();
 
     self::assertInstanceOf(P\BiasedDisjunctionInterface::class, $result);
     self::assertInstanceOf(P\RightHandSideType::class, $result);

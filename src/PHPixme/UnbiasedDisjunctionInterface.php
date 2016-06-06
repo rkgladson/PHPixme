@@ -39,5 +39,5 @@ interface UnbiasedDisjunctionInterface extends DisjunctionInterface
    * Convert to an appropriate BiasedDisjunctionInterface type of the Implementer's own specification
    * @return BiasedDisjunctionInterface
    */
-  public function toBiasedDisJunctionInterface();
+  public function toBiasedDisjunctionInterface();
 }
