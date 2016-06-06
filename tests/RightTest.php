@@ -75,6 +75,13 @@ class RightTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
+   * @covers ::merge
+   */
+  public function test_merge($value = true) {
+    self::assertSame($value, testNew($value)->merge());
+  }
+
+  /**
    * @covers ::isLeft
    * @covers ::isRight
    * @covers ::left
