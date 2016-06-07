@@ -147,7 +147,7 @@ class Preferred extends Exclusive implements
    */
   public function forAll(callable $predicate)
   {
-    return (boolean) $predicate($this->value, 0, $this);
+    return (boolean)$predicate($this->value, 0, $this);
   }
 
   /**
@@ -155,7 +155,7 @@ class Preferred extends Exclusive implements
    */
   public function forNone(callable $predicate)
   {
-   return !($predicate($this->value, 0, $this));
+    return !($predicate($this->value, 0, $this));
   }
 
   /**
@@ -163,7 +163,7 @@ class Preferred extends Exclusive implements
    */
   public function forSome(callable $predicate)
   {
-    return (boolean) $predicate($this->value, 0, $this);
+    return (boolean)$predicate($this->value, 0, $this);
   }
 
   /**
@@ -184,4 +184,9 @@ class Preferred extends Exclusive implements
     return $this;
   }
 
+  /** @inheritdoc */
+  public function getIterator()
+  {
+    yield 0 => $this->value;
+  }
 }
