@@ -134,9 +134,9 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @covers ::fold
+   * @covers ::vFold
    */
-  public function test_fold_return($value = true)
+  public function test_vFold_return($value = true)
   {
     $left = testNew($value);
     self::assertSame($value, $left->vFold(P\I, doNotRun));
