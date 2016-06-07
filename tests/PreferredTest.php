@@ -154,11 +154,11 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @covers ::toUnbiasedDisjunctionInterface
+   * @covers ::toUnbiasedDisjunction
    */
-  public function test_toUnbiasedDisjunctionInterface($value = 1)
+  public function test_toUnbiasedDisjunction($value = 1)
   {
-    $resultant = testNew($value)->toUnbiasedDisjunctionInterface();
+    $resultant = testNew($value)->toUnbiasedDisjunction();
 
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $resultant);
     self::assertInstanceOf(P\RightHandSideType::class, $resultant);

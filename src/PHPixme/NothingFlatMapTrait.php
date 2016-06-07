@@ -10,11 +10,22 @@ trait NothingFlatMapTrait
 {
   /**
    * @inheritdoc
-   * @see CollectionInterface::flatMap
+   * @see FlatMapInterface::flatMap
    * This is a no-op on perceived nothings
    * @return $this
    */
   final public function flatMap(callable $hof)
+  {
+    return $this;
+  }
+
+  /**
+   * @inheritdoc
+   * @see FlatMapInterface::flatten
+   * This is a no-op on perceived nothings
+   * @return $this
+   */
+  final public function flatten()
   {
     return $this;
   }

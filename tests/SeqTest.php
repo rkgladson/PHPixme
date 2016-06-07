@@ -1199,7 +1199,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   {
     return is_array($value)
       ? $value
-      : (($value instanceof P\CollectionInterface || $value instanceof \SplFixedArray)
+      : (($value instanceof P\FunctorInterface || $value instanceof \SplFixedArray)
         ? $value->toArray()
         : (($value instanceof \ArrayObject || $value instanceof \ArrayIterator)
           ? $value->getArrayCopy()

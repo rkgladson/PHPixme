@@ -16,4 +16,12 @@ interface FlatMapInterface
    * @sig (($value, $key, $container) -> static ) -> static
    */
   public function flatMap(callable $fn);
+
+  /**
+   * A shorthand for flatMap using the identity function
+   * @return self
+   * @throws exception\InvalidContentException if the data-set could not be flattened
+   * @sig () -> self
+   */
+  public function flatten();
 }

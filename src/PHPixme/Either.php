@@ -14,6 +14,7 @@ abstract class Either implements
   , UnaryApplicativeRightDisjunctionInterface
   , FlattenRightInterface
   , SwappableDisjunctionInterface
+  , DisjunctiveFoldInterface
 {
   use AssertTypeTrait, ClosedTrait;
   // Note: Either should not implement ::of on its own, and should leave it to its children
@@ -23,12 +24,6 @@ abstract class Either implements
    * @return mixed
    */
   abstract public function merge();
-
-
-  /**
-   * @inheritdoc
-   */
-  abstract public function fold(callable $leftFn, callable $rightFn);
 
   /**
    * @inheritdoc
@@ -85,7 +80,7 @@ abstract class Either implements
    * converts the contained track to a Exclusive left or right
    * @return Exclusive
    */
-  public function toBiasedDisjunctionInterface()
+  public function toBiasedDisjunction()
   {
     return $this->isLeft()
       ? Exclusive::ofLeft($this->merge())

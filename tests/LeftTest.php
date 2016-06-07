@@ -119,17 +119,16 @@ class LeftTest extends \PHPUnit_Framework_TestCase
     $ran = 0;
     $subject = testNew($value);
     $test = function () use ($value, $subject, &$ran) {
-      self::assertEquals(2, func_num_args());
-      list ($v, $t) = func_get_args();
+      self::assertEquals(1, func_num_args());
+      list ($v) = func_get_args();
 
       self::assertSame($value, $v);
-      self::assertSame($subject, $t);
 
       $ran += 1;
       return $value;
     };
 
-    $subject->fold($test, doNotRun);
+    $subject->vFold($test, doNotRun);
 
     self::assertEquals(1, $ran);
   }
@@ -140,7 +139,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_fold_return($value = true)
   {
     $left = testNew($value);
-    self::assertSame($value, $left->fold(P\I, doNotRun));
+    self::assertSame($value, $left->vFold(P\I, doNotRun));
   }
 
   /**
@@ -187,11 +186,11 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @covers ::toBiasedDisjunctionInterface
+   * @covers ::toBiasedDisjunction
    */
-  public function test_toBiasedDisjunctionInterface($value = true)
+  public function test_toBiasedDisjunction($value = true)
   {
-    $result = testSubject::of($value)->toBiasedDisjunctionInterface();
+    $result = testSubject::of($value)->toBiasedDisjunction();
 
     self::assertInstanceOf(P\BiasedDisjunctionInterface::class, $result);
     self::assertInstanceOf(P\LeftHandSideType::class, $result);

@@ -70,9 +70,9 @@ class Right extends Either implements RightHandSideType
    * @inheritdoc
    * @sig ((x->a), (x->b)) -> b
    */
-  public function fold(callable $leftFn, callable $rightFn)
+  public function vFold(callable $lhs, callable $rhs)
   {
-    return $rightFn($this->value, $this);
+    return $rhs($this->value);
   }
 
   /**
