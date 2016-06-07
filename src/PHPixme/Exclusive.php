@@ -49,19 +49,7 @@ abstract class Exclusive implements
   {
     return new Undesired($item);
   }
-
-  /**
-   * @inheritdoc
-   */
-  public function getIterator()
-  {
-    if ($this->isRight()) {
-      yield 0 => $this->merge();
-    } else {
-      return;
-    }
-  }
-
+  
   /**
    * Converts a Exclusive to an Either
    * @return Right|Left

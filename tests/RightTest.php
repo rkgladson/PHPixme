@@ -122,7 +122,7 @@ class RightTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @covers ::fold
+   * @covers ::vFold
    */
   public function test_fold_return($value = true)
   {
