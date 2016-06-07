@@ -488,12 +488,12 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
-  /** @covers ::toUnbiasedDisjunctionInterface */
-  public function test_toUnbiasedDisjunctionInterface($value = 1)
+  /** @covers ::toUnbiasedDisjunction */
+  public function test_toUnbiasedDisjunction($value = 1)
   {
     $subject = testNew($value);
 
-    $result = $subject->toUnbiasedDisjunctionInterface();
+    $result = $subject->toUnbiasedDisjunction();
 
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
     self::assertInstanceOf(P\RightHandSideType::class, $result);

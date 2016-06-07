@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 5/17/2016
- * Time: 9:49 AM
- */
-
 namespace PHPixme;
 /**
  * Class Undesired
@@ -68,7 +61,7 @@ class Undesired extends Exclusive implements
    * @inheritdoc
    * @return Left
    */
-  public function toUnbiasedDisjunctionInterface()
+  public function toUnbiasedDisjunction()
   {
     return new Left($this->value);
   }

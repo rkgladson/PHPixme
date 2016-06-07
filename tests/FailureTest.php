@@ -410,13 +410,13 @@ class FailureTest extends \PHPUnit_Framework_TestCase
   }
 
   /**
-   * @covers ::toUnbiasedDisjunctionInterface
+   * @covers ::toUnbiasedDisjunction
    */
-  public function test_toUnbiasedDisjunctionInterface () {
+  public function test_toUnbiasedDisjunction () {
     $value = valueE();
     $subject = testNew($value);
 
-    $result = $subject->toUnbiasedDisjunctionInterface();
+    $result = $subject->toUnbiasedDisjunction();
 
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $result);
     self::assertInstanceOf(P\LeftHandSideType::class, $result);

@@ -151,11 +151,4 @@ class None extends Maybe
   }
 
   // == Countable Interface ==
-  /**
-   * @inheritdoc
-   */
-  public function getIterator()
-  {
-    return new \EmptyIterator();
-  }
 }

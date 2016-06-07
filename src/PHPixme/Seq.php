@@ -34,7 +34,7 @@ class Seq implements
 
   /**
    * Seq constructor.
-   * @param \Traversable|array|CollectionInterface $arrayLike
+   * @param \Traversable|array|FoldableInterface $arrayLike
    */
   public function __construct($arrayLike)
   {
@@ -227,9 +227,9 @@ class Seq implements
   }
 
   /**
-   * Maps over a Seq who's $hof function returns a CollectionInterface or array and flattens the result
+   * Maps over a Seq who's $hof function returns a FoldableInterface or array and flattens the result
    * into a single sequence.
-   * @param callable $hof ($value, $key, $this) -> CollectionInterface|SplFixedArray|ArrayObject|ArrayIterator|array
+   * @param callable $hof ($value, $key, $this) -> FoldableInterface|SplFixedArray|ArrayObject|ArrayIterator|array
    * @return Seq
    */
   public function flatMap(callable $hof)
@@ -243,7 +243,7 @@ class Seq implements
       $output[] = $array !== null
         ? $array
         // Because of self::getArrayFrom, this will ALWAYS throw its error
-        : __CONTRACT__::returnIsA(CollectionInterface::class, $intermediate);
+        : __CONTRACT__::returnIsA(FoldableInterface::class, $intermediate);
     }
     return static::from(call_user_func_array('array_merge', $output));
   }
@@ -269,7 +269,7 @@ class Seq implements
       $output[] = $array !== null
         ? $array
         // Because of self::getArrayFrom, this will ALWAYS throw its error
-        : __CONTRACT__::contentIsA(CollectionInterface::class, $value);
+        : __CONTRACT__::contentIsA(FoldableInterface::class, $value);
     }
     return static::from(call_user_func_array('array_merge', $output));
   }

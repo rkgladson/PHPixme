@@ -14,7 +14,7 @@ function fold($hof = null, $startVal = null, $traversable = null)
 const fold = __NAMESPACE__ . '\fold';
 __PRIVATE__::$instance[fold] = __PRIVATE__::curryExactly3(function ($hof, $startVal, $arrayLike) {
   __CONTRACT__::argIsACallable($hof);
-  if ($arrayLike instanceof CollectionInterface) {
+  if ($arrayLike instanceof FoldableInterface) {
     return $arrayLike->fold($hof, $startVal);
   }
   

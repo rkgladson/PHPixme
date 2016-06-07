@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 5/16/2016
- * Time: 12:25 PM
- */
-
 namespace PHPixme;
 
 /**
@@ -14,12 +7,11 @@ namespace PHPixme;
  * @package PHPixme
  */
 interface BiasedDisjunctionInterface extends
-  CollectionInterface
-  , DisjunctionInterface
+  DisjunctionInterface
 {
   /**
    * Convert this biased interface into a unbiased type of the implementer's choosing
    * @return UnbiasedDisjunctionInterface
    */
-  public function toUnbiasedDisjunctionInterface();
+  public function toUnbiasedDisjunction();
 }

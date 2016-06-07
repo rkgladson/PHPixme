@@ -10,6 +10,7 @@ namespace PHPixme;
  */
 abstract class Exclusive implements
   BiasedDisjunctionInterface
+  , CollectionInterface
   , SwappableDisjunctionInterface
   , UnaryApplicativeInterface
   , UnaryApplicativeRightDisjunctionInterface
@@ -65,7 +66,7 @@ abstract class Exclusive implements
    * Converts a Exclusive to an Either
    * @return Right|Left
    */
-  abstract public function toUnbiasedDisjunctionInterface();
+  abstract public function toUnbiasedDisjunction();
 
   /**
    * @inheritdoc

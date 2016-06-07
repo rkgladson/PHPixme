@@ -132,10 +132,10 @@ class UndesiredTest extends \PHPUnit_Framework_TestCase
     self::assertEquals([testSubject::shortName => $value], testNew($value)->toArray());
   }
 
-  /** @covers ::toUnbiasedDisjunctionInterface */
+  /** @covers ::toUnbiasedDisjunction */
   public function test_toUnbiasedDisjunction($value = 1)
   {
-    $disjunction = testNew($value)->toUnbiasedDisjunctionInterface();
+    $disjunction = testNew($value)->toUnbiasedDisjunction();
 
     self::assertInstanceOf(P\UnbiasedDisjunctionInterface::class, $disjunction);
     self::assertInstanceOf(P\LeftHandSideType::class, $disjunction);

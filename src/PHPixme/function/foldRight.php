@@ -16,7 +16,7 @@ __PRIVATE__::$instance[foldRight] = __PRIVATE__::curryExactly3(function ($hof, $
   __CONTRACT__::argIsACallable($hof);
   __CONTRACT__::argIsATraversable($arrayLike, 2);
 
-  if ($arrayLike instanceof CollectionInterface) {
+  if ($arrayLike instanceof FoldableInterface) {
     return $arrayLike->foldRight($hof, $startVal);
   }
 

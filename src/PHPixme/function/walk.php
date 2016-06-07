@@ -3,7 +3,7 @@ namespace PHPixme;
 /**
  * map
  * @param callable $hof
- * @param array|CollectionInterface|\Traversable $collection
+ * @param array|FunctorInterface|\Traversable $collection
  * @return \Closure|$collection
  */
 function walk($hof = null, $collection = null)
@@ -15,7 +15,7 @@ __PRIVATE__::$instance[walk] = __PRIVATE__::curryExactly2(function ($hof, $colle
   __CONTRACT__::argIsACallable($hof);
   __CONTRACT__::argIsATraversable($collection, 1);
   
-  if ($collection instanceof CollectionInterface) {
+  if ($collection instanceof FunctorInterface) {
     return $collection->walk($hof);
   }
   

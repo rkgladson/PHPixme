@@ -68,7 +68,7 @@ class Preferred extends Exclusive implements
    * @inheritdoc
    * @return Right
    */
-  public function toUnbiasedDisjunctionInterface()
+  public function toUnbiasedDisjunction()
   {
     return new Right($this->value);
   }

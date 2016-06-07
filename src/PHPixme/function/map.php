@@ -2,7 +2,7 @@
 namespace PHPixme;
 /**
  * @param callable $hof
- * @param array|\Traversable|CollectionInterface $traversable
+ * @param array|\Traversable|FunctorInterface $traversable
  * @return \Closure|mixed
  * @sig Callable (a -> b) -> \Traversable[a] -> \Traversable[b]
  *

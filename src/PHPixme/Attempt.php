@@ -20,10 +20,11 @@ namespace PHPixme;
  */
 abstract class Attempt implements
   BiasedDisjunctionInterface
-  , UnaryApplicativeInterface
   , UnaryApplicativeLeftDisjunctionInterface
   , UnaryApplicativeRightDisjunctionInterface
   , FlattenRightInterface
+  , CollectionInterface
+  , UnaryApplicativeInterface
   , \Countable
 {
   use AssertTypeTrait, ClosedTrait;
@@ -199,7 +200,7 @@ abstract class Attempt implements
    * Converts a Failure to a Left, and Success to a Right
    * @return Left|Right
    */
-  public function toUnbiasedDisjunctionInterface()
+  public function toUnbiasedDisjunction()
   {
     return $this->isLeft() ? Either::ofLeft($this->merge()) : Either::ofRight($this->merge());
   }

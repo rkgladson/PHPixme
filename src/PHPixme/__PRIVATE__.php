@@ -72,7 +72,7 @@ class __PRIVATE__
     if (is_array($arrayLike)) {
       return $arrayLike;
     }
-    if ($arrayLike instanceof CollectionInterface || $arrayLike instanceof \SplFixedArray) {
+    if ($arrayLike instanceof FoldableInterface || $arrayLike instanceof \SplFixedArray) {
       return $arrayLike->toArray();
     }
     if ($arrayLike instanceof \ArrayObject || $arrayLike instanceof \ArrayIterator) {
@@ -80,8 +80,6 @@ class __PRIVATE__
     }
     return null;
   }
-  
-  
   
   /**
    * @param \Traversable $traversable
