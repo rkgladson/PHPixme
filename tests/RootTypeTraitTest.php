@@ -11,7 +11,7 @@ class RootTypeTraitTest extends \PHPUnit_Framework_TestCase
   public function test_sanity()
   {
     // Test the Object itself that it is using the trait
-    $traits = getAllTraits(new \ReflectionClass(subjectStub::class));
+    $traits = (new \ReflectionClass(subjectStub::class))->getTraitNames();
     self::assertContains(subjectTrait::class, $traits);
   }
 
