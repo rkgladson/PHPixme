@@ -9,7 +9,8 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Exclusive implements
-  BiasedDisjunctionInterface
+  TypeInterface
+  , BiasedDisjunctionInterface
   , CollectionInterface
   , SwappableDisjunctionInterface
   , UnaryApplicativeInterface
@@ -19,7 +20,7 @@ abstract class Exclusive implements
   , FlattenLeftInterface
   , \Countable
 {
-  use ClosedTrait, AssertTypeTrait;
+  use ClosedTrait, RootTypeTrait;
   const shortName = 0;
   
   /**

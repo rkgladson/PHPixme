@@ -24,7 +24,8 @@ namespace {
 // Define some dummy test functions that can be shared
 namespace tests\PHPixme {
 
-  use PHPixme\AssertTypeTrait;
+  use PHPixme\RootTypeTrait;
+  use PHPixme\TypeTrait;
   use PHPixme\ClosedTrait;
   const Closure = \Closure::class;
   // To reduce the amount of pain caused by using reflection if there is a refactor.
@@ -47,9 +48,14 @@ namespace tests\PHPixme {
     return func_get_args();
   }
 
-  class AssertTypeStub
+  class TypeStub
   {
-    use AssertTypeTrait;
+    use TypeTrait;
+  }
+
+  class RootTypeStub
+  {
+    use RootTypeTrait;
   }
 
   /**
@@ -131,16 +137,18 @@ namespace tests\PHPixme {
   {
     return false;
   }
-  const bTrue = __NAMESPACE__ .  '\bTrue';
-  function bTrue() {
+  const bTrue = __NAMESPACE__ . '\bTrue';
+  function bTrue()
+  {
     return true;
   }
-  
+
   const identity = __NAMESPACE__ . '\identity';
-  function identity ($x) {
+  function identity($x)
+  {
     return $x;
   }
-  
+
   /**
    * @param \ReflectionClass $reflection
    * @return array

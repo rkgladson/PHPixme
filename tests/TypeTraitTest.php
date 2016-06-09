@@ -7,21 +7,21 @@
  */
 
 namespace tests\PHPixme;
-
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 /**
  * Class AssertTypeTest
  * @package tests\PHPixme
- * @coversDefaultClass PHPixme\AssertTypeTrait
+ * @coversDefaultClass PHPixme\TypeTrait
  */
-class AssertTypeTest extends \PHPUnit_Framework_TestCase
+class TypeTest extends \PHPUnit_Framework_TestCase
 {
   /**
    * @covers ::assertType
    */
   public function test_success_contract()
   {
-    $val = new AssertTypeStub();
-    $this->assertSame($val, AssertTypeStub::assertType($val));
+    $val = new TypeStub();
+    $this->assertSame($val, TypeStub::assertType($val));
   }
 
   /**
@@ -30,8 +30,8 @@ class AssertTypeTest extends \PHPUnit_Framework_TestCase
    */
   public function test_failure_contract($notType)
   {
-    $this->expectException(\UnexpectedValueException::class);
-    AssertTypeStub::assertType($notType);
+    $this->expectException(invalidReturn::class);
+    TypeStub::assertType($notType);
   }
 
   public function brokenContractProvider() {

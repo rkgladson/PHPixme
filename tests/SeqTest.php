@@ -5,7 +5,8 @@ use PHPixme as P;
 use PHPixme\Seq as testSubject;
 use function PHPixme\Seq as testNew;
 use const PHPixme\Seq as testConst;
-
+use PHPixme\exception\InvalidContentException as invalidContent;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 /**
  * Class SeqTest
  * @package tests\PHPixme
@@ -223,7 +224,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   }
 
   public function test_apply_contract() {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew([null])->apply(testSubject::of(1,2,3));
   }
 
@@ -335,7 +336,7 @@ class SeqTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatMap_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testSubject::of(null)->flatMap(noop);
   }
 

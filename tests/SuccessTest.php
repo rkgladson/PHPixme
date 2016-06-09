@@ -6,6 +6,8 @@ use PHPixme\Success as testSubject;
 use function PHPixme\Success as testNew;
 use const PHPixme\Success as testConst;
 use PHPixme\Failure as oppositeSubject;
+use PHPixme\exception\InvalidContentException as invalidContent;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 
 /**
  * Class SuccessTest
@@ -194,7 +196,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing */
   function test_flatMap_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(null)->flatMap(P\I);
   }
 
@@ -232,7 +234,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing */
   function test_flatten_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->flatten();
   }
 
@@ -250,7 +252,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing */
   function test_flattenRight_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->flattenRight();
   }
 
@@ -312,7 +314,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing  */
   public function test_apply_contract()
   {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->apply(testNew(null));
   }
 
@@ -566,7 +568,7 @@ class SuccessTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing */
   public function test_transform_broken_contract()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(true)->transform(noop, noop);
   }
 

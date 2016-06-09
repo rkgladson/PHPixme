@@ -1,6 +1,7 @@
 <?php
 
 namespace PHPixme;
+
 use PHPixme\exception\InvalidArgumentException as invalidArgument;
 use PHPixme\exception\InvalidCompositionException as invalidComposition;
 use PHPixme\exception\InvalidContentException as invalidContent;
@@ -21,21 +22,21 @@ abstract class __CONTRACT__
    * @return int
    * @sig x -> x
    */
-  static function argIsAPositiveOrZeroInt($number, $position = 0)
+  static public function argIsAPositiveOrZeroInt($number, $position = 0)
   {
     if (is_integer($number) && -1 < $number) {
       return $number;
     }
-    throw new invalidArgument($number, $position,"argument $position be a integer >=0");
+    throw new invalidArgument($number, $position, "argument $position be a integer >=0");
   }
-  
+
   /**
    * @param mixed $callable
    * @param int $position
    * @return callable
    * @throws \InvalidArgumentException
    */
-  public static function argIsACallable($callable, $position = 0)
+  static public function argIsACallable($callable, $position = 0)
   {
     if (is_callable($callable)) {
       return $callable;
@@ -49,24 +50,25 @@ abstract class __CONTRACT__
    * @param mixed $arrayLike
    * @param int $position
    * @return array|\Traversable
+   * @throws invalidArgument
    * @sig x -> x
    */
-  public static function argIsATraversable($arrayLike, $position = 0)
+  static public function argIsATraversable($arrayLike, $position = 0)
   {
     if (is_array($arrayLike) || $arrayLike instanceof \Traversable) {
       return $arrayLike;
     }
     throw new invalidArgument($arrayLike, $position, "argument $position must be a Traversable or array");
   }
-
-
+  
   /**
    * @param mixed $composure
    * @return callable
    * @throws $invalidComposition
    */
-  static public function composedIsACallable($composure) {
-    if (is_callable($composure)){
+  static public function composedIsACallable($composure)
+  {
+    if (is_callable($composure)) {
       return $composure;
     }
     throw new invalidComposition($composure, 'arguments did not compose to a callable');
@@ -78,24 +80,27 @@ abstract class __CONTRACT__
    * @return mixed
    * @throws invalidContent
    */
-  static public function contentIsA($classPath, $contents) {
+  static public function contentIsA($classPath, $contents)
+  {
     if ($contents instanceof $classPath) {
       return $contents;
     }
     throw new invalidContent($contents, "content was not of a $classPath type");
   }
+
   /**
    * @param mixed $contents
    * @return callable
    * @throws invalidContent
    */
-  static public function contentIsACallable($contents) {
+  static public function contentIsACallable($contents)
+  {
     if (is_callable($contents)) {
       return $contents;
     }
     throw new invalidContent($contents, "content was not a callable");
   }
-  
+
   /**
    * Checks the return of a callback to be of the expected type
    * @param string $classPath
@@ -113,4 +118,5 @@ abstract class __CONTRACT__
       , "Expected return of $classPath, got " . __PRIVATE__::getDescriptor($returnValue)
     );
   }
+  
 }

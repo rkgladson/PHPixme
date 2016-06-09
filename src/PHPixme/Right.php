@@ -63,7 +63,7 @@ class Right extends Either implements RightHandSideType
    */
   public function flattenRight()
   {
-    return Either::assertType($this->value);
+    return static::assertRootType($this->value);
   }
 
   /**

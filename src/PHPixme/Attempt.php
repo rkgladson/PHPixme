@@ -19,7 +19,8 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Attempt implements
-  BiasedDisjunctionInterface
+  TypeInterface
+  , BiasedDisjunctionInterface
   , UnaryApplicativeLeftDisjunctionInterface
   , UnaryApplicativeRightDisjunctionInterface
   , FlattenRightInterface
@@ -27,7 +28,7 @@ abstract class Attempt implements
   , UnaryApplicativeInterface
   , \Countable
 {
-  use AssertTypeTrait, ClosedTrait;
+  use RootTypeTrait, ClosedTrait;
   const shortName = 0;
 
   /**
@@ -104,7 +105,7 @@ abstract class Attempt implements
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return Attempt::assertType($result);
+    return static::assertRootType($result);
   }
 
   /**

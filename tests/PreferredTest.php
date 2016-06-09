@@ -5,6 +5,8 @@ use PHPixme as P;
 use PHPixme\Preferred as testSubject;
 use function PHPixme\Preferred as testNew;
 use const PHPixme\Preferred as testConst;
+use PHPixme\exception\InvalidContentException as invalidContent;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 
 /**
  * Class PreferredTest
@@ -229,7 +231,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing */
   public function test_apply_contract()
   {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->apply(testNew(null));
   }
 
@@ -261,7 +263,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatMap_contract_violation()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(null)->flatMap(identity);
   }
 
@@ -293,7 +295,7 @@ class PreferredTest extends \PHPUnit_Framework_TestCase
    * @coversNothing
    */
   public function test_flatten_contract() {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->flatten();
   }
 
