@@ -6,6 +6,7 @@ use PHPixme\exception\InvalidArgumentException as invalidArgument;
 use PHPixme\exception\InvalidCompositionException as invalidComposition;
 use PHPixme\exception\InvalidContentException as invalidContent;
 use PHPixme\exception\InvalidReturnException as invalidReturn;
+use \LengthException as invalidSizeException;
 
 /**
  * Class __CONTRACT__
@@ -60,7 +61,7 @@ abstract class __CONTRACT__
     }
     throw new invalidArgument($arrayLike, $position, "argument $position must be a Traversable or array");
   }
-  
+
   /**
    * @param mixed $composure
    * @return callable
@@ -118,5 +119,17 @@ abstract class __CONTRACT__
       , "Expected return of $classPath, got " . __PRIVATE__::getDescriptor($returnValue)
     );
   }
-  
+
+  /**
+   * Returns if the countable or array is empty the array, otherwise throws
+   * @param array|\Countable $unknownCountable
+   * @return array|\Countable
+   */
+  static function isNonEmpty($unknownCountable)
+  {
+    if (count($unknownCountable) > 0) {
+      return $unknownCountable;
+    }
+    throw new invalidSizeException("expected a non-empty collection, got empty collection");
+  }
 }
