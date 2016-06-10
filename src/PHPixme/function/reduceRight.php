@@ -19,12 +19,9 @@ __PRIVATE__::$instance[reduceRight] = __PRIVATE__::curryExactly2(function ($hof,
     return $arrayLike->reduceRight($hof);
   }
 
-  $array = __PRIVATE__::traversableToArray($arrayLike);
+  // Equalize the usefulness
+  $array = __CONTRACT__::isNonEmpty(__PRIVATE__::traversableToArray($arrayLike));
 
-  if (empty($array)) {
-    throw new \LengthException('Cannot reduceRight on empty collections. Behaviour is undefined');
-  }
-  
   $output = end($array);
   $value = prev($array);
   // Traverse using the internal pointer to avoid creating additional work

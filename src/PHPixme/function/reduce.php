@@ -19,11 +19,8 @@ __PRIVATE__::$instance[reduce] = __PRIVATE__::curryExactly2(function ($hof, $arr
     return $arrayLike->reduce($hof);
   }
   
-  $array = __PRIVATE__::traversableToArray($arrayLike);
-  
-  if (empty($array)) {
-    throw new \LengthException('Cannot reduce on empty collections. Behaviour is undefined');
-  }
+  // Equalize the usefulness
+  $array = __CONTRACT__::isNonEmpty(__PRIVATE__::traversableToArray($arrayLike));
   
   $output = current($array);
   next($array);
