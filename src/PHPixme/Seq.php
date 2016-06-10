@@ -17,7 +17,8 @@ use PHPixme\exception\VacuousOffsetException;
  * @package PHPixme
  */
 class Seq implements
-  CollectionInterface
+  TypeInterface
+  , CollectionInterface
   , MultipleStaticCreation
   , ImmutableOffsetAccess
   , ListInterface
@@ -26,7 +27,7 @@ class Seq implements
   , GroupableInterface
   , \Countable
 {
-  use AssertTypeTrait, ClosedTrait, ImmutableConstructorTrait;
+  use RootTypeTrait, ClosedTrait, ImmutableConstructorTrait;
   private $hash = [];
   private $keyR = [];
   private $keyRBackwards = [];

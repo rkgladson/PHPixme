@@ -6,6 +6,8 @@ use PHPixme\Failure as testSubject;
 use function PHPixme\Failure as testNew;
 use const PHPixme\Failure as testConst;
 use PHPixme\Success as oppositeSubject;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
+
 
 /**
  * Class FailureTest
@@ -142,7 +144,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
    */
   public function test_orElse_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(valueE())->orElse(noop);
   }
 
@@ -362,7 +364,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
    */
   public function test_recoverWith_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(valueE())->recoverWith(noop);
   }
 
@@ -460,7 +462,7 @@ class FailureTest extends \PHPUnit_Framework_TestCase
    */
   public function test_transform_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(valueE())->transform(noop, noop);
   }
 

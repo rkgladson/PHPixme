@@ -95,7 +95,7 @@ class Some extends Maybe
    */
   public function flatMap(callable $hof)
   {
-    return Maybe::assertType(call_user_func($hof, $this->x, 0, $this));
+    return static::assertRootType(call_user_func($hof, $this->x, 0, $this));
   }
 
   /**
@@ -104,7 +104,7 @@ class Some extends Maybe
    */
   public function flatten()
   {
-    return Maybe::assertType($this->x);
+    return __CONTRACT__::contentIsA(static::rootType(), $this->x);
   }
 
   /**

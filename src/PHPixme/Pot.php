@@ -12,11 +12,12 @@ namespace PHPixme;
  * @package PHPixme
  */
 class Pot extends \Exception implements
-  CollectionInterface
+  TypeInterface
+  , CollectionInterface
   , UnaryApplicativeInterface
   , \Countable
 {
-  use AssertTypeTrait, ImmutableConstructorTrait;
+  use RootTypeTrait, ImmutableConstructorTrait;
   protected $contents;
 
   /**
@@ -124,7 +125,7 @@ class Pot extends \Exception implements
    */
   public function flatMap(callable $hof)
   {
-    return Pot::assertType(call_user_func($hof, $this->contents, 0, $this));
+    return static::assertRootType(call_user_func($hof, $this->contents, 0, $this));
   }
 
   /**

@@ -6,6 +6,7 @@ use PHPixme\Left as testSubject;
 use function PHPixme\Left as testNew;
 use const PHPixme\Left as testConst;
 use PHPixme\Right as oppositeSubject;
+use PHPixme\exception\InvalidContentException as invalidContent;
 
 /**
  * Class LeftTest
@@ -181,7 +182,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flattenLeft_contract_violated()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidContent::class);
     testNew(true)->flattenLeft();
   }
 

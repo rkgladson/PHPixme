@@ -82,7 +82,7 @@ class Success extends Attempt implements
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return Attempt::assertType($result);
+    return static::assertRootType($result);
   }
   
   /**
@@ -91,7 +91,7 @@ class Success extends Attempt implements
    */
   public function flatten()
   {
-    return Attempt::assertType($this->value);
+    return __CONTRACT__::contentIsA(static::rootType(), $this->value);
   }
 
   /**
@@ -160,7 +160,7 @@ class Success extends Attempt implements
     } catch (\Exception $e) {
       return Failure($e);
     }
-    return Attempt::assertType($result);
+    return static::assertRootType($result);
   }
 
 

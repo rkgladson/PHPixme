@@ -9,10 +9,11 @@
 namespace tests\PHPixme;
 
 use PHPixme as P;
-use PHPixme\exception\MutationException;
 use PHPixme\Pot as testSubject;
 use const PHPixme\Pot as testConst;
 use function PHPixme\Pot as testNew;
+use PHPixme\exception\InvalidContentException as invalidContent;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 
 /**
  * Class PotTest
@@ -63,11 +64,14 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_traits()
   {
-    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
 
-    self::assertNotContains(P\ClosedTrait::class, $traits);
-    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $subjectTraits);
 
+    self::assertNotContains(P\ClosedTrait::class, $allTraits);
   }
 
   /**
@@ -75,7 +79,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_patience()
   {
-    $this->expectException(MutationException::class);
+    $this->expectException(P\exception\MutationException::class);
     (new testSubject(0))->__construct(1);
   }
 
@@ -190,7 +194,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
    * @coversNothing
    */
   public function test_apply_contract() {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->apply(testNew(null));
   }
 
@@ -310,7 +314,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatMap_contract_broken()
   {
-    $this->expectException(P\exception\InvalidReturnException::class);
+    $this->expectException(invalidReturn::class);
     testNew(null)->flatMap(noop);
   }
 
@@ -344,7 +348,7 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatten_contract_broken($value = true)
   {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew($value)->flatten();
   }
 

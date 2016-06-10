@@ -106,7 +106,7 @@ class Preferred extends Exclusive implements
    */
   public function flatMap(callable $hof)
   {
-    return Exclusive::assertType($hof($this->value, 0, $this));
+    return static::assertRootType($hof($this->value, 0, $this));
   }
 
   /**

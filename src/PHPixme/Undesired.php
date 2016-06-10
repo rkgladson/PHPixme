@@ -80,6 +80,6 @@ class Undesired extends Exclusive implements
    */
   public function flattenLeft()
   {
-    return Exclusive::assertType($this->value);
+    return static::assertRootType($this->value);
   }
 }

@@ -7,7 +7,8 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Either implements
-  UnaryApplicativeInterface
+  TypeInterface
+  , UnaryApplicativeInterface
   , UnbiasedDisjunctionInterface
   , UnaryApplicativeLeftDisjunctionInterface
   , FlattenLeftInterface
@@ -16,7 +17,7 @@ abstract class Either implements
   , SwappableDisjunctionInterface
   , DisjunctiveFoldInterface
 {
-  use AssertTypeTrait, ClosedTrait;
+  use RootTypeTrait, ClosedTrait;
   // Note: Either should not implement ::of on its own, and should leave it to its children
 
   /**

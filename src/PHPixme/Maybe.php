@@ -15,13 +15,14 @@ namespace PHPixme;
  * @package PHPixme
  */
 abstract class Maybe implements 
-  CollectionInterface
+  TypeInterface
+  , CollectionInterface
   , UnaryApplicativeInterface
   , FilterableInterface
   , ReducibleInterface
   , \Countable
 {
-  use AssertTypeTrait, ClosedTrait;
+  use RootTypeTrait, ClosedTrait;
 
   /**
    * Create a child of the Maybe construct
@@ -90,7 +91,7 @@ abstract class Maybe implements
   public function orElse(callable $hof)
   {
     if ($this->isEmpty()) {
-      return Maybe::assertType(call_user_func($hof));
+      return static::assertRootType(call_user_func($hof));
     }
     return $this;
   }

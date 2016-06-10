@@ -27,6 +27,17 @@ class AttemptTest extends \PHPUnit_Framework_TestCase
     self::assertTrue(function_exists(testSubject::class));
   }
 
+  /** @coversNothing */
+  public function test_traits() {
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
+
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+
+    self::assertContains(P\ClosedTrait::class, $allTraits);
+  }
+  
   /**
    * @covers PHPixme\Attempt
    */

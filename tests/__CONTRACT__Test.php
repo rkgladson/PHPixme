@@ -8,7 +8,7 @@ use PHPixme\exception\InvalidArgumentException as invalidArgument;
 use PHPixme\exception\InvalidContentException as invalidContent;
 use PHPixme\exception\InvalidCompositionException as invalidComposition;
 use PHPixme\exception\InvalidReturnException as invalidReturn;
-
+use \LengthException as invalidSizeException;
 /**
  * Class __CONTRACT__Test
  * @package tests\PHPixme
@@ -156,6 +156,25 @@ class __CONTRACT__Test extends \PHPUnit_Framework_TestCase
 
   }
 
+  /**
+   * @covers ::isNonEmpty
+   * @dataProvider nonEmptyCountableProvider
+   */
+  public function test_isNonEmpty($nonEmpty)
+  {
+    self::assertSame($nonEmpty, contract::isNonEmpty($nonEmpty));
+  }
+
+  /**
+   * @covers ::isNonEmpty
+   * @dataProvider emptyCountableProvider
+   */
+  public function test_isNonEmpty_contract($empty) {
+    $this->expectException(invalidSizeException::class);
+    contract::isNonEmpty($empty);
+
+  }
+
   public function argIsAPositiveOrZeroIntProvider()
   {
     return [
@@ -268,6 +287,26 @@ class __CONTRACT__Test extends \PHPUnit_Framework_TestCase
       , [1]
       , [null]
       , [1.0]
+    ];
+  }
+
+  public function nonEmptyCountableProvider()
+  {
+    $nonEmpty = [1];
+    return [
+      [$nonEmpty]
+      , [new \ArrayObject($nonEmpty)]
+      , [new \ArrayIterator($nonEmpty)]
+    ];
+  }
+
+  public function emptyCountableProvider()
+  {
+    $empty = [];
+    return [
+      [$empty]
+      , [new \ArrayObject($empty)]
+      , [new \ArrayIterator($empty)]
     ];
   }
 }

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rgladson
- * Date: 1/8/2016
- * Time: 3:11 PM
- */
 namespace tests\PHPixme;
 
 use PHPixme as P;
@@ -12,7 +6,8 @@ use PHPixme\Some as testSubject;
 use function PHPixme\Some as testNew;
 use const PHPixme\Some as testConst;
 use PHPixme\None as oppositeSubject;
-
+use PHPixme\exception\InvalidContentException as invalidContent;
+use PHPixme\exception\InvalidReturnException as invalidReturn;
 /**
  * Class SomeTest
  * @package tests\PHPixme
@@ -289,7 +284,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
    * @coversNothing
    */
   public function test_apply_contract() {
-    $this->expectException(P\exception\InvalidContentException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->apply(testNew(null));
   }
 
@@ -320,7 +315,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatMap_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidReturn::class);
     testNew(null)->flatMap(identity);
   }
 
@@ -353,7 +348,7 @@ class SomeTest extends \PHPUnit_Framework_TestCase
    */
   public function test_flatten_contract_broken()
   {
-    $this->expectException(\UnexpectedValueException::class);
+    $this->expectException(invalidContent::class);
     testNew(null)->flatten();
   }
 

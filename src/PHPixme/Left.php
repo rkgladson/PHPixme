@@ -26,7 +26,8 @@ class Left extends Either implements LeftHandSideType
    * @inheritdoc
    * @return self
    */
-  public static function of($value) {
+  public static function of($value)
+  {
     return new static($value);
   }
 
@@ -38,14 +39,14 @@ class Left extends Either implements LeftHandSideType
   {
     return new Some($this->value);
   }
-  
+
   /**
    * @inheritdoc
    * @return Either
    */
   public function flattenLeft()
   {
-    return Either::assertType($this->value);
+    return __CONTRACT__::contentIsA(static::rootType(), $this->value);
   }
 
   /**
