@@ -34,6 +34,16 @@ class EitherTest extends \PHPUnit_Framework_TestCase
     self::assertTrue($subject->implementsInterface(P\UnaryApplicativeInterface::class));
     self::assertTrue($subject->getMethod('of')->isAbstract());
   }
+  
+  public function test_traits() {
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
+
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+
+    self::assertContains(P\ClosedTrait::class, $allTraits);
+  }
 
   /**
    * @covers ::ofLeft

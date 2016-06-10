@@ -64,11 +64,14 @@ class PotTest extends \PHPUnit_Framework_TestCase
    */
   public function test_traits()
   {
-    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
 
-    self::assertNotContains(P\ClosedTrait::class, $traits);
-    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $subjectTraits);
 
+    self::assertNotContains(P\ClosedTrait::class, $allTraits);
   }
 
   /**

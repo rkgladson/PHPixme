@@ -26,10 +26,14 @@ class SeqTest extends \PHPUnit_Framework_TestCase
   /** @coversNothing  */
   public function test_trait()
   {
-    $traits = getAllTraits(new \ReflectionClass(testSubject::class));
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
 
-    self::assertContains(P\ClosedTrait::class, $traits);
-    self::assertContains(P\ImmutableConstructorTrait::class, $traits);
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+    self::assertContains(P\ImmutableConstructorTrait::class, $subjectTraits);
+
+    self::assertContains(P\ClosedTrait::class, $allTraits);
   }
 
   /**

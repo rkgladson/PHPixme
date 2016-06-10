@@ -31,6 +31,18 @@ class ExclusiveTest extends \PHPUnit_Framework_TestCase
     self::assertSame(0, testSubject::shortName);
   }
 
+  /** @coversNothing  */
+  public function test_trait()
+  {
+    $subjectReflection = new \ReflectionClass(testSubject::class);
+    $subjectTraits = $subjectReflection->getTraitNames();
+    $allTraits = getAllTraits($subjectReflection);
+
+    self::assertContains(P\RootTypeTrait::class, $subjectTraits);
+
+    self::assertContains(P\ClosedTrait::class, $allTraits);
+  }
+
   /**
    * @covers ::of
    */
