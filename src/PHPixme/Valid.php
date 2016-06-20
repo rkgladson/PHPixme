@@ -38,7 +38,7 @@ class Valid extends Validate implements
   }
 
   /** @inheritdoc */
-  public function toUnbiasedDisjunctionInterface()
+  public function toUnbiasedDisjunction()
   {
     return Either::ofRight($this->value);
   }

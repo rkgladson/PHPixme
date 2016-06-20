@@ -45,15 +45,8 @@ class Invalid extends Validate implements
   }
   
   /** @inheritdoc */
-  public function getIterator()
-  {
-    return new \EmptyIterator();
-  }
-  
-  /** @inheritdoc */
-  public function toUnbiasedDisjunctionInterface()
+  public function toUnbiasedDisjunction()
   {
     return Either::ofLeft($this->accumulate);
   }
-
 }
