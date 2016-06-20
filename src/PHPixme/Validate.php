@@ -12,7 +12,7 @@ abstract class Validate implements
 {
   use ImmutableConstructorTrait
     , ClosedTrait
-    , AssertTypeTrait;
+    , RootTypeTrait;
 
   const shortName = 0;
   protected $value;
