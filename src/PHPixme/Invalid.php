@@ -15,13 +15,24 @@ namespace PHPixme;
 class Invalid extends Validate implements
   LeftHandSideType
 {
-  use LeftHandedTrait, NothingCollectionTrait;
+  use LeftHandedTrait, ImmutableConstructorTrait, NothingFunctorTrait, NothingFoldTrait;
   const shortName = 'invalid';
   
   /**
    * @var array
    */
   private $accumulate = [];
+
+  /**
+   * Invalid constructor.
+   * @param array|FoldableInterface $problemList
+   */
+  public function __construct($problemList)
+  {
+    $this->assertOnce();
+    __CONTRACT__::isNonEmpty($problemList);
+    $this->accumulate = __PRIVATE__::traversableToArray($problemList);
+  }
 
   /** @inheritdoc */
   public function count()
@@ -48,5 +59,15 @@ class Invalid extends Validate implements
   public function toUnbiasedDisjunction()
   {
     return Either::ofLeft($this->accumulate);
+  }
+
+  /**
+   * @inheritdoc
+   * @param Validate $functor
+   */
+  public function apply(FunctorInterface $functor)
+  {
+    $this::assertRootType($functor);
+    return $functor->isLeft() ?  new static ($this->accumulate + $functor->merge()) : $this;
   }
 }

@@ -16,8 +16,17 @@ class Valid extends Validate implements
   RightHandSideType
 
 {
-  use RightHandedTrait;
+  use RightHandedTrait, ImmutableConstructorTrait;
   const shortName = 'valid';
+
+  /**
+   * Valid constructor.
+   * @param mixed $value
+   */
+  public function __construct($value)
+  {
+    $this->value;
+  }
 
   /** @inheritdoc */
   public function merge()
@@ -89,30 +98,6 @@ class Valid extends Validate implements
   public function foldRight(callable $hof, $startValue)
   {
     return call_user_func($hof, $startValue, $this->value, 0, $this);
-  }
-
-  /** @inheritdoc */
-  public function forAll(callable $predicate)
-  {
-    return (boolean)call_user_func($predicate, $this->value, 0, $this);
-  }
-
-  /** @inheritdoc */
-  public function forNone(callable $predicate)
-  {
-    return !call_user_func($predicate, $this->value, 0, $this);
-  }
-
-  /** @inheritdoc */
-  public function forSome(callable $predicate)
-  {
-    return (boolean)call_user_func($predicate, $this->value, 0, $this);
-  }
-
-  /** @inheritdoc */
-  public function find(callable $hof)
-  {
-    return call_user_func($hof, $this->value, 0, $this) ? new Some($this->value) : None::getInstance();
   }
 
   /** @inheritdoc */
