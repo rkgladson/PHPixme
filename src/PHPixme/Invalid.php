@@ -63,6 +63,7 @@ class Invalid extends Validate implements
 
   /**
    * @inheritdoc
+   * The Invalid class accumulates the value on apply.
    * @param Validate $functor
    */
   public function apply(FunctorInterface $functor)
