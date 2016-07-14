@@ -69,11 +69,18 @@ class Left extends Either implements LeftHandSideType
 
   /**
    * @inheritdoc
-   * @sig ((x->a), (x->b)) -> a
    */
   public function vFold(callable $lhs, callable $rhs)
   {
     return $lhs($this->value);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function vMap(callable $lhs, callable $rhs)
+  {
+    return new static($lhs($this->value));
   }
 
   /**

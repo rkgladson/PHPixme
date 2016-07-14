@@ -16,6 +16,7 @@ abstract class Either implements
   , FlattenRightInterface
   , SwappableDisjunctionInterface
   , DisjunctiveFoldInterface
+  , DisjunctiveMapInterface
 {
   use RootTypeTrait, ClosedTrait;
   // Note: Either should not implement ::of on its own, and should leave it to its children

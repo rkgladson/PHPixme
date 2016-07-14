@@ -103,7 +103,7 @@ class RightTest extends \PHPUnit_Framework_TestCase
   /**
    * @coversNothing
    */
-  public function test_fold_callback($value = true)
+  public function test_vFold_callback($value = true)
   {
     $ran = 0;
     $subject = testNew($value);
@@ -126,9 +126,50 @@ class RightTest extends \PHPUnit_Framework_TestCase
   /**
    * @covers ::vFold
    */
-  public function test_fold_return($value = true)
+  public function test_vFold_return($value = true)
   {
-    self::assertSame($value, testNew($value)->vFold(doNotRun, identity));
+    $right = testNew($value);
+
+    $result = $right->vFold(doNotRun, identity);
+
+    self::assertSame($value, $result);
+  }
+
+
+  /**
+   * @coversNothing
+   */
+  public function test_vMap_callback($value = true)
+  {
+    $ran = 0;
+    $subject = testNew($value);
+
+    $test = function () use ($value, $subject, &$ran) {
+      self::assertEquals(1, func_num_args());
+      list ($v) = func_get_args();
+
+      self::assertSame($value, $v);
+
+      $ran += 1;
+      return $value;
+    };
+
+    $subject->vMap(doNotRun, $test);
+
+    self::assertEquals(1, $ran);
+  }
+
+  /**
+   * @covers ::vMap
+   */
+  public function test_vMap_return($value = true)
+  {
+    $right = testNew($value);
+
+    $result = $right->vMap(doNotRun, identity);
+
+    self::assertEquals($right, $result);
+    self::assertNotSame($right, $result);
   }
 
   /**

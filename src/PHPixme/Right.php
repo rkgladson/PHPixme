@@ -75,6 +75,11 @@ class Right extends Either implements RightHandSideType
     return $rhs($this->value);
   }
 
+  public function vMap(callable $lhs, callable $rhs)
+  {
+    return new static($rhs($this->value));
+  }
+
   /**
    * @inheritdoc
    * @return Left

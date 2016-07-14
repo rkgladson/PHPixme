@@ -115,7 +115,7 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   /**
    * @coversNothing
    */
-  public function test_fold_callback($value = true)
+  public function test_vFold_callback($value = true)
   {
     $ran = 0;
     $subject = testNew($value);
@@ -140,7 +140,40 @@ class LeftTest extends \PHPUnit_Framework_TestCase
   public function test_vFold_return($value = true)
   {
     $left = testNew($value);
-    self::assertSame($value, $left->vFold(P\I, doNotRun));
+
+    $result = $left->vFold(P\I, doNotRun);
+
+    self::assertSame($value, $result);
+  }
+
+  /** @coversNothing  */
+  public function test_vMap_callback($value = true) {
+    $ran = 0;
+    $subject = testNew($value);
+    $test = function () use ($value, $subject, &$ran) {
+      self::assertEquals(1, func_num_args());
+      list ($v) = func_get_args();
+
+      self::assertSame($value, $v);
+
+      $ran += 1;
+      return $value;
+    };
+
+    $subject->vMap($test, doNotRun);
+
+    self::assertEquals(1, $ran);
+  }
+
+  /** @covers ::vMap */
+  public function test_vMap_return($value = true) {
+    $left = testNew($value);
+
+    $result = $left->vMap(P\I, doNotRun);
+
+    self::assertEquals($left, $result);
+    self::assertNotSame($left, $result);
+
   }
 
   /**
